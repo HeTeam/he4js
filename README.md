@@ -1,15 +1,15 @@
 # he4js
 
-he4js 意指 "He For JavaScript"，一个试图在 JavaScript 环境下重现 he 的相关演示程序。
+he4js 意指 "He For JavaScript"，he 是一个 **通用人工智能系统** （AGI），而 he4js 是一个演示 he 的程序。
 
 
 ## What is he4js 
 
-本项目只用于浏览器环境下的演示，而主力项目由 Objective-C 语言写成，注重性能和实用性的朋友请跳转：
+本项目只用于浏览器环境下，对 he 的演示，而主力项目由 Objective-C 语言写成，注重性能和实用性的朋友请跳转：
 
 <https://github.com/jiaxiaogang/he4o>
 
-he4js 是 he4o 的精简版，he4js的目的如下：
+he4js 是 he4o 的精简版，建立 he4js 这个项目的初衷如下：
 
 #### 演示 he 理论所描述的通用人工智能 （AGI demo）
 
