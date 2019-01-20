@@ -5,8 +5,8 @@ he4js 意指 "He For JavaScript"，一个试图在 JavaScript 环境下重现 he
 
 ## What is he 
 
-> * 一款AGI系统内核,是HELIX理论的实践项目;
-> * he4o本质上是一个信息熵减机;
+* 一款AGI系统内核,是HELIX理论的实践项目;
+* he4o本质上是一个信息熵减机;
 
 ### he 的主力项目由 Objective-C 语言写成：
 
