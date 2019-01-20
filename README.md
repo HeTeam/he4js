@@ -5,16 +5,11 @@ he4js 意指 "He For JavaScript"，一个试图在 JavaScript 环境下重现 he
 
 ## What is he4js 
 
-一款AGI系统内核,是HELIX理论的实践项目;
-
-he4js本质上是一个信息熵减机;
-
-本项目只用于演示 Demo，而主力项目由 Objective-C 语言写成：
+本项目只用于浏览器环境下的演示，而主力项目由 Objective-C 语言写成，注重性能和实用性的朋友请跳转：
 
 <https://github.com/jiaxiaogang/he4o>
 
 相关文档: <https://github.com/jiaxiaogang/HELIX_THEORY/tree/master/%E6%89%8B%E5%86%99%E7%AC%94%E8%AE%B0>
-
 
 ## Download and Install
 
