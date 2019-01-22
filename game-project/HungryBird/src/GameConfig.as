@@ -2,9 +2,8 @@
 package {
 	import laya.utils.ClassUtils;
 	import laya.ui.View;
-	import laya.webgl.WebGL;
 	import Laya3D;
-	import script.GameUI;
+	import script.Game3D;
 	/**
 	 * 游戏初始化配置
 	 */
@@ -15,7 +14,6 @@ package {
 		public static var screenMode:String = "none";
 		public static var alignV:String = "top";
 		public static var alignH:String = "left";
-		public static var startScene:* = "test/TestScene.scene";
 		public static var sceneRoot:String = "";
 		public static var debug:Boolean = false;
 		public static var stat:Boolean = false;
@@ -25,7 +23,7 @@ package {
 		public static function init():void {
 			//注册Script或者Runtime引用
 			var reg:Function = ClassUtils.regClass;
-			reg("script.GameUI",GameUI);
+			reg("script.GameUI",Game3D);
 		}
 		GameConfig.init();
 	}

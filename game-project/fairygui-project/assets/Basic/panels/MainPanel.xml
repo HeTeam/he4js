@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="344,142">
+  <displayList>
+    <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn.xml" xy="0,0" size="347,142">
+      <relation target="" sidePair="width-width,height-height"/>
+    </component>
+    <text id="n2_8ymy" name="n2" xy="101,59" size="137,29" fontSize="22" color="#ffffff" text="节点预览窗口">
+      <relation target="" sidePair="center-center,middle-middle"/>
+    </text>
+  </displayList>
+</component>
