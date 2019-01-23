@@ -14,7 +14,7 @@ import laya.debug.tools.Base64Atlas;
 // 程序入口
 public class Game2D {
     //allinOne-start
-    public static var allInOne:Boolean = true; //是否要集中所有文件到 index.html
+    public static var allInOne:Boolean = false; //是否要集中所有文件到 index.html
     //allinOne-end
     public function Game2D()
     {

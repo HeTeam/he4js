@@ -2787,7 +2787,7 @@ var Game2D=(function(){
 		new NodePanel();
 	}
 
-	Game2D.allInOne=true;
+	Game2D.allInOne=false;
 	return Game2D;
 })()
 
@@ -75107,11 +75107,8 @@ var Sprite=(function(_super){
 	__getset(0,__proto,'pivotX',function(){
 		return this._getPivotX();
 		},function(value){
-		this._setPivotX
-		(value)
-		;
-		this.repaint
-		();
+		this._setPivotX(value);
+		this.repaint();
 	});
 
 	/**
