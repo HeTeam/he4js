@@ -4353,6 +4353,7 @@ var PanelUtil=(function(){
 	PanelUtil.bindWindows=function(){
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjton8ymy3i",PanelWithResize);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtona4tz3k",PanelWithResize);
+		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonifv90",Box);
 	}
 
 	PanelUtil.toWindow=function(v,show){
@@ -8090,13 +8091,31 @@ var PopupDirection=(function(){
 //class script.panels.NodePanel
 var NodePanel=(function(){
 	function NodePanel(){
-		var v=UI_NodePanel.createInstance();
-		PanelUtil.toWindow(v);
-		v.x=330;
-		v.y=100;
+		this.v=UI_NodePanel.createInstance();
+		PanelUtil.toWindow(this.v);
+		this.v.x=330;
+		this.v.y=100;
+		this.addTestBoxs();
 	}
 
 	__class(NodePanel,'script.panels.NodePanel');
+	var __proto=NodePanel.prototype;
+	__proto.addTestBoxs=function(){
+		var box
+		box=UI_Box.createInstance();
+		box.x=50;
+		box.y=50;
+		this.v.addChild(box);
+		box=UI_Box.createInstance();
+		box.x=30;
+		box.y=100;
+		this.v.addChild(box);
+		box=UI_Box.createInstance();
+		box.x=70;
+		box.y=100;
+		this.v.addChild(box);
+	}
+
 	return NodePanel;
 })()
 
@@ -59136,147 +59155,179 @@ var MeshTexture=(function(_super){
 
 
 /**
-*<code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
+*@private
+*使用Audio标签播放声音
 */
-//class laya.d3.physics.shape.CompoundColliderShape extends laya.d3.physics.shape.ColliderShape
-var CompoundColliderShape=(function(_super){
-	function CompoundColliderShape(){
-		CompoundColliderShape.__super.call(this);
-		this._childColliderShapes=[];
-		this._type=5;
-		this._nativeShape=new Laya3D._physics3D.btCompoundShape();
+//class laya.media.h5audio.AudioSound extends laya.events.EventDispatcher
+var AudioSound=(function(_super){
+	function AudioSound(){
+		/**
+		*声音URL
+		*/
+		this.url=null;
+		/**
+		*播放用的audio标签
+		*/
+		this.audio=null;
+		/**
+		*是否已加载完成
+		*/
+		this.loaded=false;
+		AudioSound.__super.call(this);
 	}
 
-	__class(CompoundColliderShape,'laya.d3.physics.shape.CompoundColliderShape',_super);
-	var __proto=CompoundColliderShape.prototype;
+	__class(AudioSound,'laya.media.h5audio.AudioSound',_super);
+	var __proto=AudioSound.prototype;
 	/**
-	*@private
+	*释放声音
+	*
 	*/
-	__proto._clearChildShape=function(shape){
-		shape._attatched=false;
-		shape._compoundParent=null;
-		shape._indexInCompound=-1;
-	}
-
-	/**
-	*@inheritDoc
-	*/
-	__proto._addReference=function(){}
-	/**
-	*@inheritDoc
-	*/
-	__proto._removeReference=function(){}
-	/**
-	*@private
-	*/
-	__proto._updateChildTransform=function(shape){
-		var offsetE=shape.localOffset.elements;
-		var rotationE=shape.localRotation.elements;
-		var nativeOffset=ColliderShape._nativeVector30;
-		var nativeQuaternion=ColliderShape._nativQuaternion0;
-		var nativeTransform=ColliderShape._nativeTransform0;
-		nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
-		nativeQuaternion.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
-		nativeTransform.setOrigin(nativeOffset);
-		nativeTransform.setRotation(nativeQuaternion);
-		this._nativeShape.updateChildTransform(shape._indexInCompound,nativeTransform,true);
-	}
-
-	/**
-	*添加子碰撞器形状。
-	*@param shape 子碰撞器形状。
-	*/
-	__proto.addChildShape=function(shape){
-		if (shape._attatched)
-			throw "CompoundColliderShape: this shape has attatched to other entity.";
-		shape._attatched=true;
-		shape._compoundParent=this;
-		shape._indexInCompound=this._childColliderShapes.length;
-		this._childColliderShapes.push(shape);
-		var offsetE=shape.localOffset.elements;
-		var rotationE=shape.localRotation.elements;
-		CompoundColliderShape._nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
-		CompoundColliderShape._nativRotation.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
-		CompoundColliderShape._nativeTransform.setOrigin(CompoundColliderShape._nativeOffset);
-		CompoundColliderShape._nativeTransform.setRotation(CompoundColliderShape._nativRotation);
-		var nativeScale=this._nativeShape.getLocalScaling();
-		this._nativeShape.setLocalScaling(CompoundColliderShape._nativeVector3One);
-		this._nativeShape.addChildShape(CompoundColliderShape._nativeTransform,shape._nativeShape);
-		this._nativeShape.setLocalScaling(nativeScale);
-		(this._attatchedCollisionObject)&& (this._attatchedCollisionObject.colliderShape=this);
-	}
-
-	/**
-	*移除子碰撞器形状。
-	*@param shape 子碰撞器形状。
-	*/
-	__proto.removeChildShape=function(shape){
-		if (shape._compoundParent===this){
-			var index=shape._indexInCompound;
-			this._clearChildShape(shape);
-			var endShape=this._childColliderShapes[this._childColliderShapes.length-1];
-			endShape._indexInCompound=index;
-			this._childColliderShapes[index]=endShape;
-			this._childColliderShapes.pop();
-			this._nativeShape.removeChildShapeByIndex(index);
+	__proto.dispose=function(){
+		var ad=AudioSound._audioCache[this.url];
+		Pool.clearBySign("audio:"+this.url);
+		if (ad){
+			if (!Render.isConchApp){
+				ad.src="";
+			}
+			delete AudioSound._audioCache[this.url];
 		}
 	}
 
 	/**
-	*清空子碰撞器形状。
+	*加载声音
+	*@param url
+	*
 	*/
-	__proto.clearChildShape=function(){
-		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
-			this._clearChildShape(this._childColliderShapes[i]);
-			this._nativeShape.removeChildShapeByIndex(0);
+	__proto.load=function(url){
+		url=URL.formatURL(url);
+		this.url=url;
+		var ad;
+		if (url==SoundManager._bgMusic){
+			AudioSound._initMusicAudio();
+			ad=AudioSound._musicAudio;
+			if (ad.src !=url){
+				AudioSound._audioCache[ad.src]=null;
+				ad=null;
+			}
+			}else{
+			ad=AudioSound._audioCache[url];
 		}
-		this._childColliderShapes.length=0;
+		if (ad && ad.readyState >=2){
+			this.event("complete");
+			return;
+		}
+		if (!ad){
+			if (url==SoundManager._bgMusic){
+				AudioSound._initMusicAudio();
+				ad=AudioSound._musicAudio;
+				}else{
+				ad=Browser.createElement("audio");
+			}
+			AudioSound._audioCache[url]=ad;
+			ad.src=url;
+		}
+		ad.addEventListener("canplaythrough",onLoaded);
+		ad.addEventListener("error",onErr);
+		var me=this;
+		function onLoaded (){
+			offs();
+			me.loaded=true;
+			me.event("complete");
+		}
+		function onErr (){
+			ad.load=null;
+			offs();
+			me.event("error");
+		}
+		function offs (){
+			ad.removeEventListener("canplaythrough",onLoaded);
+			ad.removeEventListener("error",onErr);
+		}
+		this.audio=ad;
+		if (ad.load){
+			ad.load();
+			}else {
+			onErr();
+		}
 	}
 
 	/**
-	*获取子形状数量。
+	*播放声音
+	*@param startTime 起始时间
+	*@param loops 循环次数
 	*@return
+	*
 	*/
-	__proto.getChildShapeCount=function(){
-		return this._childColliderShapes.length;
+	__proto.play=function(startTime,loops){
+		(startTime===void 0)&& (startTime=0);
+		(loops===void 0)&& (loops=0);
+		if (!this.url)return null;
+		var ad;
+		if (this.url==SoundManager._bgMusic){
+			ad=AudioSound._musicAudio;
+			}else{
+			ad=AudioSound._audioCache[this.url];
+		}
+		if (!ad)return null;
+		var tAd;
+		tAd=Pool.getItem("audio:"+this.url);
+		if (Render.isConchApp){
+			if (!tAd){
+				tAd=Browser.createElement("audio");
+				tAd.src=this.url;
+			}
+		}
+		else {
+			if (this.url==SoundManager._bgMusic){
+				AudioSound._initMusicAudio();
+				tAd=AudioSound._musicAudio;
+				tAd.src=this.url;
+				}else{
+				tAd=tAd ? tAd :ad.cloneNode(true);
+			}
+		};
+		var channel=new AudioSoundChannel(tAd);
+		channel.url=this.url;
+		channel.loops=loops;
+		channel.startTime=startTime;
+		channel.play();
+		SoundManager.addChannel(channel);
+		return channel;
 	}
 
 	/**
-	*@inheritDoc
+	*获取总时间。
 	*/
-	__proto.cloneTo=function(destObject){
-		var destCompoundColliderShape=destObject;
-		destCompoundColliderShape.clearChildShape();
-		for (var i=0,n=this._childColliderShapes.length;i < n;i++)
-		destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
-	}
+	__getset(0,__proto,'duration',function(){
+		var ad;
+		ad=AudioSound._audioCache[this.url];
+		if (!ad)
+			return 0;
+		return ad.duration;
+	});
 
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new CompoundColliderShape();
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*@inheritDoc
-	*/
-	__proto.destroy=function(){
-		_super.prototype.destroy.call(this);
-		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
-			var childShape=this._childColliderShapes[i];
-			if (childShape._referenceCount===0)
-				childShape.destroy();
+	AudioSound._initMusicAudio=function(){
+		if (AudioSound._musicAudio)return;
+		if (!AudioSound._musicAudio)AudioSound._musicAudio=Browser.createElement("audio");
+		if (!Render.isConchApp){
+			Browser.document.addEventListener("mousedown",AudioSound._makeMusicOK);
 		}
 	}
 
-	__static(CompoundColliderShape,
-	['_nativeVector3One',function(){return this._nativeVector3One=new Laya3D._physics3D.btVector3(1,1,1);},'_nativeTransform',function(){return this._nativeTransform=new Laya3D._physics3D.btTransform();},'_nativeOffset',function(){return this._nativeOffset=new Laya3D._physics3D.btVector3(0,0,0);},'_nativRotation',function(){return this._nativRotation=new Laya3D._physics3D.btQuaternion(0,0,0,1);}
-	]);
-	return CompoundColliderShape;
-})(ColliderShape)
+	AudioSound._makeMusicOK=function(){
+		Browser.document.removeEventListener("mousedown",AudioSound._makeMusicOK);
+		if (!AudioSound._musicAudio.src){
+			AudioSound._musicAudio.src="";
+			AudioSound._musicAudio.load();
+			}else{
+			AudioSound._musicAudio.play();
+		}
+	}
+
+	AudioSound._audioCache={};
+	AudioSound._musicAudio=null;
+	return AudioSound;
+})(EventDispatcher)
 
 
 /**
@@ -59535,179 +59586,147 @@ var Script3D=(function(_super){
 
 
 /**
-*@private
-*使用Audio标签播放声音
+*<code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
 */
-//class laya.media.h5audio.AudioSound extends laya.events.EventDispatcher
-var AudioSound=(function(_super){
-	function AudioSound(){
-		/**
-		*声音URL
-		*/
-		this.url=null;
-		/**
-		*播放用的audio标签
-		*/
-		this.audio=null;
-		/**
-		*是否已加载完成
-		*/
-		this.loaded=false;
-		AudioSound.__super.call(this);
+//class laya.d3.physics.shape.CompoundColliderShape extends laya.d3.physics.shape.ColliderShape
+var CompoundColliderShape=(function(_super){
+	function CompoundColliderShape(){
+		CompoundColliderShape.__super.call(this);
+		this._childColliderShapes=[];
+		this._type=5;
+		this._nativeShape=new Laya3D._physics3D.btCompoundShape();
 	}
 
-	__class(AudioSound,'laya.media.h5audio.AudioSound',_super);
-	var __proto=AudioSound.prototype;
+	__class(CompoundColliderShape,'laya.d3.physics.shape.CompoundColliderShape',_super);
+	var __proto=CompoundColliderShape.prototype;
 	/**
-	*释放声音
-	*
+	*@private
 	*/
-	__proto.dispose=function(){
-		var ad=AudioSound._audioCache[this.url];
-		Pool.clearBySign("audio:"+this.url);
-		if (ad){
-			if (!Render.isConchApp){
-				ad.src="";
-			}
-			delete AudioSound._audioCache[this.url];
-		}
+	__proto._clearChildShape=function(shape){
+		shape._attatched=false;
+		shape._compoundParent=null;
+		shape._indexInCompound=-1;
 	}
 
 	/**
-	*加载声音
-	*@param url
-	*
+	*@inheritDoc
 	*/
-	__proto.load=function(url){
-		url=URL.formatURL(url);
-		this.url=url;
-		var ad;
-		if (url==SoundManager._bgMusic){
-			AudioSound._initMusicAudio();
-			ad=AudioSound._musicAudio;
-			if (ad.src !=url){
-				AudioSound._audioCache[ad.src]=null;
-				ad=null;
-			}
-			}else{
-			ad=AudioSound._audioCache[url];
-		}
-		if (ad && ad.readyState >=2){
-			this.event("complete");
-			return;
-		}
-		if (!ad){
-			if (url==SoundManager._bgMusic){
-				AudioSound._initMusicAudio();
-				ad=AudioSound._musicAudio;
-				}else{
-				ad=Browser.createElement("audio");
-			}
-			AudioSound._audioCache[url]=ad;
-			ad.src=url;
-		}
-		ad.addEventListener("canplaythrough",onLoaded);
-		ad.addEventListener("error",onErr);
-		var me=this;
-		function onLoaded (){
-			offs();
-			me.loaded=true;
-			me.event("complete");
-		}
-		function onErr (){
-			ad.load=null;
-			offs();
-			me.event("error");
-		}
-		function offs (){
-			ad.removeEventListener("canplaythrough",onLoaded);
-			ad.removeEventListener("error",onErr);
-		}
-		this.audio=ad;
-		if (ad.load){
-			ad.load();
-			}else {
-			onErr();
+	__proto._addReference=function(){}
+	/**
+	*@inheritDoc
+	*/
+	__proto._removeReference=function(){}
+	/**
+	*@private
+	*/
+	__proto._updateChildTransform=function(shape){
+		var offsetE=shape.localOffset.elements;
+		var rotationE=shape.localRotation.elements;
+		var nativeOffset=ColliderShape._nativeVector30;
+		var nativeQuaternion=ColliderShape._nativQuaternion0;
+		var nativeTransform=ColliderShape._nativeTransform0;
+		nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
+		nativeQuaternion.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
+		nativeTransform.setOrigin(nativeOffset);
+		nativeTransform.setRotation(nativeQuaternion);
+		this._nativeShape.updateChildTransform(shape._indexInCompound,nativeTransform,true);
+	}
+
+	/**
+	*添加子碰撞器形状。
+	*@param shape 子碰撞器形状。
+	*/
+	__proto.addChildShape=function(shape){
+		if (shape._attatched)
+			throw "CompoundColliderShape: this shape has attatched to other entity.";
+		shape._attatched=true;
+		shape._compoundParent=this;
+		shape._indexInCompound=this._childColliderShapes.length;
+		this._childColliderShapes.push(shape);
+		var offsetE=shape.localOffset.elements;
+		var rotationE=shape.localRotation.elements;
+		CompoundColliderShape._nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
+		CompoundColliderShape._nativRotation.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
+		CompoundColliderShape._nativeTransform.setOrigin(CompoundColliderShape._nativeOffset);
+		CompoundColliderShape._nativeTransform.setRotation(CompoundColliderShape._nativRotation);
+		var nativeScale=this._nativeShape.getLocalScaling();
+		this._nativeShape.setLocalScaling(CompoundColliderShape._nativeVector3One);
+		this._nativeShape.addChildShape(CompoundColliderShape._nativeTransform,shape._nativeShape);
+		this._nativeShape.setLocalScaling(nativeScale);
+		(this._attatchedCollisionObject)&& (this._attatchedCollisionObject.colliderShape=this);
+	}
+
+	/**
+	*移除子碰撞器形状。
+	*@param shape 子碰撞器形状。
+	*/
+	__proto.removeChildShape=function(shape){
+		if (shape._compoundParent===this){
+			var index=shape._indexInCompound;
+			this._clearChildShape(shape);
+			var endShape=this._childColliderShapes[this._childColliderShapes.length-1];
+			endShape._indexInCompound=index;
+			this._childColliderShapes[index]=endShape;
+			this._childColliderShapes.pop();
+			this._nativeShape.removeChildShapeByIndex(index);
 		}
 	}
 
 	/**
-	*播放声音
-	*@param startTime 起始时间
-	*@param loops 循环次数
+	*清空子碰撞器形状。
+	*/
+	__proto.clearChildShape=function(){
+		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
+			this._clearChildShape(this._childColliderShapes[i]);
+			this._nativeShape.removeChildShapeByIndex(0);
+		}
+		this._childColliderShapes.length=0;
+	}
+
+	/**
+	*获取子形状数量。
 	*@return
-	*
 	*/
-	__proto.play=function(startTime,loops){
-		(startTime===void 0)&& (startTime=0);
-		(loops===void 0)&& (loops=0);
-		if (!this.url)return null;
-		var ad;
-		if (this.url==SoundManager._bgMusic){
-			ad=AudioSound._musicAudio;
-			}else{
-			ad=AudioSound._audioCache[this.url];
-		}
-		if (!ad)return null;
-		var tAd;
-		tAd=Pool.getItem("audio:"+this.url);
-		if (Render.isConchApp){
-			if (!tAd){
-				tAd=Browser.createElement("audio");
-				tAd.src=this.url;
-			}
-		}
-		else {
-			if (this.url==SoundManager._bgMusic){
-				AudioSound._initMusicAudio();
-				tAd=AudioSound._musicAudio;
-				tAd.src=this.url;
-				}else{
-				tAd=tAd ? tAd :ad.cloneNode(true);
-			}
-		};
-		var channel=new AudioSoundChannel(tAd);
-		channel.url=this.url;
-		channel.loops=loops;
-		channel.startTime=startTime;
-		channel.play();
-		SoundManager.addChannel(channel);
-		return channel;
+	__proto.getChildShapeCount=function(){
+		return this._childColliderShapes.length;
 	}
 
 	/**
-	*获取总时间。
+	*@inheritDoc
 	*/
-	__getset(0,__proto,'duration',function(){
-		var ad;
-		ad=AudioSound._audioCache[this.url];
-		if (!ad)
-			return 0;
-		return ad.duration;
-	});
+	__proto.cloneTo=function(destObject){
+		var destCompoundColliderShape=destObject;
+		destCompoundColliderShape.clearChildShape();
+		for (var i=0,n=this._childColliderShapes.length;i < n;i++)
+		destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
+	}
 
-	AudioSound._initMusicAudio=function(){
-		if (AudioSound._musicAudio)return;
-		if (!AudioSound._musicAudio)AudioSound._musicAudio=Browser.createElement("audio");
-		if (!Render.isConchApp){
-			Browser.document.addEventListener("mousedown",AudioSound._makeMusicOK);
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new CompoundColliderShape();
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*@inheritDoc
+	*/
+	__proto.destroy=function(){
+		_super.prototype.destroy.call(this);
+		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
+			var childShape=this._childColliderShapes[i];
+			if (childShape._referenceCount===0)
+				childShape.destroy();
 		}
 	}
 
-	AudioSound._makeMusicOK=function(){
-		Browser.document.removeEventListener("mousedown",AudioSound._makeMusicOK);
-		if (!AudioSound._musicAudio.src){
-			AudioSound._musicAudio.src="";
-			AudioSound._musicAudio.load();
-			}else{
-			AudioSound._musicAudio.play();
-		}
-	}
-
-	AudioSound._audioCache={};
-	AudioSound._musicAudio=null;
-	return AudioSound;
-})(EventDispatcher)
+	__static(CompoundColliderShape,
+	['_nativeVector3One',function(){return this._nativeVector3One=new Laya3D._physics3D.btVector3(1,1,1);},'_nativeTransform',function(){return this._nativeTransform=new Laya3D._physics3D.btTransform();},'_nativeOffset',function(){return this._nativeOffset=new Laya3D._physics3D.btVector3(0,0,0);},'_nativRotation',function(){return this._nativRotation=new Laya3D._physics3D.btQuaternion(0,0,0,1);}
+	]);
+	return CompoundColliderShape;
+})(ColliderShape)
 
 
 //class laya.webgl.shader.d2.skinAnishader.SkinSV extends laya.webgl.shader.d2.value.Value2D
@@ -75477,6 +75496,33 @@ var GSlider=(function(_super){
 })(GComponent)
 
 
+//class Basic.UI_Box extends fairygui.GComponent
+var UI_Box=(function(_super){
+	function UI_Box(){
+		this.m_bg=null;
+		this.m_blink=null;
+		this.m_blinkMV=null;
+		UI_Box.__super.call(this);
+	}
+
+	__class(UI_Box,'Basic.UI_Box',_super);
+	var __proto=UI_Box.prototype;
+	__proto.constructFromXML=function(xml){
+		_super.prototype.constructFromXML.call(this,xml);
+		this.m_bg=(this.getChildAt(0));
+		this.m_blink=(this.getChildAt(1));
+		this.m_blinkMV=this.getTransitionAt(0);
+	}
+
+	UI_Box.createInstance=function(){
+		return (UIPackage.createObject("Basic","Box"));
+	}
+
+	UI_Box.URL="ui://3hcsjtonifv90";
+	return UI_Box;
+})(GComponent)
+
+
 //class Basic.UI_MainPanel extends fairygui.GComponent
 var UI_MainPanel=(function(_super){
 	function UI_MainPanel(){
@@ -84908,6 +84954,23 @@ var UI_WindowFrame_with_close_btn_and_resizer=(function(_super){
 })(GLabel)
 
 
+//class script.Box extends Basic.UI_Box
+var Box=(function(_super){
+	function Box(){
+		Box.__super.call(this);
+		this.onClick(this,this.blink)
+	}
+
+	__class(Box,'script.Box',_super);
+	var __proto=Box.prototype;
+	__proto.blink=function(){
+		this.m_blinkMV.play();
+	}
+
+	return Box;
+})(UI_Box)
+
+
 /**
 *<code>Component</code> 是ui控件类的基类。
 *<p>生命周期：preinitialize > createChildren > initialize > 组件构造函数</p>
@@ -87664,7 +87727,7 @@ var DialogManager=(function(_super){
 	/**设置锁定界面，如果为空则什么都不显示*/
 	__proto.setLockView=function(value){
 		if (!this.lockLayer){
-			this.lockLayer=new Box();
+			this.lockLayer=new Box$1();
 			this.lockLayer.mouseEnabled=true;
 			this.lockLayer.size(Laya.stage.width,Laya.stage.height);
 		}
@@ -95373,12 +95436,12 @@ var MovieClip=(function(_super){
 *<code>Box</code> 类是一个控件容器类。
 */
 //class laya.ui.Box extends laya.ui.UIComponent
-var Box=(function(_super){
+var Box$1=(function(_super){
 	function Box(){
 		Box.__super.call(this);;
 	}
 
-	__class(Box,'laya.ui.Box',_super);
+	__class(Box,'laya.ui.Box',_super,'Box$1');
 	var __proto=Box.prototype;
 	Laya.imps(__proto,{"laya.ui.IBox":true})
 	/**@inheritDoc */
@@ -95799,7 +95862,7 @@ var ColorPicker=(function(_super){
 	/**@inheritDoc */
 	__proto.createChildren=function(){
 		this.addChild(this._colorButton=new Button());
-		this._colorPanel=new Box();
+		this._colorPanel=new Box$1();
 		this._colorPanel.size(230,166);
 		this._colorPanel.addChild(this._colorTiles=new Sprite());
 		this._colorPanel.addChild(this._colorBlock=new Sprite());
@@ -96212,7 +96275,7 @@ var View=(function(_super){
 
 	View.uiMap={};
 	View.__init$=function(){
-		ClassUtils.regShortClassName([ViewStack,Button,TextArea,ColorPicker,Box,ScaleBox,Button,CheckBox,Clip,ComboBox,UIComponent,HScrollBar,HSlider,Image$1,Label,List,Panel,ProgressBar,Radio,RadioGroup,ScrollBar,Slider,Tab,TextInput,View,Dialog,VScrollBar,VSlider,Tree,HBox,VBox,Sprite,Animation,Text,FontClip]);
+		ClassUtils.regShortClassName([ViewStack,Button,TextArea,ColorPicker,Box$1,ScaleBox,Button,CheckBox,Clip,ComboBox,UIComponent,HScrollBar,HSlider,Image$1,Label,List,Panel,ProgressBar,Radio,RadioGroup,ScrollBar,Slider,Tab,TextInput,View,Dialog,VScrollBar,VSlider,Tree,HBox,VBox,Sprite,Animation,Text,FontClip]);
 	}
 
 	return View;
@@ -103426,7 +103489,7 @@ var Panel=(function(_super){
 
 	/**@inheritDoc */
 	__proto.createChildren=function(){
-		laya.display.Node.prototype.addChild.call(this,this._content=new Box());
+		laya.display.Node.prototype.addChild.call(this,this._content=new Box$1());
 	}
 
 	/**@inheritDoc */
@@ -103574,14 +103637,14 @@ var Panel=(function(_super){
 	}
 
 	__proto.onScrollStart=function(){
-		this._usedCache || (this._usedCache=Laya.superGet(Box,this,'cacheAs'));
-		Laya.superSet(Box,this,'cacheAs',"none");
+		this._usedCache || (this._usedCache=Laya.superGet(Box$1,this,'cacheAs'));
+		Laya.superSet(Box$1,this,'cacheAs',"none");
 		this._hScrollBar && this._hScrollBar.once("end",this,this.onScrollEnd);
 		this._vScrollBar && this._vScrollBar.once("end",this,this.onScrollEnd);
 	}
 
 	__proto.onScrollEnd=function(){
-		Laya.superSet(Box,this,'cacheAs',this._usedCache);
+		Laya.superSet(Box$1,this,'cacheAs',this._usedCache);
 	}
 
 	/**@private */
@@ -103594,7 +103657,7 @@ var Panel=(function(_super){
 
 	/**@inheritDoc */
 	__getset(0,__proto,'cacheAs',_super.prototype._$get_cacheAs,function(value){
-		Laya.superSet(Box,this,'cacheAs',value);
+		Laya.superSet(Box$1,this,'cacheAs',value);
 		this._usedCache=null;
 		if (value!=="none"){
 			this._hScrollBar && this._hScrollBar.on("start",this,this.onScrollStart);
@@ -103684,7 +103747,7 @@ var Panel=(function(_super){
 
 	/**@inheritDoc */
 	__getset(0,__proto,'height',_super.prototype._$get_height,function(value){
-		Laya.superSet(Box,this,'height',value);
+		Laya.superSet(Box$1,this,'height',value);
 		this._setScrollChanged();
 	});
 
@@ -103699,7 +103762,7 @@ var Panel=(function(_super){
 	*@inheritDoc
 	*/
 	__getset(0,__proto,'width',_super.prototype._$get_width,function(value){
-		Laya.superSet(Box,this,'width',value);
+		Laya.superSet(Box$1,this,'width',value);
 		this._setScrollChanged();
 	});
 
@@ -103717,7 +103780,7 @@ var Panel=(function(_super){
 	});
 
 	return Panel;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -104607,7 +104670,7 @@ var Tree=(function(_super){
 
 	/**@inheritDoc */
 	__getset(0,__proto,'height',_super.prototype._$get_height,function(value){
-		Laya.superSet(Box,this,'height',value);
+		Laya.superSet(Box$1,this,'height',value);
 		this._list.height=value;
 	});
 
@@ -104615,7 +104678,7 @@ var Tree=(function(_super){
 	*@inheritDoc
 	*/
 	__getset(0,__proto,'width',_super.prototype._$get_width,function(value){
-		Laya.superSet(Box,this,'width',value);
+		Laya.superSet(Box$1,this,'width',value);
 		this._list.width=value;
 	});
 
@@ -104631,7 +104694,7 @@ var Tree=(function(_super){
 	/**@inheritDoc */
 	__getset(0,__proto,'dataSource',_super.prototype._$get_dataSource,function(value){
 		this._dataSource=value;
-		Laya.superSet(Box,this,'dataSource',value);
+		Laya.superSet(Box$1,this,'dataSource',value);
 	});
 
 	/**滚动条*/
@@ -104759,7 +104822,7 @@ var Tree=(function(_super){
 	});
 
 	return Tree;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -104981,17 +105044,17 @@ var List=(function(_super){
 
 	/**@inheritDoc */
 	__proto.createChildren=function(){
-		this.addChild(this._content=new Box());
+		this.addChild(this._content=new Box$1());
 	}
 
 	__proto.onScrollStart=function(){
-		this._usedCache || (this._usedCache=Laya.superGet(Box,this,'cacheAs'));
-		Laya.superSet(Box,this,'cacheAs',"none");
+		this._usedCache || (this._usedCache=Laya.superGet(Box$1,this,'cacheAs'));
+		Laya.superSet(Box$1,this,'cacheAs',"none");
 		this._scrollBar.once("end",this,this.onScrollEnd);
 	}
 
 	__proto.onScrollEnd=function(){
-		Laya.superSet(Box,this,'cacheAs',this._usedCache);
+		Laya.superSet(Box$1,this,'cacheAs',this._usedCache);
 	}
 
 	__proto._removePreScrollBar=function(){
@@ -105047,7 +105110,7 @@ var List=(function(_super){
 		var cellWidth=cell.width+this._spaceX;
 		var cellHeight=cell.height+this._spaceY;
 		if (this.cacheContent){
-			var cacheBox=new Box();
+			var cacheBox=new Box$1();
 			cacheBox.cacheAs="normal";
 			cacheBox.pos((this._isVertical ? 0 :startY)*cellWidth,(this._isVertical ? startY :0)*cellHeight);
 			this._content.addChild(cacheBox);
@@ -105571,7 +105634,7 @@ var List=(function(_super){
 	/**@inheritDoc */
 	__getset(0,__proto,'height',_super.prototype._$get_height,function(value){
 		if (value !=this._height){
-			Laya.superSet(Box,this,'height',value);
+			Laya.superSet(Box$1,this,'height',value);
 			this._setCellChanged();
 		}
 	});
@@ -105609,7 +105672,7 @@ var List=(function(_super){
 	/**@inheritDoc */
 	__getset(0,__proto,'width',_super.prototype._$get_width,function(value){
 		if (value !=this._width){
-			Laya.superSet(Box,this,'width',value);
+			Laya.superSet(Box$1,this,'width',value);
 			this._setCellChanged();
 		}
 	});
@@ -105619,7 +105682,7 @@ var List=(function(_super){
 		this._dataSource=value;
 		if (((typeof value=='number')&& Math.floor(value)==value)|| (typeof value=='string'))this.selectedIndex=parseInt(value);
 		else if ((value instanceof Array))this.array=value
-		else Laya.superSet(Box,this,'dataSource',value);
+		else Laya.superSet(Box$1,this,'dataSource',value);
 	});
 
 	/**
@@ -105640,7 +105703,7 @@ var List=(function(_super){
 
 	/**@inheritDoc */
 	__getset(0,__proto,'cacheAs',_super.prototype._$get_cacheAs,function(value){
-		Laya.superSet(Box,this,'cacheAs',value);
+		Laya.superSet(Box$1,this,'cacheAs',value);
 		if (this._scrollBar){
 			this._usedCache=null;
 			if (value!=="none")this._scrollBar.on("start",this,this.onScrollStart);
@@ -105736,7 +105799,7 @@ var List=(function(_super){
 	});
 
 	return List;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -105825,7 +105888,7 @@ var LayoutBox=(function(_super){
 	});
 
 	return LayoutBox;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -106241,7 +106304,7 @@ var UIGroup=(function(_super){
 		this._dataSource=value;
 		if (((typeof value=='number')&& Math.floor(value)==value)|| (typeof value=='string'))this.selectedIndex=parseInt(value);
 		else if ((value instanceof Array))this.labels=(value).join(",");
-		else Laya.superSet(Box,this,'dataSource',value);
+		else Laya.superSet(Box$1,this,'dataSource',value);
 	});
 
 	/**
@@ -106455,7 +106518,7 @@ var UIGroup=(function(_super){
 	});
 
 	return UIGroup;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -106483,24 +106546,24 @@ var ScaleBox=(function(_super){
 	__proto.onResize=function(){
 		if (this.width > 0 && this.height > 0){
 			var scale=Math.min(Laya.stage.width / this._oldW,Laya.stage.height / this._oldH);
-			Laya.superSet(Box,this,'width',Laya.stage.width);
-			Laya.superSet(Box,this,'height',Laya.stage.height);
+			Laya.superSet(Box$1,this,'width',Laya.stage.width);
+			Laya.superSet(Box$1,this,'height',Laya.stage.height);
 			this.scale(scale,scale);
 		}
 	}
 
 	__getset(0,__proto,'height',_super.prototype._$get_height,function(value){
-		Laya.superSet(Box,this,'height',value);
+		Laya.superSet(Box$1,this,'height',value);
 		this._oldH=value;
 	});
 
 	__getset(0,__proto,'width',_super.prototype._$get_width,function(value){
-		Laya.superSet(Box,this,'width',value);
+		Laya.superSet(Box$1,this,'width',value);
 		this._oldW=value;
 	});
 
 	return ScaleBox;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -107686,7 +107749,7 @@ var ViewStack=(function(_super){
 	});
 
 	return ViewStack;
-})(Box)
+})(Box$1)
 
 
 /**
@@ -108392,7 +108455,7 @@ var Tab=(function(_super){
 })(UIGroup)
 
 
-	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Path,Transition,View,WebGLContext2D,GearSize,SceneUtils,GearAnimation,CallLater,RelationItem,GearLook,GameConfig,EaseManager,Timer,LocalStorage,GList,GBasicTextField,UIPackage,GearColor]);
+	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Path,Transition,View,WebGLContext2D,GearSize,SceneUtils,CallLater,RelationItem,GearLook,GearAnimation,EaseManager,GameConfig,Timer,LocalStorage,GList,GBasicTextField,UIPackage,GearColor]);
 	/**LayaGameStart**/
 	new Main();
 
