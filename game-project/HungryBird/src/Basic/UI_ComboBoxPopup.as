@@ -6,7 +6,6 @@ package Basic
 
 	public class UI_ComboBoxPopup extends fairygui.GComponent
 	{
-		public var m_n0:GImage;
 		public var m_list:GList;
 
 		public static const URL:String = "ui://3hcsjton8ymyg";
@@ -24,8 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_n0 = GImage(this.getChild("n0"));
-			m_list = GList(this.getChild("list"));
+			m_list = GList(this.getChildAt(1));
 		}
 	}
 }

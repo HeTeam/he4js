@@ -7,7 +7,8 @@ public class MainPanel {
     {
         var v:UI_MainPanel = UI_MainPanel.createInstance();
         PanelUtil.toWindow(v);
-        v.center();
+        v.x = 10;
+        v.y = 100;
     }
 }
 }

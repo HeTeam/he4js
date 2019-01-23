@@ -33,7 +33,7 @@
     <image id="8ymyt" name="p4.png" path="/default/images/" exported="true" scale="9grid" scale9grid="5,4,39,8" qualityOption="source"/>
     <image id="8ymyu" name="p16.png" path="/default/images/" exported="true" scale="9grid" scale9grid="5,4,31,8" qualityOption="source"/>
     <image id="8ymyv" name="a8(1).png" path="/default/images/" exported="true" scale="9grid" scale9grid="7,3,76,12" qualityOption="source"/>
-    <image id="8ymyw" name="f1.png" path="/default/images/" exported="true" scale="9grid" scale9grid="18,36,345,205" qualityOption="source"/>
+    <image id="8ymyw" name="f1.png" path="/default/images/" exported="true" scale="9grid" scale9grid="18,36,345,205" qualityOption="source" smoothing="false"/>
     <image id="8ymyx" name="a13.png" path="/default/images/" exported="true"/>
     <image id="8ymyy" name="a12.png" path="/default/images/" exported="true"/>
     <image id="8ymyz" name="a11.png" path="/default/images/" exported="true"/>
@@ -128,7 +128,11 @@
     <component id="8ymy3g" name="WindowFrame.xml" path="/default/Window/" exported="true"/>
     <component id="8ymy3h" name="WindowCloseButton.xml" path="/default/Window/" exported="true"/>
     <component id="8ymy3i" name="MainPanel.xml" path="/panels/" exported="true"/>
-    <component id="8ymy3j" name="WindowFrame_with_close_btn.xml" path="/default/Window/" exported="true"/>
+    <component id="8ymy3j" name="WindowFrame_with_close_btn_and_resizer.xml" path="/default/Window/" exported="true"/>
+    <component id="a4tz3k" name="NodePanel.xml" path="/panels/" exported="true"/>
+    <component id="a4tz3l" name="Resizer.xml" path="/default/Window/"/>
+    <component id="a4tz3m" name="WindowFrame_with_close_btn.xml" path="/default/Window/" exported="true"/>
+    <image id="a4tz3n" name="resizer.png" path="/default/Window/"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>

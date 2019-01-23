@@ -6,11 +6,7 @@ package Basic
 
 	public class UI_ClosableTabButton extends fairygui.GButton
 	{
-		public var m_button:Controller;
-		public var m_n5:GImage;
-		public var m_n4:GImage;
-		public var m_title:GTextField;
-		public var m_closeButton:UI_TabCloseButton;
+		public var m_closeButton:GButton;
 
 		public static const URL:String = "ui://3hcsjton8ymy36";
 
@@ -27,11 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_button = this.getController("button");
-			m_n5 = GImage(this.getChild("n5"));
-			m_n4 = GImage(this.getChild("n4"));
-			m_title = GTextField(this.getChild("title"));
-			m_closeButton = UI_TabCloseButton(this.getChild("closeButton"));
+			m_closeButton = GButton(this.getChildAt(3));
 		}
 	}
 }

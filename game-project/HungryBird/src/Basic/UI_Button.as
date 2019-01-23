@@ -6,12 +6,7 @@ package Basic
 
 	public class UI_Button extends fairygui.GButton
 	{
-		public var m_button:Controller;
 		public var m_grayed:Controller;
-		public var m_n1:GImage;
-		public var m_n2:GImage;
-		public var m_n3:GImage;
-		public var m_title:GTextField;
 
 		public static const URL:String = "ui://3hcsjton8ymy1";
 
@@ -28,12 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_button = this.getController("button");
-			m_grayed = this.getController("grayed");
-			m_n1 = GImage(this.getChild("n1"));
-			m_n2 = GImage(this.getChild("n2"));
-			m_n3 = GImage(this.getChild("n3"));
-			m_title = GTextField(this.getChild("title"));
+			m_grayed = this.getControllerAt(1);
 		}
 	}
 }

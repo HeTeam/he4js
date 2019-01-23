@@ -7,9 +7,6 @@ package Basic
 	public class UI_TextInput extends fairygui.GLabel
 	{
 		public var m_grayed:Controller;
-		public var m_n0:GImage;
-		public var m_n4:GImage;
-		public var m_title:GTextInput;
 
 		public static const URL:String = "ui://3hcsjton8ymy2l";
 
@@ -26,10 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_grayed = this.getController("grayed");
-			m_n0 = GImage(this.getChild("n0"));
-			m_n4 = GImage(this.getChild("n4"));
-			m_title = GTextInput(this.getChild("title"));
+			m_grayed = this.getControllerAt(0);
 		}
 	}
 }

@@ -6,9 +6,7 @@ package Basic
 
 	public class UI_WindowFrame extends fairygui.GLabel
 	{
-		public var m_n0:GImage;
 		public var m_dragArea:GGraph;
-		public var m_title:GTextField;
 		public var m_contentArea:GGraph;
 
 		public static const URL:String = "ui://3hcsjton8ymy3g";
@@ -26,10 +24,8 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_n0 = GImage(this.getChild("n0"));
-			m_dragArea = GGraph(this.getChild("dragArea"));
-			m_title = GTextField(this.getChild("title"));
-			m_contentArea = GGraph(this.getChild("contentArea"));
+			m_dragArea = GGraph(this.getChildAt(1));
+			m_contentArea = GGraph(this.getChildAt(3));
 		}
 	}
 }

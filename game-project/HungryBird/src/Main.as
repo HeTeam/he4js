@@ -7,10 +7,14 @@
 	import laya.utils.Stat;
 	import laya.utils.Utils;
 	import script.Game2D;
+	import PathFinding.finders.AStarFinder;
+	import laya.d3.shader.ShaderDefines;
 	
 	public class Main {
 		public function Main() {
-			//根据IDE设置初始化引擎		
+			//根据IDE设置初始化引擎
+			GameConfig.width = window.innerWidth;
+			GameConfig.height = window.innerHeight;
 			if (window["Laya3D"]) window["Laya3D"].init(GameConfig.width, GameConfig.height);
 			else Laya.init(GameConfig.width, GameConfig.height, Laya["WebGL"]);
 			Laya["Physics"] && Laya["Physics"].enable();
@@ -19,6 +23,7 @@
 			Laya.stage.screenMode = GameConfig.screenMode;
 			Laya.stage.alignV = GameConfig.alignV;
 			Laya.stage.alignH = GameConfig.alignH;
+			Laya.stage.bgColor = "#666666";
 			//兼容微信不支持加载scene后缀场景
 			URL.exportSceneToJson = GameConfig.exportSceneToJson;
 			

@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_bg = GGraph(this.getChild("bg"));
+			m_bg = GGraph(this.getChildAt(0));
 		}
 	}
 }

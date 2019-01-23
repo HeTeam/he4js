@@ -7,6 +7,7 @@ import script.panels.MainPanel;
 import Basic.UI_MainPanel;
 import fairygui.Window;
 import script.panels.PanelUtil;
+import script.panels.NodePanel;
 
 // 程序入口
 public class Game2D {
@@ -42,6 +43,7 @@ public class Game2D {
         PanelUtil.bindWindows();
         
         new MainPanel();
+        new NodePanel();
     }
 }
 }

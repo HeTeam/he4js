@@ -4,18 +4,18 @@ package Basic
 {
 	import fairygui.*;
 
-	public class UI_MainPanel extends fairygui.GComponent
+	public class UI_NodePanel extends fairygui.GComponent
 	{
 		public var m_frame:UI_WindowFrame_with_close_btn_and_resizer;
 
-		public static const URL:String = "ui://3hcsjton8ymy3i";
+		public static const URL:String = "ui://3hcsjtona4tz3k";
 
-		public static function createInstance():UI_MainPanel
+		public static function createInstance():UI_NodePanel
 		{
-			return UI_MainPanel(UIPackage.createObject("Basic","MainPanel"));
+			return UI_NodePanel(UIPackage.createObject("Basic","NodePanel"));
 		}
 
-		public function UI_MainPanel()
+		public function UI_NodePanel()
 		{
 		}
 

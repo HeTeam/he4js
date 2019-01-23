@@ -7,14 +7,14 @@
     <graph id="n2" name="dragArea" xy="1,1" size="346,22">
       <relation target="" sidePair="width-width"/>
     </graph>
-    <text id="n3" name="title" xy="6,3" size="342,18" fontSize="12" align="center" vAlign="middle" autoSize="none" text="">
-      <relation target="" sidePair="width-width"/>
-    </text>
     <graph id="n4" name="contentArea" xy="5,24" size="345,114">
       <relation target="" sidePair="width-width,height-height"/>
     </graph>
     <component id="n5_8ymy" name="closeButton" src="8ymy3h" fileName="default/Window/WindowCloseButton.xml" xy="329,3">
       <relation target="" sidePair="left-right"/>
+    </component>
+    <component id="n6_a4tz" name="resizer" src="a4tz3l" fileName="default/Window/Resizer.xml" xy="313,105" alpha="0.42">
+      <relation target="" sidePair="bottom-bottom,right-right"/>
     </component>
   </displayList>
 </component>
