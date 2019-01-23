@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="100,100">
+<component size="84,40" bgColor="#666666">
   <displayList>
-    <graph id="n0_ifv9" name="bg" xy="0,0" size="100,100" type="rect"/>
+    <graph id="n0_ifv9" name="bg" xy="0,0" size="84,40" type="rect" fillColor="#ff3b3b3b">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
   </displayList>
 </component>

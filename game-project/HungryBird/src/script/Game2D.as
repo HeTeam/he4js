@@ -6,6 +6,7 @@ import fairygui.GRoot;
 import script.panels.MainPanel;
 import Basic.UI_MainPanel;
 import fairygui.Window;
+import script.panels.PanelUtil;
 
 // 程序入口
 public class Game2D {
@@ -38,7 +39,7 @@ public class Game2D {
         fairygui.UIConfig.popupMenu = "ui://Basic/PopupMenu";
         fairygui.UIConfig.buttonSound = "ui://Basic/click";
 
-        fairygui.UIObjectFactory.setPackageItemExtension(UI_MainPanel.URL, Window);
+        PanelUtil.bindWindows();
         
         new MainPanel();
     }

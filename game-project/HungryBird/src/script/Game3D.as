@@ -1,13 +1,11 @@
 package script {
 	import laya.events.Event;
 	import laya.events.MouseManager;
-	import ui.test.TestSceneUI;
 	import laya.d3.core.scene.Scene3D;
 	import laya.d3.core.Camera;
 	import laya.d3.math.Vector3;
 	import laya.d3.core.light.DirectionLight;
 	import laya.d3.core.MeshSprite3D;
-	import laya.d3.resource.models.BoxMesh;
 	import laya.d3.core.material.BlinnPhongMaterial;
 	import laya.webgl.resource.Texture2D;
 	import laya.utils.Handler;

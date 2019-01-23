@@ -980,156 +980,6 @@ var Handler=(function(){
 })()
 
 
-//class fairygui.tween.EaseManager
-var EaseManager=(function(){
-	var Bounce;
-	function EaseManager(){}
-	__class(EaseManager,'fairygui.tween.EaseManager');
-	EaseManager.evaluate=function(easeType,time,duration,overshootOrAmplitude,period){
-		switch (easeType){
-			case 0:
-				return time / duration;
-			case 1:
-				return-Math.cos(time / duration *EaseManager._PiOver2)+1;
-			case 2:
-				return Math.sin(time / duration *EaseManager._PiOver2);
-			case 3:
-				return-0.5 *(Math.cos(Math.PI *time / duration)-1);
-			case 4:
-				return (time /=duration)*time;
-			case 5:
-				return-(time /=duration)*(time-2);
-			case 6:
-				if ((time /=duration *0.5)< 1)return 0.5 *time *time;
-				return-0.5 *((--time)*(time-2)-1);
-			case 7:
-				return (time /=duration)*time *time;
-			case 8:
-				return ((time=time / duration-1)*time *time+1);
-			case 9:
-				if ((time /=duration *0.5)< 1)return 0.5 *time *time *time;
-				return 0.5 *((time-=2)*time *time+2);
-			case 10:
-				return (time /=duration)*time *time *time;
-			case 11:
-				return-((time=time / duration-1)*time *time *time-1);
-			case 12:
-				if ((time /=duration *0.5)< 1)return 0.5 *time *time *time *time;
-				return-0.5 *((time-=2)*time *time *time-2);
-			case 13:
-				return (time /=duration)*time *time *time *time;
-			case 14:
-				return ((time=time / duration-1)*time *time *time *time+1);
-			case 15:
-				if ((time /=duration *0.5)< 1)return 0.5 *time *time *time *time *time;
-				return 0.5 *((time-=2)*time *time *time *time+2);
-			case 16:
-				return (time==0)? 0 :Math.pow(2,10 *(time / duration-1));
-			case 17:
-				if (time==duration)return 1;
-				return (-Math.pow(2,-10 *time / duration)+1);
-			case 18:
-				if (time==0)return 0;
-				if (time==duration)return 1;
-				if ((time /=duration *0.5)< 1)return 0.5 *Math.pow(2,10 *(time-1));
-				return 0.5 *(-Math.pow(2,-10 *--time)+2);
-			case 19:
-				return-(Math.sqrt(1-(time /=duration)*time)-1);
-			case 20:
-				return Math.sqrt(1-(time=time / duration-1)*time);
-			case 21:
-				if ((time /=duration *0.5)< 1)return-0.5 *(Math.sqrt(1-time *time)-1);
-				return 0.5 *(Math.sqrt(1-(time-=2)*time)+1);
-			case 22:;
-				var s0=NaN;
-				if (time==0)return 0;
-				if ((time /=duration)==1)return 1;
-				if (period==0)period=duration *0.3;
-				if (overshootOrAmplitude < 1){
-					overshootOrAmplitude=1;
-					s0=period / 4;
-				}
-				else s0=period / EaseManager._TwoPi *Math.asin(1 / overshootOrAmplitude);
-				return-(overshootOrAmplitude *Math.pow(2,10 *(time-=1))*Math.sin((time *duration-s0)*EaseManager._TwoPi / period));
-			case 23:;
-				var s1=NaN;
-				if (time==0)return 0;
-				if ((time /=duration)==1)return 1;
-				if (period==0)period=duration *0.3;
-				if (overshootOrAmplitude < 1){
-					overshootOrAmplitude=1;
-					s1=period / 4;
-				}
-				else s1=period / EaseManager._TwoPi *Math.asin(1 / overshootOrAmplitude);
-				return (overshootOrAmplitude *Math.pow(2,-10 *time)*Math.sin((time *duration-s1)*EaseManager._TwoPi / period)+1);
-			case 24:;
-				var s=NaN;
-				if (time==0)return 0;
-				if ((time /=duration *0.5)==2)return 1;
-				if (period==0)period=duration *(0.3 *1.5);
-				if (overshootOrAmplitude < 1){
-					overshootOrAmplitude=1;
-					s=period / 4;
-				}
-				else s=period / EaseManager._TwoPi *Math.asin(1 / overshootOrAmplitude);
-				if (time < 1)return-0.5 *(overshootOrAmplitude *Math.pow(2,10 *(time-=1))*Math.sin((time *duration-s)*EaseManager._TwoPi / period));
-				return overshootOrAmplitude *Math.pow(2,-10 *(time-=1))*Math.sin((time *duration-s)*EaseManager._TwoPi / period)*0.5+1;
-			case 25:
-				return (time /=duration)*time *((overshootOrAmplitude+1)*time-overshootOrAmplitude);
-			case 26:
-				return ((time=time / duration-1)*time *((overshootOrAmplitude+1)*time+overshootOrAmplitude)+1);
-			case 27:
-				if ((time /=duration *0.5)< 1)return 0.5 *(time *time *(((overshootOrAmplitude *=(1.525))+1)*time-overshootOrAmplitude));
-				return 0.5 *((time-=2)*time *(((overshootOrAmplitude *=(1.525))+1)*time+overshootOrAmplitude)+2);
-			case 28:
-				return Bounce.easeIn(time,duration);
-			case 29:
-				return Bounce.easeOut(time,duration);
-			case 30:
-				return Bounce.easeInOut(time,duration);
-			default :
-				return-(time /=duration)*(time-2);
-			}
-	}
-
-	__static(EaseManager,
-	['_PiOver2',function(){return this._PiOver2=Math.PI *0.5;},'_TwoPi',function(){return this._TwoPi=Math.PI *2;}
-	]);
-	EaseManager.__init$=function(){
-		/// This class contains a C# port of the easing equations created by Robert Penner (http://robertpenner.com/easing).
-		//class Bounce
-		Bounce=(function(){
-			function Bounce(){}
-			__class(Bounce,'');
-			Bounce.easeIn=function(time,duration){
-				return 1-Bounce.easeOut(duration-time,duration);
-			}
-			Bounce.easeOut=function(time,duration){
-				if ((time /=duration)< (1 / 2.75)){
-					return (7.5625 *time *time);
-				}
-				if (time < (2 / 2.75)){
-					return (7.5625 *(time-=(1.5 / 2.75))*time+0.75);
-				}
-				if (time < (2.5 / 2.75)){
-					return (7.5625 *(time-=(2.25 / 2.75))*time+0.9375);
-				}
-				return (7.5625 *(time-=(2.625 / 2.75))*time+0.984375);
-			}
-			Bounce.easeInOut=function(time,duration){
-				if (time < duration *0.5){
-					return Bounce.easeIn(time *2,duration)*0.5;
-				}
-				return Bounce.easeOut(time *2-duration,duration)*0.5+0.5;
-			}
-			return Bounce;
-		})()
-	}
-
-	return EaseManager;
-})()
-
-
 //class fairygui.GObject
 var GObject=(function(){
 	function GObject(){
@@ -2223,6 +2073,156 @@ var GObject=(function(){
 })()
 
 
+//class fairygui.tween.EaseManager
+var EaseManager=(function(){
+	var Bounce;
+	function EaseManager(){}
+	__class(EaseManager,'fairygui.tween.EaseManager');
+	EaseManager.evaluate=function(easeType,time,duration,overshootOrAmplitude,period){
+		switch (easeType){
+			case 0:
+				return time / duration;
+			case 1:
+				return-Math.cos(time / duration *EaseManager._PiOver2)+1;
+			case 2:
+				return Math.sin(time / duration *EaseManager._PiOver2);
+			case 3:
+				return-0.5 *(Math.cos(Math.PI *time / duration)-1);
+			case 4:
+				return (time /=duration)*time;
+			case 5:
+				return-(time /=duration)*(time-2);
+			case 6:
+				if ((time /=duration *0.5)< 1)return 0.5 *time *time;
+				return-0.5 *((--time)*(time-2)-1);
+			case 7:
+				return (time /=duration)*time *time;
+			case 8:
+				return ((time=time / duration-1)*time *time+1);
+			case 9:
+				if ((time /=duration *0.5)< 1)return 0.5 *time *time *time;
+				return 0.5 *((time-=2)*time *time+2);
+			case 10:
+				return (time /=duration)*time *time *time;
+			case 11:
+				return-((time=time / duration-1)*time *time *time-1);
+			case 12:
+				if ((time /=duration *0.5)< 1)return 0.5 *time *time *time *time;
+				return-0.5 *((time-=2)*time *time *time-2);
+			case 13:
+				return (time /=duration)*time *time *time *time;
+			case 14:
+				return ((time=time / duration-1)*time *time *time *time+1);
+			case 15:
+				if ((time /=duration *0.5)< 1)return 0.5 *time *time *time *time *time;
+				return 0.5 *((time-=2)*time *time *time *time+2);
+			case 16:
+				return (time==0)? 0 :Math.pow(2,10 *(time / duration-1));
+			case 17:
+				if (time==duration)return 1;
+				return (-Math.pow(2,-10 *time / duration)+1);
+			case 18:
+				if (time==0)return 0;
+				if (time==duration)return 1;
+				if ((time /=duration *0.5)< 1)return 0.5 *Math.pow(2,10 *(time-1));
+				return 0.5 *(-Math.pow(2,-10 *--time)+2);
+			case 19:
+				return-(Math.sqrt(1-(time /=duration)*time)-1);
+			case 20:
+				return Math.sqrt(1-(time=time / duration-1)*time);
+			case 21:
+				if ((time /=duration *0.5)< 1)return-0.5 *(Math.sqrt(1-time *time)-1);
+				return 0.5 *(Math.sqrt(1-(time-=2)*time)+1);
+			case 22:;
+				var s0=NaN;
+				if (time==0)return 0;
+				if ((time /=duration)==1)return 1;
+				if (period==0)period=duration *0.3;
+				if (overshootOrAmplitude < 1){
+					overshootOrAmplitude=1;
+					s0=period / 4;
+				}
+				else s0=period / EaseManager._TwoPi *Math.asin(1 / overshootOrAmplitude);
+				return-(overshootOrAmplitude *Math.pow(2,10 *(time-=1))*Math.sin((time *duration-s0)*EaseManager._TwoPi / period));
+			case 23:;
+				var s1=NaN;
+				if (time==0)return 0;
+				if ((time /=duration)==1)return 1;
+				if (period==0)period=duration *0.3;
+				if (overshootOrAmplitude < 1){
+					overshootOrAmplitude=1;
+					s1=period / 4;
+				}
+				else s1=period / EaseManager._TwoPi *Math.asin(1 / overshootOrAmplitude);
+				return (overshootOrAmplitude *Math.pow(2,-10 *time)*Math.sin((time *duration-s1)*EaseManager._TwoPi / period)+1);
+			case 24:;
+				var s=NaN;
+				if (time==0)return 0;
+				if ((time /=duration *0.5)==2)return 1;
+				if (period==0)period=duration *(0.3 *1.5);
+				if (overshootOrAmplitude < 1){
+					overshootOrAmplitude=1;
+					s=period / 4;
+				}
+				else s=period / EaseManager._TwoPi *Math.asin(1 / overshootOrAmplitude);
+				if (time < 1)return-0.5 *(overshootOrAmplitude *Math.pow(2,10 *(time-=1))*Math.sin((time *duration-s)*EaseManager._TwoPi / period));
+				return overshootOrAmplitude *Math.pow(2,-10 *(time-=1))*Math.sin((time *duration-s)*EaseManager._TwoPi / period)*0.5+1;
+			case 25:
+				return (time /=duration)*time *((overshootOrAmplitude+1)*time-overshootOrAmplitude);
+			case 26:
+				return ((time=time / duration-1)*time *((overshootOrAmplitude+1)*time+overshootOrAmplitude)+1);
+			case 27:
+				if ((time /=duration *0.5)< 1)return 0.5 *(time *time *(((overshootOrAmplitude *=(1.525))+1)*time-overshootOrAmplitude));
+				return 0.5 *((time-=2)*time *(((overshootOrAmplitude *=(1.525))+1)*time+overshootOrAmplitude)+2);
+			case 28:
+				return Bounce.easeIn(time,duration);
+			case 29:
+				return Bounce.easeOut(time,duration);
+			case 30:
+				return Bounce.easeInOut(time,duration);
+			default :
+				return-(time /=duration)*(time-2);
+			}
+	}
+
+	__static(EaseManager,
+	['_PiOver2',function(){return this._PiOver2=Math.PI *0.5;},'_TwoPi',function(){return this._TwoPi=Math.PI *2;}
+	]);
+	EaseManager.__init$=function(){
+		/// This class contains a C# port of the easing equations created by Robert Penner (http://robertpenner.com/easing).
+		//class Bounce
+		Bounce=(function(){
+			function Bounce(){}
+			__class(Bounce,'');
+			Bounce.easeIn=function(time,duration){
+				return 1-Bounce.easeOut(duration-time,duration);
+			}
+			Bounce.easeOut=function(time,duration){
+				if ((time /=duration)< (1 / 2.75)){
+					return (7.5625 *time *time);
+				}
+				if (time < (2 / 2.75)){
+					return (7.5625 *(time-=(1.5 / 2.75))*time+0.75);
+				}
+				if (time < (2.5 / 2.75)){
+					return (7.5625 *(time-=(2.25 / 2.75))*time+0.9375);
+				}
+				return (7.5625 *(time-=(2.625 / 2.75))*time+0.984375);
+			}
+			Bounce.easeInOut=function(time,duration){
+				if (time < duration *0.5){
+					return Bounce.easeIn(time *2,duration)*0.5;
+				}
+				return Bounce.easeOut(time *2-duration,duration)*0.5+0.5;
+			}
+			return Bounce;
+		})()
+	}
+
+	return EaseManager;
+})()
+
+
 //class fairygui.FillOrigin
 var FillOrigin=(function(){
 	function FillOrigin(){}
@@ -2558,8 +2558,7 @@ var PageOption=(function(){
 var MainPanel=(function(){
 	function MainPanel(){
 		var v=UI_MainPanel.createInstance();
-		v["contentPane"]=v;
-		GRoot.inst.showWindow(v);
+		PanelUtil.toWindow(v);
 		v.center();
 	}
 
@@ -2768,7 +2767,7 @@ var Game2D=(function(){
 		UIConfig$1.horizontalScrollBar="ui://Basic/ScrollBar_HZ";
 		UIConfig$1.popupMenu="ui://Basic/PopupMenu";
 		UIConfig$1.buttonSound="ui://Basic/click";
-		UIObjectFactory.setPackageItemExtension("ui://3hcsjton8ymy3i",Window$2);
+		PanelUtil.bindWindows();
 		new MainPanel();
 	}
 
@@ -4352,6 +4351,27 @@ var GameConfig=(function(){
 	}
 
 	return GameConfig;
+})()
+
+
+// 程序入口
+//class script.panels.PanelUtil
+var PanelUtil=(function(){
+	function PanelUtil(){}
+	__class(PanelUtil,'script.panels.PanelUtil');
+	PanelUtil.bindWindows=function(){
+		UIObjectFactory.setPackageItemExtension("ui://3hcsjton8ymy3i",Window$2);
+	}
+
+	PanelUtil.toWindow=function(v,show){
+		(show===void 0)&& (show=true);
+		v["contentPane"]=v;
+		if(show){
+			GRoot.inst.showWindow(v);
+		}
+	}
+
+	return PanelUtil;
 })()
 
 
@@ -8717,7 +8737,7 @@ var Main=(function(){
 		if (GameConfig.physicsDebug && Laya["PhysicsDebugDraw"])Laya["PhysicsDebugDraw"].enable();
 		if (GameConfig.stat)Stat.show();
 		Laya.alertGlobalError=true;
-		ResourceVersion.enable("version.json",Handler.create(this,this.onVersionLoaded),2);
+		this.onConfigLoaded();
 	}
 
 	__class(Main,'Main');
@@ -52911,6 +52931,214 @@ var GImage=(function(_super){
 })(GObject)
 
 
+//class fairygui.GTextField extends fairygui.GObject
+var GTextField=(function(_super){
+	function GTextField(){
+		this._gearColor=null;
+		this._templateVars=null;
+		this._text=null;
+		GTextField.__super.call(this);
+		this._gearColor=new GearColor(this);
+	}
+
+	__class(GTextField,'fairygui.GTextField',_super);
+	var __proto=GTextField.prototype;
+	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
+	__proto.parseTemplate=function(template){
+		var pos1=0,pos2=0,pos3=0;
+		var tag;
+		var value;
+		var result="";
+		while((pos2=template.indexOf("{",pos1))!=-1){
+			if (pos2 > 0 && template.charCodeAt(pos2-1)==92){
+				result+=template.substring(pos1,pos2-1);
+				result+="{";
+				pos1=pos2+1;
+				continue ;
+			}
+			result+=template.substring(pos1,pos2);
+			pos1=pos2;
+			pos2=template.indexOf("}",pos1);
+			if(pos2==-1)
+				break ;
+			if(pos2==pos1+1){
+				result+=template.substr(pos1,2);
+				pos1=pos2+1;
+				continue ;
+			}
+			tag=template.substring(pos1+1,pos2);
+			pos3=tag.indexOf("=");
+			if(pos3!=-1){
+				value=this._templateVars[tag.substring(0,pos3)];
+				if(value==null)
+					result+=tag.substring(pos3+1);
+				else
+				result+=value;
+			}
+			else{
+				value=this._templateVars[tag];
+				if(value!=null)
+					result+=value;
+			}
+			pos1=pos2+1;
+		}
+		if (pos1 < template.length)
+			result+=template.substr(pos1);
+		return result;
+	}
+
+	__proto.setVar=function(name,value){
+		if(!this._templateVars)
+			this._templateVars={};
+		this._templateVars[name]=value;
+		return this;
+	}
+
+	__proto.flushVars=function(){
+		this.text=this._text;
+	}
+
+	__proto.handleControllerChanged=function(c){
+		_super.prototype.handleControllerChanged.call(this,c);
+		if(this._gearColor.controller==c)
+			this._gearColor.apply();
+	}
+
+	__proto.setup_beforeAdd=function(buffer,beginPos){
+		_super.prototype.setup_beforeAdd.call(this,buffer,beginPos);
+		buffer.seek(beginPos,5);
+		var iv=0;
+		this.font=buffer.readS();
+		this.fontSize=buffer.getInt16();
+		this.color=buffer.readColorS();
+		iv=buffer.readByte();
+		this.align=iv==0?"left":(iv==1?"center":"right");
+		iv=buffer.readByte();
+		this.valign=iv==0?"top":(iv==1?"middle":"bottom");
+		this.leading=buffer.getInt16();
+		this.letterSpacing=buffer.getInt16();
+		this.ubbEnabled=buffer.readBool();
+		this.autoSize=buffer.readByte();
+		this.underline=buffer.readBool();
+		this.italic=buffer.readBool();
+		this.bold=buffer.readBool();
+		this.singleLine=buffer.readBool();
+		if (buffer.readBool()){
+			this.strokeColor=buffer.readColorS();
+			this.stroke=buffer.getFloat32()+1;
+		}
+		if (buffer.readBool())
+			buffer.skip(12);
+		if (buffer.readBool())
+			this._templateVars={};
+	}
+
+	__proto.setup_afterAdd=function(buffer,beginPos){
+		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
+		buffer.seek(beginPos,6);
+		var str=buffer.readS();
+		if (str !=null)
+			this.text=str;
+	}
+
+	/**
+	*@see AutoSizeType
+	*/
+	/**
+	*@see AutoSizeType
+	*/
+	__getset(0,__proto,'autoSize',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'ubbEnabled',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'templateVars',function(){
+		return this._templateVars;
+		},function(value){
+		if(this._templateVars==null && value==null)
+			return;
+		this._templateVars=value;
+		this.flushVars();
+	});
+
+	__getset(0,__proto,'strokeColor',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'stroke',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'fontSize',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'align',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'color',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'singleLine',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'underline',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'italic',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'letterSpacing',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'valign',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'bold',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'textWidth',function(){
+		return 0;
+	});
+
+	__getset(0,__proto,'leading',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'font',function(){
+		return null;
+		},function(value){
+	});
+
+	return GTextField;
+})(GObject)
+
+
 //class fairygui.Controller extends laya.events.EventDispatcher
 var Controller=(function(_super){
 	function Controller(){
@@ -53153,214 +53381,6 @@ var Controller=(function(_super){
 	Controller._nextPageId=0;
 	return Controller;
 })(EventDispatcher)
-
-
-//class fairygui.GTextField extends fairygui.GObject
-var GTextField=(function(_super){
-	function GTextField(){
-		this._gearColor=null;
-		this._templateVars=null;
-		this._text=null;
-		GTextField.__super.call(this);
-		this._gearColor=new GearColor(this);
-	}
-
-	__class(GTextField,'fairygui.GTextField',_super);
-	var __proto=GTextField.prototype;
-	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
-	__proto.parseTemplate=function(template){
-		var pos1=0,pos2=0,pos3=0;
-		var tag;
-		var value;
-		var result="";
-		while((pos2=template.indexOf("{",pos1))!=-1){
-			if (pos2 > 0 && template.charCodeAt(pos2-1)==92){
-				result+=template.substring(pos1,pos2-1);
-				result+="{";
-				pos1=pos2+1;
-				continue ;
-			}
-			result+=template.substring(pos1,pos2);
-			pos1=pos2;
-			pos2=template.indexOf("}",pos1);
-			if(pos2==-1)
-				break ;
-			if(pos2==pos1+1){
-				result+=template.substr(pos1,2);
-				pos1=pos2+1;
-				continue ;
-			}
-			tag=template.substring(pos1+1,pos2);
-			pos3=tag.indexOf("=");
-			if(pos3!=-1){
-				value=this._templateVars[tag.substring(0,pos3)];
-				if(value==null)
-					result+=tag.substring(pos3+1);
-				else
-				result+=value;
-			}
-			else{
-				value=this._templateVars[tag];
-				if(value!=null)
-					result+=value;
-			}
-			pos1=pos2+1;
-		}
-		if (pos1 < template.length)
-			result+=template.substr(pos1);
-		return result;
-	}
-
-	__proto.setVar=function(name,value){
-		if(!this._templateVars)
-			this._templateVars={};
-		this._templateVars[name]=value;
-		return this;
-	}
-
-	__proto.flushVars=function(){
-		this.text=this._text;
-	}
-
-	__proto.handleControllerChanged=function(c){
-		_super.prototype.handleControllerChanged.call(this,c);
-		if(this._gearColor.controller==c)
-			this._gearColor.apply();
-	}
-
-	__proto.setup_beforeAdd=function(buffer,beginPos){
-		_super.prototype.setup_beforeAdd.call(this,buffer,beginPos);
-		buffer.seek(beginPos,5);
-		var iv=0;
-		this.font=buffer.readS();
-		this.fontSize=buffer.getInt16();
-		this.color=buffer.readColorS();
-		iv=buffer.readByte();
-		this.align=iv==0?"left":(iv==1?"center":"right");
-		iv=buffer.readByte();
-		this.valign=iv==0?"top":(iv==1?"middle":"bottom");
-		this.leading=buffer.getInt16();
-		this.letterSpacing=buffer.getInt16();
-		this.ubbEnabled=buffer.readBool();
-		this.autoSize=buffer.readByte();
-		this.underline=buffer.readBool();
-		this.italic=buffer.readBool();
-		this.bold=buffer.readBool();
-		this.singleLine=buffer.readBool();
-		if (buffer.readBool()){
-			this.strokeColor=buffer.readColorS();
-			this.stroke=buffer.getFloat32()+1;
-		}
-		if (buffer.readBool())
-			buffer.skip(12);
-		if (buffer.readBool())
-			this._templateVars={};
-	}
-
-	__proto.setup_afterAdd=function(buffer,beginPos){
-		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
-		buffer.seek(beginPos,6);
-		var str=buffer.readS();
-		if (str !=null)
-			this.text=str;
-	}
-
-	/**
-	*@see AutoSizeType
-	*/
-	/**
-	*@see AutoSizeType
-	*/
-	__getset(0,__proto,'autoSize',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'ubbEnabled',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'templateVars',function(){
-		return this._templateVars;
-		},function(value){
-		if(this._templateVars==null && value==null)
-			return;
-		this._templateVars=value;
-		this.flushVars();
-	});
-
-	__getset(0,__proto,'strokeColor',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'stroke',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'fontSize',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'align',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'color',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'singleLine',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'underline',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'italic',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'letterSpacing',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'valign',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'bold',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'textWidth',function(){
-		return 0;
-	});
-
-	__getset(0,__proto,'leading',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'font',function(){
-		return null;
-		},function(value){
-	});
-
-	return GTextField;
-})(GObject)
 
 
 //class fairygui.action.ChangePageAction extends fairygui.action.ControllerAction
@@ -55638,69 +55658,6 @@ var WebAudioSound=(function(_super){
 
 
 /**
-*<code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
-*/
-//class laya.d3.physics.shape.BoxColliderShape extends laya.d3.physics.shape.ColliderShape
-var BoxColliderShape=(function(_super){
-	function BoxColliderShape(sizeX,sizeY,sizeZ){
-		/**@private */
-		//this._sizeX=NaN;
-		/**@private */
-		//this._sizeY=NaN;
-		/**@private */
-		//this._sizeZ=NaN;
-		BoxColliderShape.__super.call(this);
-		(sizeX===void 0)&& (sizeX=1.0);
-		(sizeY===void 0)&& (sizeY=1.0);
-		(sizeZ===void 0)&& (sizeZ=1.0);
-		this._sizeX=sizeX;
-		this._sizeY=sizeY;
-		this._sizeZ=sizeZ;
-		this._type=0;
-		BoxColliderShape._nativeSize.setValue(sizeX / 2,sizeY / 2,sizeZ / 2);
-		this._nativeShape=new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
-	}
-
-	__class(BoxColliderShape,'laya.d3.physics.shape.BoxColliderShape',_super);
-	var __proto=BoxColliderShape.prototype;
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new BoxColliderShape(this._sizeX,this._sizeY,this._sizeZ);
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*获取Z轴尺寸。
-	*/
-	__getset(0,__proto,'sizeZ',function(){
-		return this._sizeZ;
-	});
-
-	/**
-	*获取Y轴尺寸。
-	*/
-	__getset(0,__proto,'sizeY',function(){
-		return this._sizeY;
-	});
-
-	/**
-	*获取X轴尺寸。
-	*/
-	__getset(0,__proto,'sizeX',function(){
-		return this._sizeX;
-	});
-
-	__static(BoxColliderShape,
-	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
-	]);
-	return BoxColliderShape;
-})(ColliderShape)
-
-
-/**
 *@private
 *场景资源加载器
 */
@@ -55830,6 +55787,69 @@ var SceneLoader=(function(_super){
 	]);
 	return SceneLoader;
 })(EventDispatcher)
+
+
+/**
+*<code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
+*/
+//class laya.d3.physics.shape.BoxColliderShape extends laya.d3.physics.shape.ColliderShape
+var BoxColliderShape=(function(_super){
+	function BoxColliderShape(sizeX,sizeY,sizeZ){
+		/**@private */
+		//this._sizeX=NaN;
+		/**@private */
+		//this._sizeY=NaN;
+		/**@private */
+		//this._sizeZ=NaN;
+		BoxColliderShape.__super.call(this);
+		(sizeX===void 0)&& (sizeX=1.0);
+		(sizeY===void 0)&& (sizeY=1.0);
+		(sizeZ===void 0)&& (sizeZ=1.0);
+		this._sizeX=sizeX;
+		this._sizeY=sizeY;
+		this._sizeZ=sizeZ;
+		this._type=0;
+		BoxColliderShape._nativeSize.setValue(sizeX / 2,sizeY / 2,sizeZ / 2);
+		this._nativeShape=new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
+	}
+
+	__class(BoxColliderShape,'laya.d3.physics.shape.BoxColliderShape',_super);
+	var __proto=BoxColliderShape.prototype;
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new BoxColliderShape(this._sizeX,this._sizeY,this._sizeZ);
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*获取Z轴尺寸。
+	*/
+	__getset(0,__proto,'sizeZ',function(){
+		return this._sizeZ;
+	});
+
+	/**
+	*获取Y轴尺寸。
+	*/
+	__getset(0,__proto,'sizeY',function(){
+		return this._sizeY;
+	});
+
+	/**
+	*获取X轴尺寸。
+	*/
+	__getset(0,__proto,'sizeX',function(){
+		return this._sizeX;
+	});
+
+	__static(BoxColliderShape,
+	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
+	]);
+	return BoxColliderShape;
+})(ColliderShape)
 
 
 /**
@@ -72583,6 +72603,151 @@ var Sprite=(function(_super){
 })(Node)
 
 
+//class fairygui.GLabel extends fairygui.GComponent
+var GLabel=(function(_super){
+	function GLabel(){
+		this._titleObject=null;
+		this._iconObject=null;
+		GLabel.__super.call(this);
+	}
+
+	__class(GLabel,'fairygui.GLabel',_super);
+	var __proto=GLabel.prototype;
+	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
+	__proto.getTextField=function(){
+		if ((this._titleObject instanceof fairygui.GTextField ))
+			return this._titleObject;
+		else if ((this._titleObject instanceof fairygui.GLabel ))
+		return (this._titleObject).getTextField();
+		else if ((this._titleObject instanceof fairygui.GButton ))
+		return (this._titleObject).getTextField();
+		else
+		return null;
+	}
+
+	__proto.constructExtension=function(buffer){
+		this._titleObject=this.getChild("title");
+		this._iconObject=this.getChild("icon");
+	}
+
+	__proto.setup_afterAdd=function(buffer,beginPos){
+		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
+		if (!buffer.seek(beginPos,6))
+			return;
+		if (buffer.readByte()!=this.packageItem.objectType)
+			return;
+		var str;
+		str=buffer.readS();
+		if (str !=null)
+			this.title=str;
+		str=buffer.readS();
+		if (str !=null)
+			this.icon=str;
+		if (buffer.readBool())
+			this.titleColor=buffer.readColorS();
+		var iv=buffer.getInt32();
+		if (iv !=0)
+			this.titleFontSize=iv;
+		if (buffer.readBool()){
+			var input=this.getTextField();
+			if (input !=null){
+				str=buffer.readS();
+				if (str !=null)
+					input.promptText=str;
+				str=buffer.readS();
+				if (str !=null)
+					input.restrict=str;
+				iv=buffer.getInt32();
+				if (iv !=0)
+					input.maxLength=iv;
+				iv=buffer.getInt32();
+				if (iv !=0){
+					if(iv==4)
+						input.keyboardType="number";
+					else if(iv==3)
+					input.keyboardType="url";
+				}
+				if (buffer.readBool())
+					input.password=true;
+			}
+			else
+			buffer.skip(13);
+		}
+	}
+
+	__getset(0,__proto,'editable',function(){
+		if (this._titleObject && ((this._titleObject instanceof fairygui.GTextInput )))
+			return this._titleObject.asTextInput.editable;
+		else
+		return false;
+		},function(val){
+		if (this._titleObject)
+			this._titleObject.asTextInput.editable=val;
+	});
+
+	__getset(0,__proto,'color',function(){
+		return this.titleColor;
+		},function(value){
+		this.titleColor=value;
+	});
+
+	__getset(0,__proto,'title',function(){
+		if (this._titleObject)
+			return this._titleObject.text;
+		else
+		return null;
+		},function(value){
+		if (this._titleObject)
+			this._titleObject.text=value;
+		this.updateGear(6);
+	});
+
+	__getset(0,__proto,'titleFontSize',function(){
+		var tf=this.getTextField();
+		if(tf!=null)
+			return tf.fontSize;
+		else
+		return 0;
+		},function(value){
+		var tf=this.getTextField();
+		if(tf!=null)
+			tf.fontSize=value;
+	});
+
+	__getset(0,__proto,'titleColor',function(){
+		var tf=this.getTextField();
+		if(tf!=null)
+			return tf.color;
+		else
+		return "#000000";
+		},function(value){
+		var tf=this.getTextField();
+		if(tf!=null)
+			tf.color=value;
+		this.updateGear(4);
+	});
+
+	__getset(0,__proto,'text',function(){
+		return this.title;
+		},function(value){
+		this.title=value;
+	});
+
+	__getset(0,__proto,'icon',function(){
+		if(this._iconObject!=null)
+			return this._iconObject.icon;
+		else
+		return null;
+		},function(value){
+		if(this._iconObject!=null)
+			this._iconObject.icon=value;
+		this.updateGear(7);
+	});
+
+	return GLabel;
+})(GComponent)
+
+
 //class fairygui.GButton extends fairygui.GComponent
 var GButton=(function(_super){
 	function GButton(){
@@ -73161,151 +73326,6 @@ var GScrollBar=(function(_super){
 	['sScrollbarHelperPoint',function(){return this.sScrollbarHelperPoint=new Point();}
 	]);
 	return GScrollBar;
-})(GComponent)
-
-
-//class fairygui.GLabel extends fairygui.GComponent
-var GLabel=(function(_super){
-	function GLabel(){
-		this._titleObject=null;
-		this._iconObject=null;
-		GLabel.__super.call(this);
-	}
-
-	__class(GLabel,'fairygui.GLabel',_super);
-	var __proto=GLabel.prototype;
-	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
-	__proto.getTextField=function(){
-		if ((this._titleObject instanceof fairygui.GTextField ))
-			return this._titleObject;
-		else if ((this._titleObject instanceof fairygui.GLabel ))
-		return (this._titleObject).getTextField();
-		else if ((this._titleObject instanceof fairygui.GButton ))
-		return (this._titleObject).getTextField();
-		else
-		return null;
-	}
-
-	__proto.constructExtension=function(buffer){
-		this._titleObject=this.getChild("title");
-		this._iconObject=this.getChild("icon");
-	}
-
-	__proto.setup_afterAdd=function(buffer,beginPos){
-		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
-		if (!buffer.seek(beginPos,6))
-			return;
-		if (buffer.readByte()!=this.packageItem.objectType)
-			return;
-		var str;
-		str=buffer.readS();
-		if (str !=null)
-			this.title=str;
-		str=buffer.readS();
-		if (str !=null)
-			this.icon=str;
-		if (buffer.readBool())
-			this.titleColor=buffer.readColorS();
-		var iv=buffer.getInt32();
-		if (iv !=0)
-			this.titleFontSize=iv;
-		if (buffer.readBool()){
-			var input=this.getTextField();
-			if (input !=null){
-				str=buffer.readS();
-				if (str !=null)
-					input.promptText=str;
-				str=buffer.readS();
-				if (str !=null)
-					input.restrict=str;
-				iv=buffer.getInt32();
-				if (iv !=0)
-					input.maxLength=iv;
-				iv=buffer.getInt32();
-				if (iv !=0){
-					if(iv==4)
-						input.keyboardType="number";
-					else if(iv==3)
-					input.keyboardType="url";
-				}
-				if (buffer.readBool())
-					input.password=true;
-			}
-			else
-			buffer.skip(13);
-		}
-	}
-
-	__getset(0,__proto,'editable',function(){
-		if (this._titleObject && ((this._titleObject instanceof fairygui.GTextInput )))
-			return this._titleObject.asTextInput.editable;
-		else
-		return false;
-		},function(val){
-		if (this._titleObject)
-			this._titleObject.asTextInput.editable=val;
-	});
-
-	__getset(0,__proto,'color',function(){
-		return this.titleColor;
-		},function(value){
-		this.titleColor=value;
-	});
-
-	__getset(0,__proto,'title',function(){
-		if (this._titleObject)
-			return this._titleObject.text;
-		else
-		return null;
-		},function(value){
-		if (this._titleObject)
-			this._titleObject.text=value;
-		this.updateGear(6);
-	});
-
-	__getset(0,__proto,'titleFontSize',function(){
-		var tf=this.getTextField();
-		if(tf!=null)
-			return tf.fontSize;
-		else
-		return 0;
-		},function(value){
-		var tf=this.getTextField();
-		if(tf!=null)
-			tf.fontSize=value;
-	});
-
-	__getset(0,__proto,'titleColor',function(){
-		var tf=this.getTextField();
-		if(tf!=null)
-			return tf.color;
-		else
-		return "#000000";
-		},function(value){
-		var tf=this.getTextField();
-		if(tf!=null)
-			tf.color=value;
-		this.updateGear(4);
-	});
-
-	__getset(0,__proto,'text',function(){
-		return this.title;
-		},function(value){
-		this.title=value;
-	});
-
-	__getset(0,__proto,'icon',function(){
-		if(this._iconObject!=null)
-			return this._iconObject.icon;
-		else
-		return null;
-		},function(value){
-		if(this._iconObject!=null)
-			this._iconObject.icon=value;
-		this.updateGear(7);
-	});
-
-	return GLabel;
 })(GComponent)
 
 
@@ -74761,7 +74781,7 @@ var GProgressBar=(function(_super){
 var UI_MainPanel=(function(_super){
 	function UI_MainPanel(){
 		this.m_frame=null;
-		this.m_closeButton=null;
+		this.m_n2=null;
 		UI_MainPanel.__super.call(this);
 	}
 
@@ -74770,7 +74790,7 @@ var UI_MainPanel=(function(_super){
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
 		this.m_frame=(this.getChild("frame"));
-		this.m_closeButton=(this.getChild("closeButton"));
+		this.m_n2=(this.getChild("n2"));
 	}
 
 	UI_MainPanel.createInstance=function(){
@@ -82762,6 +82782,37 @@ var Scene=(function(_super){
 })(Sprite)
 
 
+//class Basic.UI_WindowFrame_with_close_btn extends fairygui.GLabel
+var UI_WindowFrame_with_close_btn=(function(_super){
+	function UI_WindowFrame_with_close_btn(){
+		this.m_n0=null;
+		this.m_dragArea=null;
+		this.m_title=null;
+		this.m_contentArea=null;
+		this.m_closeButton=null;
+		UI_WindowFrame_with_close_btn.__super.call(this);
+	}
+
+	__class(UI_WindowFrame_with_close_btn,'Basic.UI_WindowFrame_with_close_btn',_super);
+	var __proto=UI_WindowFrame_with_close_btn.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_n0=(this.getChild("n0"));
+		this.m_dragArea=(this.getChild("dragArea"));
+		this.m_title=(this.getChild("title"));
+		this.m_contentArea=(this.getChild("contentArea"));
+		this.m_closeButton=(this.getChild("closeButton"));
+	}
+
+	UI_WindowFrame_with_close_btn.createInstance=function(){
+		return (UIPackage.createObject("Basic","WindowFrame_with_close_btn"));
+	}
+
+	UI_WindowFrame_with_close_btn.URL="ui://3hcsjton8ymy3j";
+	return UI_WindowFrame_with_close_btn;
+})(GLabel)
+
+
 //class fairygui.display.Image extends laya.display.Sprite
 var Image=(function(_super){
 	function Image(){
@@ -83997,35 +84048,6 @@ var UI_WindowCloseButton=(function(_super){
 	UI_WindowCloseButton.URL="ui://3hcsjton8ymy3h";
 	return UI_WindowCloseButton;
 })(GButton)
-
-
-//class Basic.UI_WindowFrame extends fairygui.GLabel
-var UI_WindowFrame=(function(_super){
-	function UI_WindowFrame(){
-		this.m_n0=null;
-		this.m_dragArea=null;
-		this.m_title=null;
-		this.m_contentArea=null;
-		UI_WindowFrame.__super.call(this);
-	}
-
-	__class(UI_WindowFrame,'Basic.UI_WindowFrame',_super);
-	var __proto=UI_WindowFrame.prototype;
-	__proto.constructFromXML=function(xml){
-		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_n0=(this.getChild("n0"));
-		this.m_dragArea=(this.getChild("dragArea"));
-		this.m_title=(this.getChild("title"));
-		this.m_contentArea=(this.getChild("contentArea"));
-	}
-
-	UI_WindowFrame.createInstance=function(){
-		return (UIPackage.createObject("Basic","WindowFrame"));
-	}
-
-	UI_WindowFrame.URL="ui://3hcsjton8ymy3g";
-	return UI_WindowFrame;
-})(GLabel)
 
 
 /**
