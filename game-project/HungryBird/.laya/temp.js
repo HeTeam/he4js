@@ -2740,18 +2740,32 @@ var TranslationHelper=(function(){
 // 程序入口
 //class script.Game2D
 var Game2D=(function(){
+	//allinOne-end
 	function Game2D(){
 		Stat.show(0,0);
-		Laya.loader.load([
-		{url:"res/Basic_atlas0.png",type:"image" },
-		{url:"res/Basic.fui",type:"arraybuffer" }],Handler.create(this,this.onLoaded));
+		if(!Game2D.allInOne){
+			Laya.loader.load([
+			{url:"res/Basic_atlas0.png",type:"image" },
+			{url:"res/Basic.fui",type:"arraybuffer" }],Handler.create(this,this.onLoaded));
+			}else{
+			var _imgsData;
+			_imgsData=imgsData;
+			var base64=new Base64Atlas(_imgsData);
+			base64.preLoad(new Handler(this,this.onLoaded));
+		}
 	}
 
 	__class(Game2D,'script.Game2D');
 	var __proto=Game2D.prototype;
 	__proto.onLoaded=function(){
 		Laya.stage.addChild(GRoot.inst.displayObject);
-		UIPackage.addPackage("res/Basic");
+		if(Game2D.allInOne){
+			var _basicUIData;
+			_basicUIData=basicUIData;
+			UIPackage.addPackage("res/Basic",Base64Tool.decode(_basicUIData));
+			}else{
+			UIPackage.addPackage("res/Basic");
+		}
 		UIConfig$1.defaultFont="宋体";
 		UIConfig$1.verticalScrollBar="ui://Basic/ScrollBar_VT";
 		UIConfig$1.horizontalScrollBar="ui://Basic/ScrollBar_HZ";
@@ -2762,6 +2776,7 @@ var Game2D=(function(){
 		new NodePanel();
 	}
 
+	Game2D.allInOne=true;
 	return Game2D;
 })()
 
@@ -12090,6 +12105,42 @@ var MouseManager=(function(){
 	['instance',function(){return this.instance=new MouseManager();}
 	]);
 	return MouseManager;
+})()
+
+
+/**
+*...
+*@author ww
+*/
+//class laya.debug.tools.Base64ImageTool
+var Base64ImageTool=(function(){
+	function Base64ImageTool(){}
+	__class(Base64ImageTool,'laya.debug.tools.Base64ImageTool');
+	Base64ImageTool.getCanvasPic=function(img){
+		img=img.bitmap;
+		var canvas=Browser.createElement("canvas");
+		var ctx=canvas.getContext('2d');
+		canvas.height=img.height;
+		canvas.width=img.width;
+		ctx.drawImage(img.bitmap,0,0);
+		return canvas;
+	}
+
+	Base64ImageTool.getBase64Pic=function(img){
+		return Base64ImageTool.getCanvasPic(img).toDataURL("image/png");
+	}
+
+	Base64ImageTool.getPreloads=function(base64Data){
+		var rst;
+		rst=[];
+		var key;
+		for (key in base64Data){
+			rst.push({url:base64Data[key],type:"image" });
+		}
+		return rst;
+	}
+
+	return Base64ImageTool;
 })()
 
 
@@ -24706,6 +24757,95 @@ var BitmapFont$1=(function(){
 
 
 /**
+*base64编码解码类
+*@author ww
+*/
+//class laya.debug.tools.Base64Tool
+var Base64Tool=(function(){
+	function Base64Tool(){}
+	__class(Base64Tool,'laya.debug.tools.Base64Tool');
+	Base64Tool.init=function(){
+		if (Base64Tool.lookup)
+			return;
+		Base64Tool.lookup=new Uint8Array(256)
+		for (var i=0;i < Base64Tool.chars.length;i++){
+			Base64Tool.lookup[Base64Tool.chars.charCodeAt(i)]=i;
+		}
+	}
+
+	Base64Tool.encode=function(arraybuffer){
+		var bytes=new Uint8Array(arraybuffer),i=0,len=bytes["length"],base64="";
+		for (i=0;i < len;i+=3){
+			base64+=Base64Tool.chars[bytes[i] >> 2];
+			base64+=Base64Tool.chars[((bytes[i] & 3)<< 4)| (bytes[i+1] >> 4)];
+			base64+=Base64Tool.chars[((bytes[i+1] & 15)<< 2)| (bytes[i+2] >> 6)];
+			base64+=Base64Tool.chars[bytes[i+2] & 63];
+		}
+		if ((len % 3)===2){
+			base64=base64.substring(0,base64.length-1)+"=";
+		}
+		else if (len % 3===1){
+			base64=base64.substring(0,base64.length-2)+"==";
+		}
+		return base64;
+	}
+
+	Base64Tool.encodeStr=function(str){
+		var byte;
+		byte=new ByteEx();
+		byte.writeUTFString(str);
+		return Base64Tool.encodeByte(byte);
+	}
+
+	Base64Tool.encodeStr2=function(str){
+		var byte;
+		byte=new ByteEx();
+		byte.writeUTFBytes(str);
+		return Base64Tool.encodeByte(byte);
+	}
+
+	Base64Tool.encodeByte=function(byte,start,end){
+		(start===void 0)&& (start=0);
+		(end===void 0)&& (end=-1);
+		if (end < 0){
+			end=byte.length;
+		}
+		return Base64Tool.encode(byte.buffer.slice(start,end));
+	}
+
+	Base64Tool.decodeToByte=function(base64){
+		return new ByteEx(Base64Tool.decode(base64));
+	}
+
+	Base64Tool.decode=function(base64){
+		Base64Tool.init();
+		var bufferLength=base64.length *0.75,len=base64.length,i=0,p=0,encoded1=0,encoded2=0,encoded3=0,encoded4=0;
+		if (base64[base64.length-1]==="="){
+			bufferLength--;
+			if (base64[base64.length-2]==="="){
+				bufferLength--;
+			}
+		};
+		var arraybuffer=new ArrayBuffer(bufferLength),bytes=new Uint8Array(arraybuffer);
+		for (i=0;i < len;i+=4){
+			encoded1=Base64Tool.lookup[base64.charCodeAt(i)];
+			encoded2=Base64Tool.lookup[base64.charCodeAt(i+1)];
+			encoded3=Base64Tool.lookup[base64.charCodeAt(i+2)];
+			encoded4=Base64Tool.lookup[base64.charCodeAt(i+3)];
+			bytes[p++]=(encoded1 << 2)| (encoded2 >> 4);
+			bytes[p++]=((encoded2 & 15)<< 4)| (encoded3 >> 2);
+			bytes[p++]=((encoded3 & 3)<< 6)| (encoded4 & 63);
+		}
+		return arraybuffer;
+	}
+
+	Base64Tool.chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	Base64Tool.lookup=null;
+	return Base64Tool;
+})()
+
+
+/**
 *...
 *@author ...
 */
@@ -25125,6 +25265,67 @@ var Color=(function(){
 	['RED',function(){return this.RED=new Color(1,0,0,1);},'GREEN',function(){return this.GREEN=new Color(0,1,0,1);},'BLUE',function(){return this.BLUE=new Color(0,0,1,1);},'CYAN',function(){return this.CYAN=new Color(0,1,1,1);},'YELLOW',function(){return this.YELLOW=new Color(1,0.92,0.016,1);},'MAGENTA',function(){return this.MAGENTA=new Color(1,0,1,1);},'GRAY',function(){return this.GRAY=new Color(0.5,0.5,0.5,1);},'WHITE',function(){return this.WHITE=new Color(1,1,1,1);},'BLACK',function(){return this.BLACK=new Color(0,0,0,1);}
 	]);
 	return Color;
+})()
+
+
+/**
+*...
+*@author ww
+*/
+//class laya.debug.tools.Base64Atlas
+var Base64Atlas=(function(){
+	function Base64Atlas(data,idKey){
+		this.data=null;
+		this.replaceO=null;
+		this.idKey=null;
+		this._loadedHandler=null;
+		this.data=data;
+		if (!idKey)idKey=Math.random()+"key";
+		this.idKey=idKey;
+		this.init();
+	}
+
+	__class(Base64Atlas,'laya.debug.tools.Base64Atlas');
+	var __proto=Base64Atlas.prototype;
+	//preLoad();
+	__proto.init=function(){
+		this.replaceO={};
+		var key;
+		for (key in this.data){
+			this.replaceO[key]=this.idKey+"/"+key;
+		}
+	}
+
+	__proto.getAdptUrl=function(url){
+		return this.replaceO[url];
+	}
+
+	__proto.preLoad=function(completeHandler){
+		this._loadedHandler=completeHandler;
+		Laya.loader.load(Base64ImageTool.getPreloads(this.data),new Handler(this,this.preloadEnd));
+	}
+
+	__proto.preloadEnd=function(){
+		var key;
+		for (key in this.data){
+			var tx;
+			tx=Laya.loader.getRes(this.data[key]);
+			if(Game2D.allInOne){
+				Loader.cacheRes(key,tx);
+				}else{
+				Loader.cacheRes(this.replaceO[key],tx);
+			}
+		}
+		if (this._loadedHandler){
+			this._loadedHandler.run();
+		}
+	}
+
+	__proto.replaceRes=function(uiObj){
+		ObjectTools.replaceValue(uiObj,this.replaceO);
+	}
+
+	return Base64Atlas;
 })()
 
 
@@ -32570,6 +32771,707 @@ var HTMLBrElement=(function(){
 
 	HTMLBrElement.brStyle=null;
 	return HTMLBrElement;
+})()
+
+
+/**
+*<p> <code>Byte</code> 类提供用于优化读取、写入以及处理二进制数据的方法和属性。</p>
+*<p> <code>Byte</code> 类适用于需要在字节层访问数据的高级开发人员。</p>
+*/
+//class laya.debug.tools.ByteEx
+var ByteEx=(function(){
+	function ByteEx(data){
+		/**@private 是否为小端数据。*/
+		this._xd_=true;
+		/**@private */
+		this._allocated_=8;
+		/**@private 原始数据。*/
+		//this._d_=null;
+		/**@private DataView*/
+		//this._u8d_=null;
+		/**@private */
+		this._pos_=0;
+		/**@private */
+		this._length=0;
+		if (data){
+			this._u8d_=new Uint8Array(data);
+			this._d_=new DataView(this._u8d_.buffer);
+			this._length=this._d_.byteLength;
+			}else {
+			this._resizeBuffer(this._allocated_);
+		}
+	}
+
+	__class(ByteEx,'laya.debug.tools.ByteEx');
+	var __proto=ByteEx.prototype;
+	/**@private */
+	__proto._resizeBuffer=function(len){
+		try {
+			var newByteView=new Uint8Array(len);
+			if (this._u8d_ !=null){
+				if (this._u8d_.length <=len)newByteView.set(this._u8d_);
+				else newByteView.set(this._u8d_.subarray(0,len));
+			}
+			this._u8d_=newByteView;
+			this._d_=new DataView(newByteView.buffer);
+			}catch (err){
+			throw "Invalid typed array length:"+len;
+		}
+	}
+
+	/**
+	*@private
+	*<p>常用于解析固定格式的字节流。</p>
+	*<p>先从字节流的当前字节偏移位置处读取一个 <code>Uint16</code> 值，然后以此值为长度，读取此长度的字符串。</p>
+	*@return 读取的字符串。
+	*/
+	__proto.getString=function(){
+		return this.readString();
+	}
+
+	/**
+	*<p>常用于解析固定格式的字节流。</p>
+	*<p>先从字节流的当前字节偏移位置处读取一个 <code>Uint16</code> 值，然后以此值为长度，读取此长度的字符串。</p>
+	*@return 读取的字符串。
+	*/
+	__proto.readString=function(){
+		return this._rUTF(this.getUint16());
+	}
+
+	/**
+	*@private
+	*<p>从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Float32Array</code> 对象并返回此对象。</p>
+	*<p><b>注意：</b>返回的 Float32Array 对象，在 JavaScript 环境下，是原生的 HTML5 Float32Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Float32Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。</p>
+	*@param start 开始位置。
+	*@param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+	*@return 读取的 Float32Array 对象。
+	*/
+	__proto.getFloat32Array=function(start,len){
+		return this.readFloat32Array(start,len);
+	}
+
+	/**
+	*从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Float32Array</code> 对象并返回此对象。
+	*@param start 开始位置。
+	*@param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+	*@return 读取的 Float32Array 对象。
+	*/
+	__proto.readFloat32Array=function(start,len){
+		var end=start+len;
+		end=(end > this._length)? this._length :end;
+		var v=new Float32Array(this._d_.buffer.slice(start,end));
+		this._pos_=end;
+		return v;
+	}
+
+	/**
+	*@private
+	*从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Uint8Array</code> 对象并返回此对象。
+	*@param start 开始位置。
+	*@param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+	*@return 读取的 Uint8Array 对象。
+	*/
+	__proto.getUint8Array=function(start,len){
+		return this.readUint8Array(start,len);
+	}
+
+	/**
+	*从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Uint8Array</code> 对象并返回此对象。
+	*@param start 开始位置。
+	*@param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+	*@return 读取的 Uint8Array 对象。
+	*/
+	__proto.readUint8Array=function(start,len){
+		var end=start+len;
+		end=(end > this._length)? this._length :end;
+		var v=new Uint8Array(this._d_.buffer.slice(start,end));
+		this._pos_=end;
+		return v;
+	}
+
+	/**
+	*@private
+	*<p>从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Int16Array</code> 对象并返回此对象。</p>
+	*<p><b>注意：</b>返回的 Int16Array 对象，在 JavaScript 环境下，是原生的 HTML5 Int16Array 对象，对此对象的读取操作都是基于运行此程序的当前主机字节序，此顺序可能与实际数据的字节序不同，如果使用此对象进行读取，需要用户知晓实际数据的字节序和当前主机字节序，如果相同，可正常读取，否则需要用户对实际数据(Int16Array.buffer)包装一层 DataView ，使用 DataView 对象可按照指定的字节序进行读取。</p>
+	*@param start 开始读取的字节偏移量位置。
+	*@param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+	*@return 读取的 Int16Array 对象。
+	*/
+	__proto.getInt16Array=function(start,len){
+		return this.readInt16Array(start,len);
+	}
+
+	/**
+	*从字节流中 <code>start</code> 参数指定的位置开始，读取 <code>len</code> 参数指定的字节数的数据，用于创建一个 <code>Int16Array</code> 对象并返回此对象。
+	*@param start 开始读取的字节偏移量位置。
+	*@param len 需要读取的字节长度。如果要读取的长度超过可读取范围，则只返回可读范围内的值。
+	*@return 读取的 Uint8Array 对象。
+	*/
+	__proto.readInt16Array=function(start,len){
+		var end=start+len;
+		end=(end > this._length)? this._length :end;
+		var v=new Int16Array(this._d_.buffer.slice(start,end));
+		this._pos_=end;
+		return v;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
+	*@return 单精度（32 位）浮点数。
+	*/
+	__proto.getFloat32=function(){
+		return this.readFloat32();
+	}
+
+	/**
+	*从字节流的当前字节偏移位置处读取一个 IEEE 754 单精度（32 位）浮点数。
+	*@return 单精度（32 位）浮点数。
+	*/
+	__proto.readFloat32=function(){
+		if (this._pos_+4 > this._length)throw "getFloat32 error - Out of bounds";
+		var v=this._d_.getFloat32(this._pos_,this._xd_);
+		this._pos_+=4;
+		return v;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
+	*@return 双精度（64 位）浮点数。
+	*/
+	__proto.getFloat64=function(){
+		return this.readFloat64();
+	}
+
+	/**
+	*从字节流的当前字节偏移量位置处读取一个 IEEE 754 双精度（64 位）浮点数。
+	*@return 双精度（64 位）浮点数。
+	*/
+	__proto.readFloat64=function(){
+		if (this._pos_+8 > this._length)throw "getFloat64 error - Out of bounds";
+		var v=this._d_.getFloat64(this._pos_,this._xd_);
+		this._pos_+=8;
+		return v;
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入一个 IEEE 754 单精度（32 位）浮点数。
+	*@param value 单精度（32 位）浮点数。
+	*/
+	__proto.writeFloat32=function(value){
+		this._ensureWrite(this._pos_+4);
+		this._d_.setFloat32(this._pos_,value,this._xd_);
+		this._pos_+=4;
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入一个 IEEE 754 双精度（64 位）浮点数。
+	*@param value 双精度（64 位）浮点数。
+	*/
+	__proto.writeFloat64=function(value){
+		this._ensureWrite(this._pos_+8);
+		this._d_.setFloat64(this._pos_,value,this._xd_);
+		this._pos_+=8;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移量位置处读取一个 Int32 值。
+	*@return Int32 值。
+	*/
+	__proto.getInt32=function(){
+		return this.readInt32();
+	}
+
+	/**
+	*从字节流的当前字节偏移量位置处读取一个 Int32 值。
+	*@return Int32 值。
+	*/
+	__proto.readInt32=function(){
+		if (this._pos_+4 > this._length)throw "getInt32 error - Out of bounds";
+		var float=this._d_.getInt32(this._pos_,this._xd_);
+		this._pos_+=4;
+		return float;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移量位置处读取一个 Uint32 值。
+	*@return Uint32 值。
+	*/
+	__proto.getUint32=function(){
+		return this.readUint32();
+	}
+
+	/**
+	*从字节流的当前字节偏移量位置处读取一个 Uint32 值。
+	*@return Uint32 值。
+	*/
+	__proto.readUint32=function(){
+		if (this._pos_+4 > this._length)throw "getUint32 error - Out of bounds";
+		var v=this._d_.getUint32(this._pos_,this._xd_);
+		this._pos_+=4;
+		return v;
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入指定的 Int32 值。
+	*@param value 需要写入的 Int32 值。
+	*/
+	__proto.writeInt32=function(value){
+		this._ensureWrite(this._pos_+4);
+		this._d_.setInt32(this._pos_,value,this._xd_);
+		this._pos_+=4;
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入 Uint32 值。
+	*@param value 需要写入的 Uint32 值。
+	*/
+	__proto.writeUint32=function(value){
+		this._ensureWrite(this._pos_+4);
+		this._d_.setUint32(this._pos_,value,this._xd_);
+		this._pos_+=4;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移量位置处读取一个 Int16 值。
+	*@return Int16 值。
+	*/
+	__proto.getInt16=function(){
+		return this.readInt16();
+	}
+
+	/**
+	*从字节流的当前字节偏移量位置处读取一个 Int16 值。
+	*@return Int16 值。
+	*/
+	__proto.readInt16=function(){
+		if (this._pos_+2 > this._length)throw "getInt16 error - Out of bounds";
+		var us=this._d_.getInt16(this._pos_,this._xd_);
+		this._pos_+=2;
+		return us;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移量位置处读取一个 Uint16 值。
+	*@return Uint16 值。
+	*/
+	__proto.getUint16=function(){
+		return this.readUint16();
+	}
+
+	/**
+	*从字节流的当前字节偏移量位置处读取一个 Uint16 值。
+	*@return Uint16 值。
+	*/
+	__proto.readUint16=function(){
+		if (this._pos_+2 > this._length)throw "getUint16 error - Out of bounds";
+		var us=this._d_.getUint16(this._pos_,this._xd_);
+		this._pos_+=2;
+		return us;
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入指定的 Uint16 值。
+	*@param value 需要写入的Uint16 值。
+	*/
+	__proto.writeUint16=function(value){
+		this._ensureWrite(this._pos_+2);
+		this._d_.setUint16(this._pos_,value,this._xd_);
+		this._pos_+=2;
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入指定的 Int16 值。
+	*@param value 需要写入的 Int16 值。
+	*/
+	__proto.writeInt16=function(value){
+		this._ensureWrite(this._pos_+2);
+		this._d_.setInt16(this._pos_,value,this._xd_);
+		this._pos_+=2;
+	}
+
+	/**
+	*@private
+	*从字节流的当前字节偏移量位置处读取一个 Uint8 值。
+	*@return Uint8 值。
+	*/
+	__proto.getUint8=function(){
+		return this.readUint8();
+	}
+
+	/**
+	*从字节流的当前字节偏移量位置处读取一个 Uint8 值。
+	*@return Uint8 值。
+	*/
+	__proto.readUint8=function(){
+		if (this._pos_+1 > this._length)throw "getUint8 error - Out of bounds";
+		return this._d_.getUint8(this._pos_++);
+	}
+
+	/**
+	*在字节流的当前字节偏移量位置处写入指定的 Uint8 值。
+	*@param value 需要写入的 Uint8 值。
+	*/
+	__proto.writeUint8=function(value){
+		this._ensureWrite(this._pos_+1);
+		this._d_.setUint8(this._pos_,value);
+		this._pos_++;
+	}
+
+	/**
+	*@private
+	*从字节流的指定字节偏移量位置处读取一个 Uint8 值。
+	*@param pos 字节读取位置。
+	*@return Uint8 值。
+	*/
+	__proto._getUInt8=function(pos){
+		return this._readUInt8(pos);
+	}
+
+	/**
+	*@private
+	*从字节流的指定字节偏移量位置处读取一个 Uint8 值。
+	*@param pos 字节读取位置。
+	*@return Uint8 值。
+	*/
+	__proto._readUInt8=function(pos){
+		return this._d_.getUint8(pos);
+	}
+
+	/**
+	*@private
+	*从字节流的指定字节偏移量位置处读取一个 Uint16 值。
+	*@param pos 字节读取位置。
+	*@return Uint16 值。
+	*/
+	__proto._getUint16=function(pos){
+		return this._readUint16(pos);
+	}
+
+	/**
+	*@private
+	*从字节流的指定字节偏移量位置处读取一个 Uint16 值。
+	*@param pos 字节读取位置。
+	*@return Uint16 值。
+	*/
+	__proto._readUint16=function(pos){
+		return this._d_.getUint16(pos,this._xd_);
+	}
+
+	/**
+	*@private
+	*使用 getFloat32()读取6个值，用于创建并返回一个 Matrix 对象。
+	*@return Matrix 对象。
+	*/
+	__proto._getMatrix=function(){
+		return this._readMatrix();
+	}
+
+	/**
+	*@private
+	*使用 getFloat32()读取6个值，用于创建并返回一个 Matrix 对象。
+	*@return Matrix 对象。
+	*/
+	__proto._readMatrix=function(){
+		var rst=new Matrix(this.getFloat32(),this.getFloat32(),this.getFloat32(),this.getFloat32(),this.getFloat32(),this.getFloat32());
+		return rst;
+	}
+
+	/**
+	*@private
+	*读取指定长度的 UTF 型字符串。
+	*@param len 需要读取的长度。
+	*@return 读取的字符串。
+	*/
+	__proto._rUTF=function(len){
+		var v="",max=this._pos_+len,c=0,c2=0,c3=0,f=String.fromCharCode;
+		var u=this._u8d_,i=0;
+		while (this._pos_ < max){
+			c=u[this._pos_++];
+			if (c < 0x80){
+				if (c !=0)v+=f(c);
+				}else if (c < 0xE0){
+				v+=f(((c & 0x3F)<< 6)| (u[this._pos_++] & 0x7F));
+				}else if (c < 0xF0){
+				c2=u[this._pos_++];
+				v+=f(((c & 0x1F)<< 12)| ((c2 & 0x7F)<< 6)| (u[this._pos_++] & 0x7F));
+				}else {
+				c2=u[this._pos_++];
+				c3=u[this._pos_++];
+				v+=f(((c & 0x0F)<< 18)| ((c2 & 0x7F)<< 12)| ((c3 << 6)& 0x7F)| (u[this._pos_++] & 0x7F));
+			}
+			i++;
+		}
+		return v;
+	}
+
+	/**
+	*@private
+	*读取 <code>len</code> 参数指定的长度的字符串。
+	*@param len 要读取的字符串的长度。
+	*@return 指定长度的字符串。
+	*/
+	__proto.getCustomString=function(len){
+		return this.readCustomString(len);
+	}
+
+	/**
+	*@private
+	*读取 <code>len</code> 参数指定的长度的字符串。
+	*@param len 要读取的字符串的长度。
+	*@return 指定长度的字符串。
+	*/
+	__proto.readCustomString=function(len){
+		var v="",ulen=0,c=0,c2=0,f=String.fromCharCode;
+		var u=this._u8d_,i=0;
+		while (len > 0){
+			c=u[this._pos_];
+			if (c < 0x80){
+				v+=f(c);
+				this._pos_++;
+				len--;
+				}else {
+				ulen=c-0x80;
+				this._pos_++;
+				len-=ulen;
+				while (ulen > 0){
+					c=u[this._pos_++];
+					c2=u[this._pos_++];
+					v+=f((c2 << 8)| c);
+					ulen--;
+				}
+			}
+		}
+		return v;
+	}
+
+	/**
+	*清除字节数组的内容，并将 length 和 pos 属性重置为 0。调用此方法将释放 Byte 实例占用的内存。
+	*/
+	__proto.clear=function(){
+		this._pos_=0;
+		this.length=0;
+	}
+
+	/**
+	*@private
+	*获取此对象的 ArrayBuffer 引用。
+	*@return
+	*/
+	__proto.__getBuffer=function(){
+		return this._d_.buffer;
+	}
+
+	/**
+	*<p>将 UTF-8 字符串写入字节流。类似于 writeUTF()方法，但 writeUTFBytes()不使用 16 位长度的字为字符串添加前缀。</p>
+	*<p>对应的读取方法为： getUTFBytes 。</p>
+	*@param value 要写入的字符串。
+	*/
+	__proto.writeUTFBytes=function(value){
+		value=value+"";
+		for (var i=0,sz=value.length;i < sz;i++){
+			var c=value.charCodeAt(i);
+			if (c <=0x7F){
+				this.writeByte(c);
+				}else if (c <=0x7FF){
+				this._ensureWrite(this._pos_+2);
+				this._u8d_.set([0xC0 | (c >> 6),0x80 | (c & 0x3F)],this._pos_);
+				this._pos_+=2;
+				}else if (c <=0xFFFF){
+				this._ensureWrite(this._pos_+3);
+				this._u8d_.set([0xE0 | (c >> 12),0x80 | ((c >> 6)& 0x3F),0x80 | (c & 0x3F)],this._pos_);
+				this._pos_+=3;
+				}else {
+				this._ensureWrite(this._pos_+4);
+				this._u8d_.set([0xF0 | (c >> 18),0x80 | ((c >> 12)& 0x3F),0x80 | ((c >> 6)& 0x3F),0x80 | (c & 0x3F)],this._pos_);
+				this._pos_+=4;
+			}
+		}
+	}
+
+	/**
+	*<p>将 UTF-8 字符串写入字节流。先写入以字节表示的 UTF-8 字符串长度（作为 16 位整数），然后写入表示字符串字符的字节。</p>
+	*<p>对应的读取方法为： getUTFString 。</p>
+	*@param value 要写入的字符串值。
+	*/
+	__proto.writeUTFString=function(value){
+		var tPos=this.pos;
+		this.writeUint16(1);
+		this.writeUTFBytes(value);
+		var dPos=this.pos-tPos-2;
+		this._d_.setUint16(tPos,dPos,this._xd_);
+	}
+
+	/**
+	*@private
+	*读取 UTF-8 字符串。
+	*@return 读取的字符串。
+	*/
+	__proto.readUTFString=function(){
+		return this.readUTFBytes(this.getUint16());
+	}
+
+	/**
+	*<p>从字节流中读取一个 UTF-8 字符串。假定字符串的前缀是一个无符号的短整型（以此字节表示要读取的长度）。</p>
+	*<p>对应的写入方法为： writeUTFString 。</p>
+	*@return 读取的字符串。
+	*/
+	__proto.getUTFString=function(){
+		return this.readUTFString();
+	}
+
+	/**
+	*@private
+	*读字符串，必须是 writeUTFBytes 方法写入的字符串。
+	*@param len 要读的buffer长度，默认将读取缓冲区全部数据。
+	*@return 读取的字符串。
+	*/
+	__proto.readUTFBytes=function(len){
+		(len===void 0)&& (len=-1);
+		if (len===0)return "";
+		var lastBytes=this.bytesAvailable;
+		if (len > lastBytes)throw "readUTFBytes error - Out of bounds";
+		len=len > 0 ? len :lastBytes;
+		return this._rUTF(len);
+	}
+
+	/**
+	*<p>从字节流中读取一个由 length 参数指定的长度的 UTF-8 字节序列，并返回一个字符串。</p>
+	*<p>一般读取的是由 writeUTFBytes 方法写入的字符串。</p>
+	*@param len 要读的buffer长度，默认将读取缓冲区全部数据。
+	*@return 读取的字符串。
+	*/
+	__proto.getUTFBytes=function(len){
+		(len===void 0)&& (len=-1);
+		return this.readUTFBytes(len);
+	}
+
+	/**
+	*<p>在字节流中写入一个字节。</p>
+	*<p>使用参数的低 8 位。忽略高 24 位。</p>
+	*@param value
+	*/
+	__proto.writeByte=function(value){
+		this._ensureWrite(this._pos_+1);
+		this._d_.setInt8(this._pos_,value);
+		this._pos_+=1;
+	}
+
+	/**
+	*<p>从字节流中读取带符号的字节。</p>
+	*<p>返回值的范围是从-128 到 127。</p>
+	*@return 介于-128 和 127 之间的整数。
+	*/
+	__proto.readByte=function(){
+		if (this._pos_+1 > this._length)throw "readByte error - Out of bounds";
+		return this._d_.getInt8(this._pos_++);
+	}
+
+	/**
+	*@private
+	*从字节流中读取带符号的字节。
+	*/
+	__proto.getByte=function(){
+		return this.readByte();
+	}
+
+	/**
+	*@private
+	*<p>保证该字节流的可用长度不小于 <code>lengthToEnsure</code> 参数指定的值。</p>
+	*@param lengthToEnsure 指定的长度。
+	*/
+	__proto._ensureWrite=function(lengthToEnsure){
+		if (this._length < lengthToEnsure)this._length=lengthToEnsure;
+		if (this._allocated_ < lengthToEnsure)this.length=lengthToEnsure;
+	}
+
+	/**
+	*<p>将指定 arraybuffer 对象中的以 offset 为起始偏移量， length 为长度的字节序列写入字节流。</p>
+	*<p>如果省略 length 参数，则使用默认长度 0，该方法将从 offset 开始写入整个缓冲区；如果还省略了 offset 参数，则写入整个缓冲区。</p>
+	*<p>如果 offset 或 length 小于0，本函数将抛出异常。</p>
+	*@param arraybuffer 需要写入的 Arraybuffer 对象。
+	*@param offset Arraybuffer 对象的索引的偏移量（以字节为单位）
+	*@param length 从 Arraybuffer 对象写入到 Byte 对象的长度（以字节为单位）
+	*/
+	__proto.writeArrayBuffer=function(arraybuffer,offset,length){
+		(offset===void 0)&& (offset=0);
+		(length===void 0)&& (length=0);
+		if (offset < 0 || length < 0)throw "writeArrayBuffer error - Out of bounds";
+		if (length==0)length=arraybuffer.byteLength-offset;
+		this._ensureWrite(this._pos_+length);
+		var uint8array=new Uint8Array(arraybuffer);
+		this._u8d_.set(uint8array.subarray(offset,offset+length),this._pos_);
+		this._pos_+=length;
+	}
+
+	/**
+	*移动或返回 Byte 对象的读写指针的当前位置（以字节为单位）。下一次调用读取方法时将在此位置开始读取，或者下一次调用写入方法时将在此位置开始写入。
+	*/
+	__getset(0,__proto,'pos',function(){
+		return this._pos_;
+		},function(value){
+		this._pos_=value;
+	});
+
+	/**
+	*可从字节流的当前位置到末尾读取的数据的字节数。
+	*/
+	__getset(0,__proto,'bytesAvailable',function(){
+		return this._length-this._pos_;
+	});
+
+	/**
+	*<p> <code>Byte</code> 对象的长度（以字节为单位）。</p>
+	*<p>如果将长度设置为大于当前长度的值，则用零填充字节数组的右侧；如果将长度设置为小于当前长度的值，将会截断该字节数组。</p>
+	*<p>如果要设置的长度大于当前已分配的内存空间的字节长度，则重新分配内存空间，大小为以下两者较大者：要设置的长度、当前已分配的长度的2倍，并将原有数据拷贝到新的内存空间中；如果要设置的长度小于当前已分配的内存空间的字节长度，也会重新分配内存空间，大小为要设置的长度，并将原有数据从头截断为要设置的长度存入新的内存空间中。</p>
+	*/
+	__getset(0,__proto,'length',function(){
+		return this._length;
+		},function(value){
+		if (this._allocated_ < value)this._resizeBuffer(this._allocated_=Math.floor(Math.max(value,this._allocated_ *2)));
+		else if (this._allocated_ > value)this._resizeBuffer(this._allocated_=value);
+		this._length=value;
+	});
+
+	/**
+	*<p> <code>Byte</code> 实例的字节序。取值为：<code>BIG_ENDIAN</code> 或 <code>BIG_ENDIAN</code> 。</p>
+	*<p>主机字节序，是 CPU 存放数据的两种不同顺序，包括小端字节序和大端字节序。通过 <code>getSystemEndian</code> 可以获取当前系统的字节序。</p>
+	*<p> <code>BIG_ENDIAN</code> ：大端字节序，地址低位存储值的高位，地址高位存储值的低位。有时也称之为网络字节序。<br/>
+	*<code>LITTLE_ENDIAN</code> ：小端字节序，地址低位存储值的低位，地址高位存储值的高位。</p>
+	*/
+	__getset(0,__proto,'endian',function(){
+		return this._xd_ ? "littleEndian" :"bigEndian";
+		},function(value){
+		this._xd_=(value==="littleEndian");
+	});
+
+	/**
+	*获取此对象的 ArrayBuffer 数据，数据只包含有效数据部分。
+	*/
+	__getset(0,__proto,'buffer',function(){
+		var rstBuffer=this._d_.buffer;
+		if (rstBuffer.byteLength===this._length)return rstBuffer;
+		return rstBuffer.slice(0,this._length);
+	});
+
+	ByteEx.getSystemEndian=function(){
+		if (!ByteEx._sysEndian){
+			var buffer=new ArrayBuffer(2);
+			new DataView(buffer).setInt16(0,256,true);
+			ByteEx._sysEndian=(new Int16Array(buffer))[0]===256 ? "littleEndian" :"bigEndian";
+		}
+		return ByteEx._sysEndian;
+	}
+
+	ByteEx.BIG_ENDIAN="bigEndian";
+	ByteEx.LITTLE_ENDIAN="littleEndian";
+	ByteEx._sysEndian=null;
+	return ByteEx;
 })()
 
 
@@ -43363,6 +44265,547 @@ var DrawRectCmdNative=(function(){
 })()
 
 
+/**
+*一些字符串操作函数
+*@author ww
+*
+*/
+//class laya.debug.tools.StringTool
+var StringTool=(function(){
+	function StringTool(){}
+	__class(StringTool,'laya.debug.tools.StringTool');
+	StringTool.toUpCase=function(str){
+		return str.toUpperCase();
+	}
+
+	StringTool.toLowCase=function(str){
+		return str.toLowerCase();
+	}
+
+	StringTool.toUpHead=function(str){
+		var rst;
+		if(str.length<=1)return str.toUpperCase();
+		rst=str.charAt(0).toUpperCase()+str.substr(1);
+		return rst;
+	}
+
+	StringTool.toLowHead=function(str){
+		var rst;
+		if(str.length<=1)return str.toLowerCase();
+		rst=str.charAt(0).toLowerCase()+str.substr(1);
+		return rst;
+	}
+
+	StringTool.packageToFolderPath=function(packageName){
+		var rst;
+		rst=packageName.replace(".","/");
+		return rst;
+	}
+
+	StringTool.insert=function(str,iStr,index){
+		return str.substring(0,index)+iStr+str.substr(index);
+	}
+
+	StringTool.insertAfter=function(str,iStr,tarStr,isLast){
+		(isLast===void 0)&& (isLast=false);
+		var i=0;
+		if(isLast){
+			i=str.lastIndexOf(tarStr);
+			}else{
+			i=str.indexOf(tarStr);
+		}
+		if(i>=0){
+			return StringTool.insert(str,iStr,i+tarStr.length);
+		}
+		return str;
+	}
+
+	StringTool.insertBefore=function(str,iStr,tarStr,isLast){
+		(isLast===void 0)&& (isLast=false);
+		var i=0;
+		if(isLast){
+			i=str.lastIndexOf(tarStr);
+			}else{
+			i=str.indexOf(tarStr);
+		}
+		if(i>=0){
+			return StringTool.insert(str,iStr,i);
+		}
+		return str;
+	}
+
+	StringTool.insertParamToFun=function(funStr,params){
+		var oldParam;
+		oldParam=StringTool.getParamArr(funStr);
+		var inserStr;
+		inserStr=params.join(",");
+		if(oldParam.length>0){
+			inserStr=","+inserStr;
+		}
+		return StringTool.insertBefore(funStr,inserStr,")",true);
+	}
+
+	StringTool.trim=function(str,vList){
+		if(!vList){
+			vList=[" ","\r","\n","\t",String.fromCharCode(65279)];
+		};
+		var rst;
+		var i=0;
+		var len=0;
+		rst=str;
+		len=vList.length;
+		for(i=0;i<len;i++){
+			rst=StringTool.getReplace(rst,vList[i],"");
+		}
+		return rst;
+	}
+
+	StringTool.isEmpty=function(str){
+		if(str.length<1)return true;
+		return StringTool.emptyStrDic.hasOwnProperty(str);
+	}
+
+	StringTool.trimLeft=function(str){
+		var i=0;
+		i=0;
+		var len=0;
+		len=str.length;
+		while(StringTool.isEmpty(str.charAt(i))&&i<len){
+			i++;
+		}
+		if(i<len){
+			return str.substr(i);
+		}
+		return "";
+	}
+
+	StringTool.trimRight=function(str){
+		var i=0;
+		i=str.length-1;
+		while(StringTool.isEmpty(str.charAt(i))&&i>=0){
+			i--;
+		};
+		var rst;
+		rst=str.substring(0,i)
+		if(i>=0){
+			return str.substring(0,i+1);
+		}
+		return "";
+	}
+
+	StringTool.trimSide=function(str){
+		var rst;
+		rst=StringTool.trimLeft(str);
+		rst=StringTool.trimRight(rst);
+		return rst;
+	}
+
+	StringTool.isOkFileName=function(fileName){
+		if(laya.debug.tools.StringTool.trimSide(fileName)=="")return false;
+		var i=0,len=0;
+		len=fileName.length;
+		for(i=0;i<len;i++){
+			if(StringTool.specialChars[fileName.charAt(i)])return false;
+		}
+		return true;
+	}
+
+	StringTool.trimButEmpty=function(str){
+		return StringTool.trim(str,["\r","\n","\t"]);
+	}
+
+	StringTool.removeEmptyStr=function(strArr){
+		var i=0;
+		i=strArr.length-1;
+		var str;
+		for(i=i;i>=0;i--){
+			str=strArr[i];
+			str=laya.debug.tools.StringTool.trimSide(str);
+			if(StringTool.isEmpty(str)){
+				strArr.splice(i,1);
+				}else{
+				strArr[i]=str;
+			}
+		}
+		return strArr;
+	}
+
+	StringTool.ifNoAddToTail=function(str,sign){
+		if(str.indexOf(sign)>=0){
+			return str;
+		}
+		return str+sign;
+	}
+
+	StringTool.trimEmptyLine=function(str){
+		var i=0;
+		var len=0;
+		var tLines;
+		var tLine;
+		tLines=str.split("\n");
+		for(i=tLines.length-1;i>=0;i--){
+			tLine=tLines[i];
+			if(StringTool.isEmptyLine(tLine)){
+				tLines.splice(i,1);
+			}
+		}
+		return tLines.join("\n");
+	}
+
+	StringTool.isEmptyLine=function(str){
+		str=laya.debug.tools.StringTool.trim(str);
+		if(str=="")return true;
+		return false;
+	}
+
+	StringTool.removeCommentLine=function(lines){
+		var rst;
+		rst=[];
+		var i=0;
+		var tLine;
+		var adptLine;
+		i=0;
+		var len=0;
+		var index=0;
+		len=lines.length;
+		while(i<len){
+			adptLine=tLine=lines[i];
+			index=tLine.indexOf("/**");
+			if(index>=0){
+				adptLine=tLine.substring(0,index-1);
+				StringTool.addIfNotEmpty(rst,adptLine);
+				while(i<len){
+					tLine=lines[i];
+					index=tLine.indexOf("*/");
+					if(index>=0){
+						adptLine=tLine.substring(index+2);
+						StringTool.addIfNotEmpty(rst,adptLine);
+						break ;
+					}
+					i++;
+				}
+				}else if(tLine.indexOf("//")>=0){
+				if(laya.debug.tools.StringTool.trim(tLine).indexOf("//")==0){
+					}else{
+					StringTool.addIfNotEmpty(rst,adptLine);
+				}
+				}else{
+				StringTool.addIfNotEmpty(rst,adptLine);
+			}
+			i++;
+		}
+		return rst;
+	}
+
+	StringTool.addIfNotEmpty=function(arr,str){
+		if(!str)return;
+		var tStr;
+		tStr=StringTool.trim(str);
+		if(tStr!=""){
+			arr.push(str);
+		}
+	}
+
+	StringTool.trimExt=function(str,vars){
+		var rst;
+		rst=StringTool.trim(str);
+		var i=0;
+		var len=0;
+		len=vars.length;
+		for(i=0;i<len;i++){
+			rst=StringTool.getReplace(rst,vars[i],"");
+		}
+		return rst;
+	}
+
+	StringTool.getBetween=function(str,left,right,ifMax){
+		(ifMax===void 0)&& (ifMax=false);
+		if(!str)return "";
+		if(!left)return "";
+		if(!right)return "";
+		var lId=0;
+		var rId=0;
+		lId=str.indexOf(left);
+		if(lId<0)return"";
+		if(ifMax){
+			rId=str.lastIndexOf(right);
+			if(rId<lId)return "";
+			}else{
+			rId=str.indexOf(right,lId+1);
+		}
+		if(rId<0)return "";
+		return str.substring(lId+left.length,rId);
+	}
+
+	StringTool.getSplitLine=function(line,split){
+		(split===void 0)&& (split=" ");
+		return line.split(split);
+	}
+
+	StringTool.getLeft=function(str,sign){
+		var i=0;
+		i=str.indexOf(sign);
+		return str.substr(0,i);
+	}
+
+	StringTool.getRight=function(str,sign){
+		var i=0;
+		i=str.indexOf(sign);
+		return str.substr(i+1);
+	}
+
+	StringTool.delelteItem=function(arr){
+		while (arr.length>0){
+			if(arr[0]==""){
+				arr.shift();
+				}else{
+				break ;
+			}
+		}
+	}
+
+	StringTool.getWords=function(line){
+		var rst=StringTool.getSplitLine(line);
+		StringTool.delelteItem(rst);
+		return rst;
+	}
+
+	StringTool.getLinesI=function(startLine,endLine,lines){
+		var i=0;
+		var rst=[];
+		for(i=startLine;i<=endLine;i++){
+			rst.push(lines[i]);
+		}
+		return rst;
+	}
+
+	StringTool.structfy=function(str,inWidth,removeEmpty){
+		(inWidth===void 0)&& (inWidth=4);
+		(removeEmpty===void 0)&& (removeEmpty=true);
+		if(removeEmpty){
+			str=laya.debug.tools.StringTool.trimEmptyLine(str);
+		};
+		var lines;
+		var tIn=0;
+		tIn=0;
+		var tInStr;
+		tInStr=StringTool.getEmptyStr(0);
+		lines=str.split("\n");
+		var i=0;
+		var len=0;
+		var tLineStr;
+		len=lines.length;
+		for(i=0;i<len;i++){
+			tLineStr=lines[i];
+			tLineStr=laya.debug.tools.StringTool.trimLeft(tLineStr);
+			tLineStr=laya.debug.tools.StringTool.trimRight(tLineStr);
+			tIn+=StringTool.getPariCount(tLineStr);
+			if(tLineStr.indexOf("}")>=0){
+				tInStr=StringTool.getEmptyStr(tIn*inWidth);
+			}
+			tLineStr=tInStr+tLineStr;
+			lines[i]=tLineStr;
+			tInStr=StringTool.getEmptyStr(tIn*inWidth);
+		}
+		return lines.join("\n");
+	}
+
+	StringTool.getEmptyStr=function(width){
+		if(!StringTool.emptyDic.hasOwnProperty(width)){
+			var i=0;
+			var len=0;
+			len=width;
+			var rst;
+			rst="";
+			for(i=0;i<len;i++){
+				rst+=" ";
+			}
+			StringTool.emptyDic[width]=rst;
+		}
+		return StringTool.emptyDic[width];
+	}
+
+	StringTool.getPariCount=function(str,inChar,outChar){
+		(inChar===void 0)&& (inChar="{");
+		(outChar===void 0)&& (outChar="}");
+		var varDic;
+		varDic={};
+		varDic[inChar]=1;
+		varDic[outChar]=-1;
+		var i=0;
+		var len=0;
+		var tChar;
+		len=str.length;
+		var rst=0;
+		rst=0;
+		for(i=0;i<len;i++){
+			tChar=str.charAt(i);
+			if(varDic.hasOwnProperty(tChar)){
+				rst+=varDic[tChar];
+			}
+		}
+		return rst;
+	}
+
+	StringTool.readInt=function(str,startI){
+		(startI===void 0)&& (startI=0);
+		var rst=NaN;
+		rst=0;
+		var tNum=0;
+		var tC;
+		var i=0;
+		var isBegin=false;
+		isBegin=false;
+		var len=0;
+		len=str.length;
+		for(i=startI;i<len;i++){
+			tC=str.charAt(i);
+			if(Number(tC)>0||tC=="0"){
+				rst=10*rst+Number(tC);
+				if(rst>0)isBegin=true;
+				}else{
+				if(isBegin)return rst;
+			}
+		}
+		return rst;
+	}
+
+	StringTool.getReplace=function(str,oStr,nStr){
+		if(!str)return "";
+		var rst;
+		rst=str.replace(new RegExp(oStr,"g"),nStr);
+		return rst;
+	}
+
+	StringTool.getWordCount=function(str,findWord){
+		var rg=new RegExp(findWord,"g")
+		return str.match(rg).length;
+	}
+
+	StringTool.getResolvePath=function(path,basePath){
+		if(StringTool.isAbsPath(path)){
+			return path;
+		};
+		var tSign;
+		tSign="\\";
+		if(basePath.indexOf("/")>=0){
+			tSign="/";
+		}
+		if(basePath.charAt(basePath.length-1)==tSign){
+			basePath=basePath.substr(0,basePath.length-1);
+		};
+		var parentSign;
+		parentSign=".."+tSign;
+		var tISign;
+		tISign="."+tSign;
+		var pCount=0;
+		pCount=StringTool.getWordCount(path,parentSign);
+		path=laya.debug.tools.StringTool.getReplace(path,parentSign,"");
+		path=laya.debug.tools.StringTool.getReplace(path,tISign,"");
+		var i=0;
+		var len=0;
+		len=pCount;
+		var iPos=0;
+		for(i=0;i<len;i++){
+			basePath=StringTool.removeLastSign(path,tSign);
+		}
+		return basePath+tSign+path;
+	}
+
+	StringTool.isAbsPath=function(path){
+		if(path.indexOf(":")>=0)return true;
+		return false;
+	}
+
+	StringTool.removeLastSign=function(str,sign){
+		var iPos=0;
+		iPos=str.lastIndexOf(sign);
+		str=str.substring(0,iPos);
+		return str;
+	}
+
+	StringTool.getParamArr=function(str){
+		var paramStr;
+		paramStr=laya.debug.tools.StringTool.getBetween(str,"(",")",true);
+		if(StringTool.trim(paramStr).length<1)return [];
+		return paramStr.split(",");
+	}
+
+	StringTool.copyStr=function(str){
+		return str.substring();
+	}
+
+	StringTool.ArrayToString=function(arr){
+		var rst;
+		rst="[{items}]".replace(new RegExp("\\{items\\}","g"),StringTool.getArrayItems(arr));
+		return rst;
+	}
+
+	StringTool.getArrayItems=function(arr){
+		var rst;
+		if(arr.length<1)return "";
+		rst=StringTool.parseItem(arr[0]);
+		var i=0;
+		var len=0;
+		len=arr.length;
+		for(i=1;i<len;i++){
+			rst+=","+StringTool.parseItem(arr[i]);
+		}
+		return rst;
+	}
+
+	StringTool.parseItem=function(item){
+		var rst;
+		rst="\""+item+"\"";
+		return "";
+	}
+
+	StringTool.initAlphaSign=function(){
+		if (StringTool.alphaSigns)return;
+		StringTool.alphaSigns={};
+		StringTool.addSign("a","z",StringTool.alphaSigns);
+		StringTool.addSign("A","Z",StringTool.alphaSigns);
+		StringTool.addSign("0","9",StringTool.alphaSigns);
+	}
+
+	StringTool.addSign=function(ss,e,tar){
+		var i=0;
+		var len=0;
+		var s=0;
+		s=ss.charCodeAt(0);
+		len=e.charCodeAt(0);
+		for(i=s;i<=len;i++){
+			tar[String.fromCharCode(i)]=true;
+			console.log("add :"+String.fromCharCode(i));
+		}
+	}
+
+	StringTool.isPureAlphaNum=function(str){
+		StringTool.initAlphaSign();
+		if (!str)return true;
+		var i=0,len=0;
+		len=str.length;
+		for (i=0;i < len;i++){
+			if (!StringTool.alphaSigns[str.charAt(i)])return false;
+		}
+		return true;
+	}
+
+	StringTool.emptyDic={};
+	StringTool.alphaSigns=null;
+	__static(StringTool,
+	['emptyStrDic',function(){return this.emptyStrDic={
+			" ":true,
+			"\r":true,
+			"\n":true,
+			"\t":true
+	};},'specialChars',function(){return this.specialChars={"*":true,"&":true,"%":true,"#":true,"?":true};}
+
+	]);
+	return StringTool;
+})()
+
+
 //class laya.webgl.canvas.save.SaveMark
 var SaveMark=(function(){
 	function SaveMark(){
@@ -45587,6 +47030,408 @@ var SizeOverLifetime=(function(){
 	});
 
 	return SizeOverLifetime;
+})()
+
+
+/**
+*本类提供obj相关的一些操作
+*@author ww
+*@version 1.0
+*
+*@created 2015-10-21 下午2:03:36
+*/
+//class laya.debug.tools.ObjectTools
+var ObjectTools=(function(){
+	function ObjectTools(){}
+	__class(ObjectTools,'laya.debug.tools.ObjectTools');
+	ObjectTools.getFlatKey=function(tKey,aKey){
+		if(tKey=="")return aKey;
+		return tKey+ObjectTools.sign+aKey;
+	}
+
+	ObjectTools.flatObj=function(obj,rst,tKey){
+		(tKey===void 0)&& (tKey="");
+		rst=rst?rst:{};
+		var key;
+		var tValue;
+		for(key in obj){
+			if((typeof (obj[key])=='object')){
+				ObjectTools.flatObj(obj[key],rst,ObjectTools.getFlatKey(tKey,key));
+				}else{
+				tValue=obj[key];
+				rst[ObjectTools.getFlatKey(tKey,key)]=obj[key];
+			}
+		}
+		return rst;
+	}
+
+	ObjectTools.recoverObj=function(obj){
+		var rst={};
+		var tKey;
+		for(tKey in obj){
+			ObjectTools.setKeyValue(rst,tKey,obj[tKey]);
+		}
+		return rst;
+	}
+
+	ObjectTools.differ=function(objA,objB){
+		var tKey;
+		var valueA;
+		var valueB;
+		objA=ObjectTools.flatObj(objA);
+		objB=ObjectTools.flatObj(objB);
+		var rst={};
+		for(tKey in objA){
+			if(!objB.hasOwnProperty(tKey)){
+				rst[tKey]="被删除";
+			}
+		}
+		for(tKey in objB){
+			if(objB[tKey]!=objA[tKey]){
+				rst[tKey]={"pre":objA[tKey],"now":objB[tKey]};
+			}
+		}
+		return rst;
+	}
+
+	ObjectTools.traceDifferObj=function(obj){
+		var key;
+		var tO;
+		for(key in obj){
+			if((typeof (obj[key])=='string')){
+				console.log(key+":",obj[key]);
+				}else{
+				tO=obj[key];
+				console.log(key+":","now:",tO["now"],"pre:",tO["pre"]);
+			}
+		}
+	}
+
+	ObjectTools.setKeyValue=function(obj,flatKey,value){
+		if(flatKey.indexOf(ObjectTools.sign)>=0){
+			var keys=flatKey.split(ObjectTools.sign);
+			var tKey;
+			while(keys.length>1){
+				tKey=keys.shift();
+				if(!obj[tKey]){
+					obj[tKey]={};
+					console.log("addKeyObj:",tKey);
+				}
+				obj=obj[tKey];
+				if(!obj){
+					console.log("wrong flatKey:",flatKey);
+					return;
+				}
+			}
+			obj[keys.shift()]=value;
+			}else{
+			obj[flatKey]=value;
+		}
+	}
+
+	ObjectTools.clearObj=function(obj){
+		var key;
+		for (key in obj){
+			delete obj[key];
+		}
+	}
+
+	ObjectTools.copyObjFast=function(obj){
+		var jsStr;
+		jsStr=laya.debug.tools.ObjectTools.getJsonString(obj);
+		return laya.debug.tools.ObjectTools.getObj(jsStr);
+	}
+
+	ObjectTools.copyObj=function(obj){
+		if((obj instanceof Array))return ObjectTools.copyArr(obj);
+		var rst={};
+		var key;
+		for(key in obj){
+			if(obj[key]===null||obj[key]===undefined){
+				rst[key]=obj[key];
+			}else
+			if(((obj[key])instanceof Array)){
+				rst[key]=ObjectTools.copyArr(obj[key]);
+			}
+			else
+			if((typeof (obj[key])=='object')){
+				rst[key]=ObjectTools.copyObj(obj[key]);
+				}else{
+				rst[key]=obj[key];
+			}
+		}
+		return rst;
+	}
+
+	ObjectTools.copyArr=function(arr){
+		var rst;
+		rst=[];
+		var i=0,len=0;
+		len=arr.length;
+		for(i=0;i<len;i++){
+			rst.push(ObjectTools.copyObj(arr[i]));
+		}
+		return rst;
+	}
+
+	ObjectTools.concatArr=function(src,a){
+		if (!a)return src;
+		if (!src)return a;
+		var i=0,len=a.length;
+		for (i=0;i < len;i++){
+			src.push(a[i]);
+		}
+		return src;
+	}
+
+	ObjectTools.insertArrToArr=function(src,insertArr,pos){
+		(pos===void 0)&& (pos=0);
+		if (pos < 0)pos=0;
+		if (pos > src.length)pos=src.length;
+		var preLen=src.length;
+		var i=0,len=0;
+		src.length+=insertArr.length;
+		var moveLen=0;
+		moveLen=insertArr.length;
+		for (i=src.length-1;i >=pos;i--){
+			src[i]=src[i-moveLen];
+		}
+		len=insertArr.length;
+		for (i=0;i < len;i++){
+			src[pos+i]=insertArr[i];
+		}
+		return src;
+	}
+
+	ObjectTools.clearArr=function(arr){
+		if (!arr)return arr;
+		arr.length=0;
+		return arr;
+	}
+
+	ObjectTools.removeFromArr=function(arr,item){
+		var i=0,len=0;
+		len=arr.length;
+		for(i=0;i<len;i++){
+			if(arr[i]==item){
+				arr[i].splice(i,1);
+				return;
+			}
+		}
+	}
+
+	ObjectTools.setValueArr=function(src,v){
+		src || (src=[]);
+		src.length=0;
+		return ObjectTools.concatArr(src,v);
+	}
+
+	ObjectTools.getFrom=function(rst,src,count){
+		var i=0;
+		for (i=0;i < count;i++){
+			rst.push(src[i]);
+		}
+		return rst;
+	}
+
+	ObjectTools.getFromR=function(rst,src,count){
+		var i=0;
+		for (i=0;i < count;i++){
+			rst.push(src.pop());
+		}
+		return rst;
+	}
+
+	ObjectTools.enableDisplayTree=function(dis){
+		while (dis){
+			dis.mouseEnabled=true;
+			dis=dis.parent;
+		}
+	}
+
+	ObjectTools.getJsonString=function(obj){
+		var rst;
+		rst=JSON.stringify(obj);
+		return rst;
+	}
+
+	ObjectTools.getObj=function(jsonStr){
+		var rst;
+		rst=JSON.parse(jsonStr);
+		return rst;
+	}
+
+	ObjectTools.getKeyArr=function(obj){
+		var rst;
+		var key;
+		rst=[];
+		for(key in obj){
+			rst.push(key);
+		}
+		return rst;
+	}
+
+	ObjectTools.getObjValues=function(dataList,key){
+		var rst;
+		var i=0,len=0;
+		len=dataList.length;
+		rst=[];
+		for(i=0;i<len;i++){
+			rst.push(dataList[i][key]);
+		}
+		return rst;
+	}
+
+	ObjectTools.hasKeys=function(obj,keys){
+		var i=0,len=0;
+		len=keys.length;
+		for(i=0;i<len;i++){
+			if(!obj.hasOwnProperty(keys[i]))return false;
+		}
+		return true;
+	}
+
+	ObjectTools.copyValueByArr=function(tar,src,keys){
+		var i=0,len=keys.length;
+		for(i=0;i<len;i++){
+			if(!(src[keys[i]]===null))
+				tar[keys[i]]=src[keys[i]];
+		}
+	}
+
+	ObjectTools.getNoSameArr=function(arr){
+		var i=0,len=0;
+		var rst;
+		rst=[];
+		var tItem;
+		len=arr.length;
+		for (i=0;i < len;i++){
+			tItem=arr[i];
+			if (rst.indexOf(tItem)< 0){
+				rst.push(tItem);
+			}
+		}
+		return rst;
+	}
+
+	ObjectTools.insertValue=function(tar,src){
+		var key;
+		for (key in src){
+			tar[key]=src[key];
+		}
+	}
+
+	ObjectTools.replaceValue=function(obj,replaceO){
+		var key;
+		for(key in obj){
+			if(replaceO.hasOwnProperty(obj[key])){
+				obj[key]=replaceO[obj[key]];
+			}
+			if((typeof (obj[key])=='object')){
+				ObjectTools.replaceValue(obj[key],replaceO);
+			}
+		}
+	}
+
+	ObjectTools.setKeyValues=function(items,key,value){
+		var i=0,len=0;
+		len=items.length;
+		for(i=0;i<len;i++){
+			items[i][key]=value;
+		}
+	}
+
+	ObjectTools.findItemPos=function(items,sign,value){
+		var i=0,len=0;
+		len=items.length;
+		for(i=0;i<len;i++){
+			if(items[i][sign]==value){
+				return i;
+			}
+		}
+		return-1;
+	}
+
+	ObjectTools.setObjValue=function(obj,key,value){
+		obj[key]=value;
+		return obj;
+	}
+
+	ObjectTools.setAutoTypeValue=function(obj,key,value){
+		if(obj.hasOwnProperty(key)){
+			if(ObjectTools.isNumber(obj[key])){
+				obj[key]=parseFloat(value);
+				}else{
+				obj[key]=value;
+			}
+			}else{
+			obj[key]=value;
+		}
+		return obj;
+	}
+
+	ObjectTools.getAutoValue=function(value){
+		var tFloat=parseFloat(value);
+		if(typeof(value)=="string"){
+			if(tFloat+""===StringTool.trimSide(value))return tFloat;
+		}
+		return value;
+	}
+
+	ObjectTools.isNumber=function(value){
+		return (parseFloat(value)==value);
+	}
+
+	ObjectTools.isNaNS=function(value){
+		return (value.toString()=="NaN");
+	}
+
+	ObjectTools.isNaN=function(value){
+		if(typeof(value)=="number")return false;
+		if(typeof(value)=="string"){
+			if(parseFloat(value).toString()!="NaN"){
+				if(parseFloat(value)==value){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	ObjectTools.getStrTypedValue=function(value){
+		if(value=="false"){
+			return false;
+		}else
+		if(value=="true"){
+			return true;
+		}else
+		if(value=="null"){
+			return null;
+		}else
+		if(value=="undefined"){
+			return null;
+			}else{
+			return ObjectTools.getAutoValue(value);
+		}
+	}
+
+	ObjectTools.createKeyValueDic=function(dataList,keySign){
+		var rst;
+		rst={};
+		var i=0,len=0;
+		len=dataList.length;
+		var tItem;
+		var tKey;
+		for(i=0;i<len;i++){
+			tItem=dataList[i];
+			tKey=tItem[keySign];
+			rst[tKey]=tItem;
+		}
+		return rst;
+	}
+
+	ObjectTools.sign="_";
+	return ObjectTools;
 })()
 
 
@@ -73251,8 +75096,11 @@ var Sprite=(function(_super){
 	__getset(0,__proto,'pivotX',function(){
 		return this._getPivotX();
 		},function(value){
-		this._setPivotX(value);
-		this.repaint();
+		this._setPivotX
+		(value)
+		;
+		this.repaint
+		();
 	});
 
 	/**
@@ -108455,7 +110303,7 @@ var Tab=(function(_super){
 })(UIGroup)
 
 
-	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Path,Transition,View,WebGLContext2D,GearSize,SceneUtils,CallLater,RelationItem,GearLook,GearAnimation,EaseManager,GameConfig,Timer,LocalStorage,GList,GBasicTextField,UIPackage,GearColor]);
+	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Transition,Path,View,WebGLContext2D,GearSize,SceneUtils,LocalStorage,CallLater,RelationItem,GearLook,GameConfig,GearAnimation,EaseManager,Timer,GList,GBasicTextField,UIPackage,GearColor]);
 	/**LayaGameStart**/
 	new Main();
 

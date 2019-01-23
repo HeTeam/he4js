@@ -19,7 +19,6 @@ package {
 		public static var stat:Boolean = false;
 		public static var physicsDebug:Boolean = false;
 		public static var exportSceneToJson:Boolean = true;
-		
 		public static function init():void {
 			//注册Script或者Runtime引用
 			var reg:Function = ClassUtils.regClass;

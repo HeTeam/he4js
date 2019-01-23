@@ -3,6 +3,7 @@ package laya.debug.tools
 	import laya.net.Loader;
 	import laya.resource.Texture;
 	import laya.utils.Handler;
+	import script.Game2D;
 	/**
 	 * ...
 	 * @author ww
@@ -46,7 +47,12 @@ package laya.debug.tools
 			{
 				var tx:Texture;
 				tx = Laya.loader.getRes(data[key]);
-				Loader.cacheRes(replaceO[key], tx);
+				if(Game2D.allInOne){
+					Loader.cacheRes(key, tx);
+				}else{
+					Loader.cacheRes(replaceO[key], tx);
+				}
+				
 				//trace("cacheRes:",replaceO[key],tx);
 			}
 			if (_loadedHandler)
