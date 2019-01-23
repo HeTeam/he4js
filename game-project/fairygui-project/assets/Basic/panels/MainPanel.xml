@@ -4,7 +4,7 @@
     <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn_and_resizer.xml" xy="-1,0" size="378,477">
       <relation target="" sidePair="width-width,height-height"/>
     </component>
-    <text id="n2_8ymy" name="n2" xy="160,2" size="50,21" fontSize="15" color="#333333" text="主窗口">
+    <text id="n2_8ymy" name="n2" xy="156,2" size="50,21" fontSize="15" color="#333333" text="主窗口">
       <relation target="" sidePair="center-center"/>
     </text>
   </displayList>
