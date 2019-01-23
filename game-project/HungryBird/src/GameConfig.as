@@ -10,7 +10,7 @@ package {
 	public class GameConfig {
 		public static var width:int = 640;
 		public static var height:int = 1136;
-		public static var scaleMode:String = "fixedwidth";
+		public static var scaleMode:String = "noscale";
 		public static var screenMode:String = "none";
 		public static var alignV:String = "top";
 		public static var alignH:String = "left";
