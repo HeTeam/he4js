@@ -30,6 +30,11 @@
 //endimgsdata
 </script>
 <script type="text/javascript">
+//startotherbin
+
+//endotherbin
+</script>
+<script type="text/javascript">
 //startbundlejs
 
 //endbundlejs

@@ -7,6 +7,8 @@ package Basic
 	public class UI_MainPanel extends fairygui.GComponent
 	{
 		public var m_frame:UI_WindowFrame_with_close_btn_and_resizer;
+		public var m_container:UI_MainPanelBirdContainer;
+		public var m_title:GTextField;
 
 		public static const URL:String = "ui://3hcsjton8ymy3i";
 
@@ -24,6 +26,8 @@ package Basic
 			super.constructFromXML(xml);
 
 			m_frame = UI_WindowFrame_with_close_btn_and_resizer(this.getChildAt(0));
+			m_container = UI_MainPanelBirdContainer(this.getChildAt(1));
+			m_title = GTextField(this.getChildAt(2));
 		}
 	}
 }

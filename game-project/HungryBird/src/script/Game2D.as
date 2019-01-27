@@ -10,6 +10,7 @@ import script.panels.PanelUtil;
 import script.panels.NodePanel;
 import laya.debug.tools.Base64Tool;
 import laya.debug.tools.Base64Atlas;
+import Basic.BasicBinder;
 
 // 程序入口
 public class Game2D {
@@ -48,9 +49,15 @@ public class Game2D {
         if(allInOne){
             //加载 index.html 中的 UI 配置
             var _basicUIData;
+            var _otherbin;
             __JS__('_basicUIData = basicUIData');
+            __JS__('_otherbin = otherbin');
             fairygui.UIPackage.addPackage("res/Basic",laya.debug.tools.Base64Tool.decode(_basicUIData));
-            
+            Laya.loader.cacheRes("res/bird.sk",laya.debug.tools.Base64Tool.decode(_otherbin));
+            // for(var key:String in _otherbin)
+            // {
+                // Laya.loader.cacheRes(key,laya.debug.tools.Base64Tool.decode(_otherbin[key]));
+            // }
         }else{
             fairygui.UIPackage.addPackage("res/Basic");
         }
@@ -60,7 +67,7 @@ public class Game2D {
         fairygui.UIConfig.horizontalScrollBar = "ui://Basic/ScrollBar_HZ";
         fairygui.UIConfig.popupMenu = "ui://Basic/PopupMenu";
         fairygui.UIConfig.buttonSound = "ui://Basic/click";
-
+        BasicBinder.bindAll();
         PanelUtil.bindWindows();
         
         new MainPanel();

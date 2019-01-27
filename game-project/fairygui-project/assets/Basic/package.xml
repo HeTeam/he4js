@@ -133,6 +133,7 @@
     <component id="a4tz3l" name="Resizer.xml" path="/default/Window/"/>
     <component id="a4tz3m" name="WindowFrame_with_close_btn.xml" path="/default/Window/" exported="true"/>
     <image id="a4tz3n" name="resizer.png" path="/default/Window/"/>
+    <component id="oorc3o" name="MainPanelBirdContainer.xml" path="/panels/" exported="true"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>
