@@ -4,7 +4,7 @@
 # Written by: Matt Wiggins, Updated 06-24-2013
 # 修改：poerlang
 
-json="script.Game2D.imgsData={\n"
+json="imgsData={\n"
 for file in *.png
 do
   current="$(openssl base64 -in $file)"

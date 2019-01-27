@@ -74265,7 +74265,8 @@ var Sprite=(function(_super){
 
 	/**@private */
 	__proto._setSkewX=function(value){
-		this._style.skewX=value;
+		this._style.skewX=value
+		;
 	}
 
 	/**@private */
