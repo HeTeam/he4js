@@ -33,7 +33,7 @@
     <image id="8ymyt" name="p4.png" path="/default/images/" exported="true" scale="9grid" scale9grid="5,4,39,8" qualityOption="source"/>
     <image id="8ymyu" name="p16.png" path="/default/images/" exported="true" scale="9grid" scale9grid="5,4,31,8" qualityOption="source"/>
     <image id="8ymyv" name="a8(1).png" path="/default/images/" exported="true" scale="9grid" scale9grid="7,3,76,12" qualityOption="source"/>
-    <image id="8ymyw" name="f1.png" path="/default/images/" exported="true" scale="9grid" scale9grid="18,36,345,205" qualityOption="source" smoothing="false"/>
+    <image id="8ymyw" name="f1.png" path="/default/images/" exported="true" scale="9grid" scale9grid="17,55,345,185" qualityOption="source" smoothing="false"/>
     <image id="8ymyx" name="a13.png" path="/default/images/" exported="true"/>
     <image id="8ymyy" name="a12.png" path="/default/images/" exported="true"/>
     <image id="8ymyz" name="a11.png" path="/default/images/" exported="true"/>

@@ -8819,14 +8819,24 @@ var RelationType=(function(){
 //class Main
 var Main=(function(){
 	function Main(){
-		GameConfig.width=window.innerWidth;
-		GameConfig.height=window.innerHeight;
+		console.log(Browser.clientWidth);
+		console.log(Browser.width);
+		console.log(Browser.pixelRatio);
+		if(!Browser.onMobile){
+			GameConfig.width=Browser.width;
+			GameConfig.height=Browser.height;
+		}
 		if (window["Laya3D"])window["Laya3D"].init(GameConfig.width,GameConfig.height);
 		else Laya.init(GameConfig.width,GameConfig.height,Laya["WebGL"]);
 		Laya["Physics"] && Laya["Physics"].enable();
 		Laya["DebugPanel"] && Laya["DebugPanel"].enable();
-		Laya.stage.scaleMode=GameConfig.scaleMode;
-		Laya.stage.screenMode=GameConfig.screenMode;
+		if(!Browser.onMobile){
+			Laya.stage.scaleMode=GameConfig.scaleMode;
+			Laya.stage.screenMode=GameConfig.screenMode;
+			}else{
+			Laya.stage.scaleMode="fixedauto";
+			Laya.stage.screenMode=GameConfig.screenMode;
+		}
 		Laya.stage.alignV=GameConfig.alignV;
 		Laya.stage.alignH=GameConfig.alignH;
 		Laya.stage.bgColor="#666666";
@@ -77376,7 +77386,8 @@ var Sprite=(function(_super){
 				}
 				}else {
 				this.x=x;
-				this.y=y;
+				this.y=y
+				;
 			}
 		}
 		return this;

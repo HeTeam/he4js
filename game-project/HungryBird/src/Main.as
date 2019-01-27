@@ -9,18 +9,29 @@
 	import script.Game2D;
 	import PathFinding.finders.AStarFinder;
 	import laya.d3.shader.ShaderDefines;
+	import laya.utils.Browser;
 	
 	public class Main {
 		public function Main() {
 			//根据IDE设置初始化引擎
-			GameConfig.width = window.innerWidth;
-			GameConfig.height = window.innerHeight;
+			trace(laya.utils.Browser.clientWidth);
+			trace(laya.utils.Browser.width);
+			trace(laya.utils.Browser.pixelRatio);
+			if(!laya.utils.Browser.onMobile){
+				GameConfig.width = laya.utils.Browser.width;
+				GameConfig.height = laya.utils.Browser.height;
+			}
 			if (window["Laya3D"]) window["Laya3D"].init(GameConfig.width, GameConfig.height);
 			else Laya.init(GameConfig.width, GameConfig.height, Laya["WebGL"]);
 			Laya["Physics"] && Laya["Physics"].enable();
 			Laya["DebugPanel"] && Laya["DebugPanel"].enable();
-			Laya.stage.scaleMode = GameConfig.scaleMode;
-			Laya.stage.screenMode = GameConfig.screenMode;
+			if(!laya.utils.Browser.onMobile){
+				Laya.stage.scaleMode = GameConfig.scaleMode;
+				Laya.stage.screenMode = GameConfig.screenMode;
+			}else{
+				Laya.stage.scaleMode = "fixedauto";
+				Laya.stage.screenMode = GameConfig.screenMode;
+			}
 			Laya.stage.alignV = GameConfig.alignV;
 			Laya.stage.alignH = GameConfig.alignH;
 			Laya.stage.bgColor = "#666666";
