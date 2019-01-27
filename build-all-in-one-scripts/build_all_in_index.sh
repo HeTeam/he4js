@@ -21,15 +21,15 @@ mv otherbin.js $outputpath/otherbin.js
 mv basicUIData.txt $outputpath/basicUIData.txt
 
 cd $outputpath
-cp $scriptpath/index_editor_all_in_one.tpl index_editor_all_in_one.html
+cp $scriptpath/index_editor_all_in_one.tpl index.html
 cp $buindlefile bundle.js
 
 #替换
 go run $scriptpath/replace.go -f bundle.js -s1 "Game2D.allInOne=false" -s3 "Game2D.allInOne=true"
-go run $scriptpath/replace.go -f index_editor_all_in_one.html -s1 "(?s)(//startbasicUIData)(.*)//endbasicUIData" -s2 basicUIData.txt -start //startbasicUIData -end //endbasicUIData
-go run $scriptpath/replace.go -f index_editor_all_in_one.html -s1 "(?s)(//startimgsdata)(.*)//endimgsdata" -s2 imgsdata.js -start //startimgsdata -end //endimgsdata
-go run $scriptpath/replace.go -f index_editor_all_in_one.html -s1 "(?s)(//startotherbin)(.*)//endotherbin" -s2 otherbin.js -start //startotherbin -end //endotherbin
-go run $scriptpath/replace.go -f index_editor_all_in_one.html -s1 "(?s)//startbundlejs(.*)//endbundlejs" -s2 bundle.js -start //startbundlejs -end //endbundlejs
+go run $scriptpath/replace.go -f index.html -s1 "(?s)(//startbasicUIData)(.*)//endbasicUIData" -s2 basicUIData.txt -start //startbasicUIData -end //endbasicUIData
+go run $scriptpath/replace.go -f index.html -s1 "(?s)(//startimgsdata)(.*)//endimgsdata" -s2 imgsdata.js -start //startimgsdata -end //endimgsdata
+go run $scriptpath/replace.go -f index.html -s1 "(?s)(//startotherbin)(.*)//endotherbin" -s2 otherbin.js -start //startotherbin -end //endotherbin
+go run $scriptpath/replace.go -f index.html -s1 "(?s)//startbundlejs(.*)//endbundlejs" -s2 bundle.js -start //startbundlejs -end //endbundlejs
 
 #清理
 rm bundle.js
