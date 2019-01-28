@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="95,43" pivot="0.5,0.5" extention="Button">
+  <controller name="button" pages="0,up,1,down,2,over,3,selectedOver" selected="0"/>
+  <controller name="grayed" pages="0,,1," selected="0"/>
+  <displayList>
+    <image id="n1" name="n1" src="8ymy2" fileName="default/images/b7.png" xy="0,0" size="95,43" aspect="true">
+      <gearDisplay controller="button" pages="0"/>
+      <gearColor controller="grayed" pages="1" values="#efefef" default="#ffffff"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <image id="n2" name="n2" src="8ymy3" fileName="default/images/b5.png" xy="0,0" size="95,43" aspect="true">
+      <gearDisplay controller="button" pages="1,3"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <image id="n3" name="n3" src="8ymy4" fileName="default/images/b6.png" xy="0,0" size="95,43" aspect="true">
+      <gearDisplay controller="button" pages="2"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <text id="n4" name="title" xy="32,1" size="56,41" fontSize="12" color="#bdbdbd" align="center" vAlign="middle" autoSize="none" singleLine="true" text="">
+      <gearColor controller="grayed" pages="0,1" values="#bdbdbd,#000000|#999999,#000000"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </text>
+    <loader id="n5_xuqg" name="icon" xy="5,9" size="23,23" aspect="true" fill="scale">
+      <relation target="" sidePair="middle-middle"/>
+    </loader>
+  </displayList>
+  <Button mode="Radio" downEffect="dark" downEffectValue="1.00"/>
+</component>

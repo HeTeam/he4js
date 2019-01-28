@@ -134,6 +134,13 @@
     <component id="a4tz3m" name="WindowFrame_with_close_btn.xml" path="/default/Window/" exported="true"/>
     <image id="a4tz3n" name="resizer.png" path="/default/Window/"/>
     <component id="oorc3o" name="MainPanelBirdContainer.xml" path="/panels/" exported="true"/>
+    <image id="xuqg3p" name="bird_t.png" path="/pic/"/>
+    <image id="xuqg3q" name="bird_tt.png" path="/pic/"/>
+    <image id="xuqg3r" name="bird_tt1.png" path="/pic/"/>
+    <image id="xuqg3s" name="bird_tt2.png" path="/pic/"/>
+    <component id="xuqg3t" name="Nut1.xml" path="/objects/" exported="true"/>
+    <component id="xuqg3u" name="Nut2.xml" path="/objects/" exported="true"/>
+    <component id="xuqg3v" name="ButtonWithTitleAndIcon.xml" path="/default/Button/" exported="true"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>

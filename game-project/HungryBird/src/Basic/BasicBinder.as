@@ -28,6 +28,9 @@ package Basic
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_WindowFrame_with_close_btn.URL, UI_WindowFrame_with_close_btn);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_Box.URL, UI_Box);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_MainPanelBirdContainer.URL, UI_MainPanelBirdContainer);
+			fairygui.UIObjectFactory.setPackageItemExtension(UI_Nut1.URL, UI_Nut1);
+			fairygui.UIObjectFactory.setPackageItemExtension(UI_Nut2.URL, UI_Nut2);
+			fairygui.UIObjectFactory.setPackageItemExtension(UI_ButtonWithTitleAndIcon.URL, UI_ButtonWithTitleAndIcon);
 		}
 	}
 }

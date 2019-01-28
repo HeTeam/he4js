@@ -1,14 +1,10 @@
 ﻿package {
-	import laya.display.Scene;
 	import laya.net.AtlasInfoManager;
-	import laya.net.ResourceVersion;
 	import laya.net.URL;
 	import laya.utils.Handler;
 	import laya.utils.Stat;
 	import laya.utils.Utils;
 	import script.Game2D;
-	import PathFinding.finders.AStarFinder;
-	import laya.d3.shader.ShaderDefines;
 	import laya.utils.Browser;
 	
 	public class Main {

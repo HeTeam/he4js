@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="378,477">
+  <controller name="selnut" pages="0,,1," selected="0"/>
   <displayList>
     <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn_and_resizer.xml" xy="-1,0" size="378,477" locked="true">
       <relation target="" sidePair="width-width,height-height"/>
     </component>
-    <component id="n4_oorc" name="container" src="oorc3o" fileName="panels/MainPanelBirdContainer.xml" xy="9,29" size="359,438">
+    <component id="n4_oorc" name="container" src="oorc3o" fileName="panels/MainPanelBirdContainer.xml" xy="9,48" size="359,382">
       <relation target="" sidePair="width-width,height-height"/>
     </component>
     <text id="n2_8ymy" name="title" xy="156,13" size="50,21" fontSize="15" color="#333333" text="主窗口">
       <relation target="" sidePair="center-center"/>
     </text>
+    <component id="n5_xuqg" name="btn_nut0" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="5,433" size="93,39">
+      <relation target="" sidePair="bottom-bottom"/>
+      <Button checked="true" title="带壳坚果" icon="ui://3hcsjtonxuqg3p" controller="selnut" page="0"/>
+    </component>
+    <component id="n7_xuqg" name="btn_nut1" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="102,433" size="93,39">
+      <relation target="" sidePair="bottom-bottom"/>
+      <Button title="无壳坚果" icon="ui://3hcsjtonxuqg3q" controller="selnut" page="1"/>
+    </component>
   </displayList>
 </component>

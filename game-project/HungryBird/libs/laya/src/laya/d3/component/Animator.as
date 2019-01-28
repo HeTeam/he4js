@@ -55,7 +55,7 @@ package laya.d3.component {
 		/**@private */
 		private var _speed:Number;
 		/**@private */
-		private var _avatar:Avatar;
+		public var _avatar:Avatar;
 		/**@private */
 		private var _keyframeNodeOwnerMap:Object;
 		/**@private */
@@ -1213,7 +1213,7 @@ package laya.d3.component {
 		 * @param	layerIndex 层索引。
 		 * @param	normalizedTime 归一化的播放起始时间。
 		 */
-		public function play(name:String = null, layerIndex:int = 0, normalizedTime:Number = Number.NEGATIVE_INFINITY):void {
+		public function play(name:String = null, layerIndex:int = 0, normalizedTime:Number = 0.00000001):void {
 			var controllerLayer:AnimatorControllerLayer = _controllerLayers[layerIndex];
 			var defaultState:AnimatorState = controllerLayer._defaultState;
 			if (!name && !defaultState)
@@ -1252,7 +1252,7 @@ package laya.d3.component {
 		 * @param	layerIndex 层索引。
 		 * @param	normalizedTime 归一化的播放起始时间。
 		 */
-		public function crossFade(name:String, transitionDuration:Number, layerIndex:int = 0, normalizedTime:Number = Number.NEGATIVE_INFINITY):void {
+		public function crossFade(name:String, transitionDuration:Number, layerIndex:int = 0, normalizedTime:Number = 0.000001):void {
 			var controllerLayer:AnimatorControllerLayer = _controllerLayers[layerIndex];
 			var destAnimatorState:AnimatorState = controllerLayer._statesMap[name];
 			if (destAnimatorState) {

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="75,75" pivot="0.5,0.8" anchor="true">
+  <displayList>
+    <image id="n0_xuqg" name="n0" src="xuqg3q" fileName="pic/bird_tt.png" xy="0,0"/>
+    <image id="n1_xuqg" name="n1" src="xuqg3r" fileName="pic/bird_tt1.png" xy="33,64" pivot="0.71,0.93" anchor="true"/>
+    <image id="n2_xuqg" name="n2" src="xuqg3s" fileName="pic/bird_tt2.png" xy="29,65" pivot="0.28,0.82" anchor="true"/>
+    <image id="n3_xuqg" name="n3" src="xuqg3r" fileName="pic/bird_tt1.png" xy="33,44" pivot="0.34,0.65" anchor="true" rotation="-42.7"/>
+  </displayList>
+  <transition name="t0" options="4" autoPlay="true">
+    <item time="0" type="Alpha" target="n1_xuqg" tween="true" startValue="1" endValue="0.97" duration="2"/>
+    <item time="0" type="Alpha" target="n2_xuqg" tween="true" startValue="1" endValue="0.99" duration="2"/>
+    <item time="0" type="Alpha" target="n3_xuqg" tween="true" startValue="1" endValue="0.97" duration="2"/>
+    <item time="0" type="Rotation" target="n1_xuqg" tween="true" startValue="0" endValue="-16.93" duration="2"/>
+    <item time="0" type="Rotation" target="n2_xuqg" tween="true" startValue="0" endValue="3.15" duration="2"/>
+    <item time="0" type="Rotation" target="n3_xuqg" tween="true" startValue="-42.7" endValue="-42.7" duration="2"/>
+    <item time="0" type="XY" target="n0_xuqg" value="0,0"/>
+    <item time="0" type="XY" target="n1_xuqg" tween="true" startValue="33.18,64.8" endValue="38.04,55.74" duration="2"/>
+    <item time="0" type="XY" target="n2_xuqg" tween="true" startValue="29.12,65.32" endValue="26.13,63.81" duration="2"/>
+    <item time="0" type="XY" target="n3_xuqg" tween="true" startValue="30.05,46.05" endValue="33.38,36.23" duration="2"/>
+    <item time="1" type="XY" target="n0_xuqg" value="0,-16"/>
+    <item time="2" type="Alpha" target="n1_xuqg" tween="true" startValue="0.97" endValue="0.78" duration="16"/>
+    <item time="2" type="Alpha" target="n2_xuqg" tween="true" startValue="0.99" endValue="0.94" duration="16"/>
+    <item time="2" type="Alpha" target="n3_xuqg" tween="true" startValue="0.97" endValue="0.75" duration="16"/>
+    <item time="2" type="Rotation" target="n1_xuqg" tween="true" startValue="-16.93" endValue="-38.7" duration="3"/>
+    <item time="2" type="Rotation" target="n2_xuqg" tween="true" startValue="3.15" endValue="7.2" duration="3"/>
+    <item time="2" type="Rotation" target="n3_xuqg" tween="true" startValue="-42.7" endValue="-42.7" duration="3"/>
+    <item time="2" type="XY" target="n0_xuqg" value="0,0"/>
+    <item time="2" type="XY" target="n1_xuqg" tween="true" startValue="38.04,55.74" endValue="-3.82,73.8" duration="3"/>
+    <item time="2" type="XY" target="n2_xuqg" tween="true" startValue="26.13,63.81" endValue="68.12,66.32" duration="3"/>
+    <item time="2" type="XY" target="n3_xuqg" tween="true" startValue="33.38,36.23" endValue="31.1,66" duration="4"/>
+    <item time="3" type="XY" target="n0_xuqg" value="0,-8"/>
+    <item time="4" type="XY" target="n0_xuqg" value="0,0"/>
+    <item time="5" type="Rotation" target="n1_xuqg" tween="true" startValue="-38.7" endValue="-16.4" duration="4"/>
+    <item time="5" type="Rotation" target="n2_xuqg" tween="true" startValue="7.2" endValue="18.4" duration="5"/>
+    <item time="5" type="Rotation" target="n3_xuqg" tween="true" startValue="-42.7" endValue="-73.1" duration="5"/>
+    <item time="5" type="XY" target="n0_xuqg" value="0,-4"/>
+    <item time="6" type="XY" target="n0_xuqg" value="0,0"/>
+    <item time="9" type="Rotation" target="n1_xuqg" tween="true" startValue="-16.4" endValue="-39.9" duration="11"/>
+    <item time="10" type="Rotation" target="n2_xuqg" tween="true" startValue="18.4" endValue="-4.4" duration="6"/>
+    <item time="10" type="Rotation" target="n3_xuqg" tween="true" startValue="-73.1" endValue="-44.8" duration="5"/>
+    <item time="16" type="Rotation" target="n2_xuqg" tween="true" startValue="-4.4" endValue="9.8" duration="6"/>
+    <item time="18" type="Alpha" target="n1_xuqg" tween="true" startValue="0.78" endValue="0" duration="4"/>
+    <item time="18" type="Alpha" target="n2_xuqg" tween="true" startValue="0.94" endValue="0" duration="4"/>
+    <item time="18" type="Alpha" target="n3_xuqg" tween="true" startValue="0.75" endValue="0" duration="4"/>
+  </transition>
+</component>
