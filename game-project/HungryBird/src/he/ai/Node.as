@@ -1,5 +1,9 @@
 package he.ai {
 	import laya.maths.Point;
+	/**
+	 * Node 节点，用于记忆单个值 。
+	 * 
+	 */
 	public class Node {
 		public var id: String = "" + Node._gInstanceCounter++;
 		public var _ports: Vector.<Port> = new Vector.<Port>(); //以 数组 的方式记录突触

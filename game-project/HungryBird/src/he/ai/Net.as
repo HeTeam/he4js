@@ -1,5 +1,9 @@
 package he.ai
 {
+	/**
+	 * Net 网络，负责记忆所有的节点。
+	 * 
+	 */
 	public class Net
 	{
 		public function Net()
