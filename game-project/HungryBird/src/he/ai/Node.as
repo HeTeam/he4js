@@ -87,7 +87,7 @@ package he.ai {
 				if(dispose)
 					port.dispose();
 				
-				delete this[port.id];
+				delete this._dic[port.id];
 				
 				return port;
 			}
