@@ -1,8 +1,19 @@
 package he.ai {
 	import laya.maths.Point;
 	/**
-	 * Node 节点，用于记忆单个值 。
+	 * Node 神经节点，简称节点，用于记忆单个抽象事物，Node 中包含了多个 Port（突触） 。
 	 * 
+	 * 先写一个基本假设：
+	 * 
+	 * 一切事物都是在运动着。
+	 * 比如我们说“人”，是一个名词，似乎是静态的，但实际上，这个人的分子层面和细胞层面，每秒钟都在活跃着。
+	 * 
+	 * 再来说根据上面的假设得到的推论：
+	 * 所有的节点都在表达一种运动，或者对运动的抽象。
+	 * 
+	 * 所以，Node 中的 _ports 数组中存在着的大量的 Port（突触），
+	 * 这些 Port 在数组中的位置次序，记录了就是运动先后，或者相关性，
+	 * 而 Port 中的 value，记录的就是运动的落差、强烈程度等等。
 	 */
 	public class Node {
 		public var id: String = "" + Node._gInstanceCounter++;
@@ -42,7 +53,7 @@ package he.ai {
 					this._ports.splice(index,0,port);
 				
 				this._dic[port.id] = port;
-				port.parent = this;
+				port.parentNode = this;
 				
 				return port;
 			}
@@ -57,7 +68,7 @@ package he.ai {
 			if(!child)
 				throw "child is null";
 			
-			var port:Port = new Port(child);
+			var port:Port = new Port(this,child);
 			addPortAt(port,index);
 			return child;
 		}
@@ -80,7 +91,7 @@ package he.ai {
 		public function removePortAt(index: Number,dispose: Boolean = false): Port {
 			if(index >= 0 && index < this.numChildren) {
 				var port: Port = this._ports[index];
-				port.parent = null;
+				port.parentNode = null;
 				
 				this._ports.splice(index,1);
 				

@@ -25,7 +25,7 @@
     <item time="2" type="Rotation" target="n2_xuqg" tween="true" startValue="3.15" endValue="7.2" duration="3"/>
     <item time="2" type="Rotation" target="n3_xuqg" tween="true" startValue="-42.7" endValue="-42.7" duration="3"/>
     <item time="2" type="XY" target="n0_xuqg" value="0,0"/>
-    <item time="2" type="XY" target="n1_xuqg" tween="true" startValue="38.04,55.74" endValue="-3.82,73.8" duration="3"/>
+    <item time="2" type="XY" target="n1_xuqg" tween="true" startValue="38.04,55.74" endValue="-5.82,66.8" duration="3"/>
     <item time="2" type="XY" target="n2_xuqg" tween="true" startValue="26.13,63.81" endValue="68.12,66.32" duration="3"/>
     <item time="2" type="XY" target="n3_xuqg" tween="true" startValue="33.38,36.23" endValue="31.1,66" duration="4"/>
     <item time="3" type="XY" target="n0_xuqg" value="0,-8"/>
