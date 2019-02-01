@@ -20,7 +20,7 @@ public class Game2D {
     public function Game2D()
     {
         // Laya.init(1136, 640, Laya.WebGL);
-        laya.utils.Stat.show(0, 0);
+        // laya.utils.Stat.show(0, 0);
         //设置适配模式
         // Laya.stage.scaleMode = "showall";
         // Laya.stage.alignH = "left";
@@ -70,8 +70,8 @@ public class Game2D {
         BasicBinder.bindAll();
         PanelUtil.bindWindows();
         
-        new MainPanel();
         new NodePanel();
+        new MainPanel();
     }
 }
 }

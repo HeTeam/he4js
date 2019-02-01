@@ -30,7 +30,7 @@ public class MainPanel {
         m_bird = m_container.m_bird;
         PanelUtil.toWindow(v);
         
-        v.x = 10;
+        v.x = 300;
         v.y = 100;
 
         bird_ui = new BoneAni("res/bird.sk",true,null,0.2);

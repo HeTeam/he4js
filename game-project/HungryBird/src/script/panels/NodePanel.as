@@ -1,7 +1,11 @@
 package script.panels {
+import Basic.UI_Box;
 import Basic.UI_MainPanel;
 import Basic.UI_NodePanel;
-import Basic.UI_Box;
+
+import fairygui.GRoot;
+import fairygui.Window;
+
 import script.Box;
 
 // 程序入口
@@ -9,9 +13,16 @@ public class NodePanel {
     public var v:UI_NodePanel = UI_NodePanel.createInstance();
     public function NodePanel()
     {
-        PanelUtil.toWindow(v);
-        v.x = 330;
-        v.y = 100;
+        var win:Window = PanelUtil.toWindow(v);
+		win.bringToFontOnClick = false;
+		
+        v.x = 0;
+        v.y = 0;
+		v.m_nodeContainer;
+		
+		v.width = GRoot.inst.width;
+		v.height = GRoot.inst.height;
+		
 
         addTestBoxs();
     }

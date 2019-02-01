@@ -6,7 +6,8 @@ package Basic
 
 	public class UI_NodePanel extends fairygui.GComponent
 	{
-		public var m_frame:UI_WindowFrame_with_close_btn_and_resizer;
+		public var m_bg:GGraph;
+		public var m_nodeContainer:UI_NodeContainer;
 
 		public static const URL:String = "ui://3hcsjtona4tz3k";
 
@@ -23,7 +24,8 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_frame = UI_WindowFrame_with_close_btn_and_resizer(this.getChildAt(0));
+			m_bg = GGraph(this.getChildAt(0));
+			m_nodeContainer = UI_NodeContainer(this.getChildAt(1));
 		}
 	}
 }

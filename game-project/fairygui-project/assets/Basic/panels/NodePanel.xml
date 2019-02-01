@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="378,477">
   <displayList>
-    <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn_and_resizer.xml" xy="-1,0" size="381,478">
+    <graph id="n3_ch2w" name="bg" xy="0,0" size="378,477" type="rect" lineSize="0" fillColor="#ff999999">
       <relation target="" sidePair="width-width,height-height"/>
-    </component>
-    <text id="n2_8ymy" name="n2" xy="135,13" size="95,21" fontSize="15" color="#333333" text="节点预览窗口">
-      <relation target="" sidePair="center-center"/>
-    </text>
+    </graph>
+    <component id="n4_ch2w" name="nodeContainer" src="ch2w3w" fileName="panels/NodeContainer.xml" xy="0,0" size="378,477"/>
   </displayList>
 </component>
