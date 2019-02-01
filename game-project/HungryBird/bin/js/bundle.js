@@ -2589,6 +2589,16 @@ var MainPanel=(function(){
 		nut.y=click_pos.y;
 		nut.setScale(0.5,0.5);
 		this.m_container.addChild(nut);
+		var sort=this.m_container._children.slice().sort(this.sortY);
+		for (var i=0;i < sort.length;i++){
+			sort[i].sortingOrder=i;
+		}
+	}
+
+	__proto.sortY=function(a,b){
+		if(a.y > b.y)return 1;
+		if(b.y > a.y)return-1;
+		return 0;
 	}
 
 	return MainPanel;
@@ -88253,6 +88263,29 @@ var UI_TreeItem=(function(_super){
 })(GButton)
 
 
+//class Basic.UI_Button extends fairygui.GButton
+var UI_Button=(function(_super){
+	function UI_Button(){
+		this.m_grayed=null;
+		UI_Button.__super.call(this);
+	}
+
+	__class(UI_Button,'Basic.UI_Button',_super);
+	var __proto=UI_Button.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_grayed=this.getControllerAt(1);
+	}
+
+	UI_Button.createInstance=function(){
+		return (UIPackage.createObject("Basic","Button"));
+	}
+
+	UI_Button.URL="ui://3hcsjton8ymy1";
+	return UI_Button;
+})(GButton)
+
+
 //class Basic.UI_ScrollBar_HZ extends fairygui.GScrollBar
 var UI_ScrollBar_HZ=(function(_super){
 	function UI_ScrollBar_HZ(){
@@ -88280,29 +88313,6 @@ var UI_ScrollBar_HZ=(function(_super){
 	UI_ScrollBar_HZ.URL="ui://3hcsjton8ymy31";
 	return UI_ScrollBar_HZ;
 })(GScrollBar)
-
-
-//class Basic.UI_Button extends fairygui.GButton
-var UI_Button=(function(_super){
-	function UI_Button(){
-		this.m_grayed=null;
-		UI_Button.__super.call(this);
-	}
-
-	__class(UI_Button,'Basic.UI_Button',_super);
-	var __proto=UI_Button.prototype;
-	__proto.constructFromXML=function(xml){
-		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_grayed=this.getControllerAt(1);
-	}
-
-	UI_Button.createInstance=function(){
-		return (UIPackage.createObject("Basic","Button"));
-	}
-
-	UI_Button.URL="ui://3hcsjton8ymy1";
-	return UI_Button;
-})(GButton)
 
 
 //class Basic.UI_ButtonWithTitleAndIcon extends fairygui.GButton
@@ -89686,35 +89696,6 @@ var UI_WindowFrame=(function(_super){
 })(GLabel)
 
 
-//class Basic.UI_WindowFrame_with_close_btn_and_resizer extends fairygui.GLabel
-var UI_WindowFrame_with_close_btn_and_resizer=(function(_super){
-	function UI_WindowFrame_with_close_btn_and_resizer(){
-		this.m_dragArea=null;
-		this.m_contentArea=null;
-		this.m_closeButton=null;
-		this.m_resizer=null;
-		UI_WindowFrame_with_close_btn_and_resizer.__super.call(this);
-	}
-
-	__class(UI_WindowFrame_with_close_btn_and_resizer,'Basic.UI_WindowFrame_with_close_btn_and_resizer',_super);
-	var __proto=UI_WindowFrame_with_close_btn_and_resizer.prototype;
-	__proto.constructFromXML=function(xml){
-		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_dragArea=(this.getChildAt(1));
-		this.m_contentArea=(this.getChildAt(2));
-		this.m_closeButton=(this.getChildAt(3));
-		this.m_resizer=(this.getChildAt(4));
-	}
-
-	UI_WindowFrame_with_close_btn_and_resizer.createInstance=function(){
-		return (UIPackage.createObject("Basic","WindowFrame_with_close_btn_and_resizer"));
-	}
-
-	UI_WindowFrame_with_close_btn_and_resizer.URL="ui://3hcsjton8ymy3j";
-	return UI_WindowFrame_with_close_btn_and_resizer;
-})(GLabel)
-
-
 //class Basic.UI_EditableTreeItem extends fairygui.GButton
 var UI_EditableTreeItem=(function(_super){
 	function UI_EditableTreeItem(){
@@ -89744,6 +89725,35 @@ var UI_EditableTreeItem=(function(_super){
 	UI_EditableTreeItem.URL="ui://3hcsjton8ymy3f";
 	return UI_EditableTreeItem;
 })(GButton)
+
+
+//class Basic.UI_WindowFrame_with_close_btn_and_resizer extends fairygui.GLabel
+var UI_WindowFrame_with_close_btn_and_resizer=(function(_super){
+	function UI_WindowFrame_with_close_btn_and_resizer(){
+		this.m_dragArea=null;
+		this.m_contentArea=null;
+		this.m_closeButton=null;
+		this.m_resizer=null;
+		UI_WindowFrame_with_close_btn_and_resizer.__super.call(this);
+	}
+
+	__class(UI_WindowFrame_with_close_btn_and_resizer,'Basic.UI_WindowFrame_with_close_btn_and_resizer',_super);
+	var __proto=UI_WindowFrame_with_close_btn_and_resizer.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_dragArea=(this.getChildAt(1));
+		this.m_contentArea=(this.getChildAt(2));
+		this.m_closeButton=(this.getChildAt(3));
+		this.m_resizer=(this.getChildAt(4));
+	}
+
+	UI_WindowFrame_with_close_btn_and_resizer.createInstance=function(){
+		return (UIPackage.createObject("Basic","WindowFrame_with_close_btn_and_resizer"));
+	}
+
+	UI_WindowFrame_with_close_btn_and_resizer.URL="ui://3hcsjton8ymy3j";
+	return UI_WindowFrame_with_close_btn_and_resizer;
+})(GLabel)
 
 
 //class script.Box extends Basic.UI_Box
@@ -115034,7 +115044,7 @@ var Tab=(function(_super){
 })(UIGroup)
 
 
-	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Transition,View,Path,WebGLContext2D,GearSize,SceneUtils,LocalStorage,RelationItem,GearLook,GearAnimation,CallLater,EaseManager,GList,GameConfig,GBasicTextField,Timer,UIPackage,GearColor]);
+	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Transition,View,Path,WebGLContext2D,GearSize,SceneUtils,LocalStorage,RelationItem,GearLook,GearAnimation,CallLater,EaseManager,GBasicTextField,GList,Timer,GameConfig,UIPackage,GearColor]);
 	/**LayaGameStart**/
 	new Main();
 

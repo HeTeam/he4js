@@ -7,12 +7,13 @@ import Basic.UI_Nut2;
 import fairygui.Controller;
 import fairygui.GComponent;
 import fairygui.GGraph;
+import fairygui.GObject;
 
 import laya.display.Sprite;
 import laya.events.Event;
+import laya.maths.Point;
 
 import script.theitems.BoneAni;
-import laya.maths.Point;
 
 // 程序入口
 public class MainPanel {
@@ -51,6 +52,18 @@ public class MainPanel {
 		nut.y = click_pos.y;
 		nut.setScale(0.5,0.5);
 		m_container.addChild(nut);
+		var sort:Vector.<fairygui.GObject> = m_container._children.slice().sort(sortY);
+		for (var i:int = 0; i < sort.length; i++) 
+		{
+			sort[i].sortingOrder = i;
+		}
+	}
+	
+	private function sortY(a:GComponent,b:GComponent):int
+	{
+		if(a.y > b.y)return 1;
+		if(b.y > a.y)return -1;
+		return 0;
 	}
 	
 }
