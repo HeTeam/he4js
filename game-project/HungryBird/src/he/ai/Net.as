@@ -1,7 +1,7 @@
 package he.ai
 {
 	/**
-	 * Net 网络，负责记忆所有的神经节点（Node），Net 包含 Node，而 Node 包含 Port（突触）。
+	 * Net 网络存储器，负责记忆所有的神经节点（Node），Net 包含 Node，而 Node 包含 Port（突触）。
 	 * 
 	 */
 	public class Net
