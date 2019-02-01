@@ -52,6 +52,11 @@ public class MainPanel {
 		nut.y = click_pos.y;
 		nut.setScale(0.5,0.5);
 		m_container.addChild(nut);
+		sortScene();
+	}
+	
+	private function sortScene():void
+	{
 		var sort:Vector.<fairygui.GObject> = m_container._children.slice().sort(sortY);
 		for (var i:int = 0; i < sort.length; i++) 
 		{
