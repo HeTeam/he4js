@@ -4,16 +4,16 @@
     <image id="n0" name="n0" src="8ymyw" fileName="default/images/f1.png" xy="-3,-4" size="359,149">
       <relation target="" sidePair="width-width,height-height"/>
     </image>
-    <graph id="n2" name="dragArea" xy="1,1" size="346,22">
+    <graph id="n2" name="dragArea" xy="1,1" size="346,44">
       <relation target="" sidePair="width-width"/>
     </graph>
-    <text id="n3" name="title" xy="6,3" size="342,18" fontSize="12" align="center" vAlign="middle" autoSize="none" text="">
+    <text id="n3" name="title" xy="6,5" size="342,33" fontSize="12" align="center" vAlign="middle" autoSize="none" text="">
       <relation target="" sidePair="width-width"/>
     </text>
-    <graph id="n4" name="contentArea" xy="5,24" size="345,114">
+    <graph id="n4" name="contentArea" xy="5,45" size="345,93">
       <relation target="" sidePair="width-width,height-height"/>
     </graph>
-    <component id="n5_8ymy" name="closeButton" src="8ymy3h" fileName="default/Window/WindowCloseButton.xml" xy="329,3">
+    <component id="n5_8ymy" name="closeButton" src="8ymy3h" fileName="default/Window/WindowCloseButton.xml" xy="325,13">
       <relation target="" sidePair="left-right"/>
     </component>
   </displayList>

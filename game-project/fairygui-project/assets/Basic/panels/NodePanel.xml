@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="378,477">
+<component size="384,470">
   <displayList>
-    <graph id="n3_ch2w" name="bg" xy="0,0" size="378,477" type="rect" lineSize="0" fillColor="#ff999999">
+    <graph id="n3_ch2w" name="bg" xy="0,0" size="384,470" type="rect" lineSize="0" fillColor="#ff999999">
       <relation target="" sidePair="width-width,height-height"/>
     </graph>
     <component id="n4_ch2w" name="nodeContainer" src="ch2w3w" fileName="panels/NodeContainer.xml" xy="0,0" size="378,477"/>
+    <text id="n5_ch2w" name="help" xy="355,3" size="27,16" font="Helvetica" fontSize="12" color="#666666" align="right" text="help">
+      <relation target="" sidePair="right-right,top-top"/>
+    </text>
+    <graph id="n7_ch2w" name="helpOver" xy="346,0" size="38,26" alpha="0.02" tooltips="右键或中建可拖拽背景视图" type="rect" lineSize="0">
+      <relation target="n5_ch2w" sidePair="right-right,top-top"/>
+    </graph>
   </displayList>
 </component>

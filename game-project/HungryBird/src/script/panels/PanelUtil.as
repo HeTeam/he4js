@@ -13,7 +13,6 @@ import script.Box;
 public class PanelUtil {
     public static function bindWindows():void{
         fairygui.UIObjectFactory.setPackageItemExtension(UI_MainPanel.URL, PanelWithResize);
-        fairygui.UIObjectFactory.setPackageItemExtension(UI_NodePanel.URL, PanelWithResize);
         fairygui.UIObjectFactory.setPackageItemExtension(UI_Box.URL, Box);
         fairygui.UIObjectFactory.setPackageItemExtension(UI_NodeContainer.URL, NodeContainer);
     }

@@ -142,6 +142,8 @@
     <component id="xuqg3u" name="Nut2.xml" path="/objects/" exported="true"/>
     <component id="xuqg3v" name="ButtonWithTitleAndIcon.xml" path="/default/Button/" exported="true"/>
     <component id="ch2w3w" name="NodeContainer.xml" path="/panels/" exported="true"/>
+    <component id="ch2w3x" name="Alert.xml" path="/panels/" exported="true"/>
+    <component id="ch2w3y" name="Mask.xml" path="/panels/" exported="true"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="378,202">
+  <controller name="c1" pages="0,ok,1,no,2,input" selected="1"/>
+  <displayList>
+    <component id="n0_8ymy" name="frame" src="a4tz3m" fileName="default/Window/WindowFrame_with_close_btn.xml" xy="-1,0" size="378,202">
+      <relation target="" sidePair="width-width,height-height"/>
+    </component>
+    <text id="n2_8ymy" name="title" xy="166,12" size="35,21" fontSize="15" color="#333333" text="说明">
+      <relation target="" sidePair="center-center"/>
+    </text>
+    <text id="n8_ch2w" name="txt" xy="7,66" size="361,76" fontSize="20" color="#cccccc" align="center" vAlign="middle" autoSize="none" text="">
+      <gearDisplay controller="c1" pages="0,1"/>
+      <relation target="" sidePair="center-center,middle-middle"/>
+    </text>
+    <component id="n9_ch2w" name="btnOK" src="8ymy1" fileName="default/Button/Button.xml" xy="15,153" size="161,37">
+      <gearDisplay controller="c1" pages="0,1,2"/>
+      <gearXY controller="c1" pages="0,1,2" values="105,153|15,153|15,153"/>
+      <relation target="" sidePair="bottom-bottom"/>
+      <Button title="确定" titleFontSize="17"/>
+    </component>
+    <component id="n10_ch2w" name="btnNO" src="8ymy1" fileName="default/Button/Button.xml" xy="198,153" size="161,37">
+      <gearDisplay controller="c1" pages="1,2"/>
+      <relation target="" sidePair="bottom-bottom"/>
+      <Button title="取消" titleFontSize="17"/>
+    </component>
+    <graph id="n12_ch2w" name="input_bg" xy="19,68" size="334,66" alpha="0.08" type="rect">
+      <gearDisplay controller="c1" pages="2"/>
+      <relation target="n11_ch2w" sidePair="width-width,height-height"/>
+      <relation target="n11_ch2w" sidePair="left-left,top-top"/>
+    </graph>
+    <text id="n11_ch2w" name="input" xy="21,70" size="330,62" input="true" fontSize="17" color="#cccccc" align="center" vAlign="middle" autoSize="none" text="">
+      <gearDisplay controller="c1" pages="2"/>
+      <relation target="" sidePair="center-center"/>
+    </text>
+  </displayList>
+</component>

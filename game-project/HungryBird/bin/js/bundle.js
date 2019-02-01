@@ -2567,7 +2567,8 @@ var MainPanel=(function(){
 		this.m_selnut=this.v.getControllerAt(0);
 		this.m_container=(this.v.getChildAt(1));
 		this.m_bird=this.m_container.m_bird;
-		PanelUtil.toWindow(this.v);
+		var win=PanelUtil.toWindow(this.v);
+		win.closeButton.visible=false;
 		this.v.x=300;
 		this.v.y=100;
 		this.bird_ui=new BoneAni("res/bird.sk",true,null,0.2);
@@ -2827,6 +2828,7 @@ var Game2D=(function(){
 		UIConfig$1.buttonSound="ui://Basic/click";
 		BasicBinder.bindAll();
 		PanelUtil.bindWindows();
+		new Alert();
 		new NodePanel();
 		new MainPanel();
 	}
@@ -4422,7 +4424,6 @@ var PanelUtil=(function(){
 	__class(PanelUtil,'script.panels.PanelUtil');
 	PanelUtil.bindWindows=function(){
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjton8ymy3i",PanelWithResize);
-		UIObjectFactory.setPackageItemExtension("ui://3hcsjtona4tz3k",PanelWithResize);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonifv90",Box);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3w",NodeContainer);
 	}
@@ -5921,6 +5922,8 @@ var BasicBinder=(function(){
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtona4tz3k",UI_NodePanel);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtona4tz3m",UI_WindowFrame_with_close_btn);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3w",UI_NodeContainer);
+		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3x",UI_Alert);
+		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3y",UI_Mask);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonifv90",UI_Box);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonoorc3o",UI_MainPanelBirdContainer);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonxuqg3t",UI_Nut1);
@@ -8198,33 +8201,78 @@ var PopupDirection=(function(){
 //class script.panels.NodePanel
 var NodePanel=(function(){
 	function NodePanel(){
+		this.isDrag=false;
+		this.nodeContainer=null;
+		this.moveStage=false;
+		this.help_tips="右键或中建可拖拽背景视图";
 		this.v=UI_NodePanel.createInstance();
-		var win=PanelUtil.toWindow(this.v);
-		win.bringToFontOnClick=false;
 		this.v.x=0;
 		this.v.y=0;
-		this.v.m_nodeContainer;
+		this.nodeContainer=this.v.m_nodeContainer;
+		GRoot.inst.addChild(this.v);
 		this.v.width=GRoot.inst.width;
 		this.v.height=GRoot.inst.height;
 		this.addTestBoxs();
+		this.v.on("mousedown",this,this.onDown);
+		this.v.on("rightmousedown",this,this.onDown);
+		this.v.m_helpOver.onClick(this,this.onHelp);
 	}
 
 	__class(NodePanel,'script.panels.NodePanel');
 	var __proto=NodePanel.prototype;
+	__proto.onHelp=function(){
+		Alert.show(this.help_tips);
+	}
+
+	__proto.onDown=function(e){
+		this.moveStage=e.ctrlKey;
+		if(e.type=="rightmousedown"){
+			this.moveStage=true;
+		}
+		if(e.touches && e.touches.length>1){
+			this.moveStage=true;
+		}
+		if(!this.moveStage){
+			var item=e.target["$owner"];
+			if(item && ((item instanceof Basic.UI_NodeContainer ))){
+				this.isDrag=true;
+				Laya.stage.on("mousemove",this,this.onMove);
+				Laya.stage.on("mouseup",this,this.onUp);
+			}
+			}else{
+			Laya.stage.on("rightmouseup",this,this.onUp);
+			this.nodeContainer.startDrag();
+		}
+	}
+
+	__proto.onMove=function(e){
+		if(!this.moveStage){
+			if(!this.isDrag)return;
+		}
+	}
+
+	//todo:如果有选择框，则处理选择框
+	__proto.onUp=function(e){
+		this.nodeContainer.stopDrag();
+		this.moveStage=false;
+		if(this.isDrag){}
+			this.isDrag=false;
+	}
+
 	__proto.addTestBoxs=function(){
 		var box
 		box=UI_Box.createInstance();
 		box.x=50;
 		box.y=50;
-		this.v.addChild(box);
+		this.nodeContainer.addChild(box);
 		box=UI_Box.createInstance();
 		box.x=30;
 		box.y=100;
-		this.v.addChild(box);
+		this.nodeContainer.addChild(box);
 		box=UI_Box.createInstance();
 		box.x=70;
 		box.y=100;
-		this.v.addChild(box);
+		this.nodeContainer.addChild(box);
 	}
 
 	return NodePanel;
@@ -32096,6 +32144,116 @@ var Path=(function(){
 	}
 
 	return Path;
+})()
+
+
+/**
+*<code>Keyboard</code> 类的属性是一些常数，这些常数表示控制游戏时最常用的键。
+*/
+//class laya.events.Keyboard
+var Keyboard=(function(){
+	function Keyboard(){}
+	__class(Keyboard,'laya.events.Keyboard');
+	Keyboard.NUMBER_0=48;
+	Keyboard.NUMBER_1=49;
+	Keyboard.NUMBER_2=50;
+	Keyboard.NUMBER_3=51;
+	Keyboard.NUMBER_4=52;
+	Keyboard.NUMBER_5=53;
+	Keyboard.NUMBER_6=54;
+	Keyboard.NUMBER_7=55;
+	Keyboard.NUMBER_8=56;
+	Keyboard.NUMBER_9=57;
+	Keyboard.A=65;
+	Keyboard.B=66;
+	Keyboard.C=67;
+	Keyboard.D=68;
+	Keyboard.E=69;
+	Keyboard.F=70;
+	Keyboard.G=71;
+	Keyboard.H=72;
+	Keyboard.I=73;
+	Keyboard.J=74;
+	Keyboard.K=75;
+	Keyboard.L=76;
+	Keyboard.M=77;
+	Keyboard.N=78;
+	Keyboard.O=79;
+	Keyboard.P=80;
+	Keyboard.Q=81;
+	Keyboard.R=82;
+	Keyboard.S=83;
+	Keyboard.T=84;
+	Keyboard.U=85;
+	Keyboard.V=86;
+	Keyboard.W=87;
+	Keyboard.X=88;
+	Keyboard.Y=89;
+	Keyboard.Z=90;
+	Keyboard.F1=112;
+	Keyboard.F2=113;
+	Keyboard.F3=114;
+	Keyboard.F4=115;
+	Keyboard.F5=116;
+	Keyboard.F6=117;
+	Keyboard.F7=118;
+	Keyboard.F8=119;
+	Keyboard.F9=120;
+	Keyboard.F10=121;
+	Keyboard.F11=122;
+	Keyboard.F12=123;
+	Keyboard.F13=124;
+	Keyboard.F14=125;
+	Keyboard.F15=126;
+	Keyboard.NUMPAD=21;
+	Keyboard.NUMPAD_0=96;
+	Keyboard.NUMPAD_1=97;
+	Keyboard.NUMPAD_2=98;
+	Keyboard.NUMPAD_3=99;
+	Keyboard.NUMPAD_4=100;
+	Keyboard.NUMPAD_5=101;
+	Keyboard.NUMPAD_6=102;
+	Keyboard.NUMPAD_7=103;
+	Keyboard.NUMPAD_8=104;
+	Keyboard.NUMPAD_9=105;
+	Keyboard.NUMPAD_ADD=107;
+	Keyboard.NUMPAD_DECIMAL=110;
+	Keyboard.NUMPAD_DIVIDE=111;
+	Keyboard.NUMPAD_ENTER=108;
+	Keyboard.NUMPAD_MULTIPLY=106;
+	Keyboard.NUMPAD_SUBTRACT=109;
+	Keyboard.SEMICOLON=186;
+	Keyboard.EQUAL=187;
+	Keyboard.COMMA=188;
+	Keyboard.MINUS=189;
+	Keyboard.PERIOD=190;
+	Keyboard.SLASH=191;
+	Keyboard.BACKQUOTE=192;
+	Keyboard.LEFTBRACKET=219;
+	Keyboard.BACKSLASH=220;
+	Keyboard.RIGHTBRACKET=221;
+	Keyboard.QUOTE=222;
+	Keyboard.ALTERNATE=18;
+	Keyboard.BACKSPACE=8;
+	Keyboard.CAPS_LOCK=20;
+	Keyboard.COMMAND=15;
+	Keyboard.CONTROL=17;
+	Keyboard.DELETE=46;
+	Keyboard.ENTER=13;
+	Keyboard.ESCAPE=27;
+	Keyboard.PAGE_UP=33;
+	Keyboard.PAGE_DOWN=34;
+	Keyboard.END=35;
+	Keyboard.HOME=36;
+	Keyboard.LEFT=37;
+	Keyboard.UP=38;
+	Keyboard.RIGHT=39;
+	Keyboard.DOWN=40;
+	Keyboard.SHIFT=16;
+	Keyboard.SPACE=32;
+	Keyboard.TAB=9;
+	Keyboard.INSERT=45;
+	return Keyboard;
 })()
 
 
@@ -59803,69 +59961,6 @@ var BaseRender=(function(_super){
 
 
 /**
-*<code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
-*/
-//class laya.d3.physics.shape.BoxColliderShape extends laya.d3.physics.shape.ColliderShape
-var BoxColliderShape=(function(_super){
-	function BoxColliderShape(sizeX,sizeY,sizeZ){
-		/**@private */
-		//this._sizeX=NaN;
-		/**@private */
-		//this._sizeY=NaN;
-		/**@private */
-		//this._sizeZ=NaN;
-		BoxColliderShape.__super.call(this);
-		(sizeX===void 0)&& (sizeX=1.0);
-		(sizeY===void 0)&& (sizeY=1.0);
-		(sizeZ===void 0)&& (sizeZ=1.0);
-		this._sizeX=sizeX;
-		this._sizeY=sizeY;
-		this._sizeZ=sizeZ;
-		this._type=0;
-		BoxColliderShape._nativeSize.setValue(sizeX / 2,sizeY / 2,sizeZ / 2);
-		this._nativeShape=new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
-	}
-
-	__class(BoxColliderShape,'laya.d3.physics.shape.BoxColliderShape',_super);
-	var __proto=BoxColliderShape.prototype;
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new BoxColliderShape(this._sizeX,this._sizeY,this._sizeZ);
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*获取Z轴尺寸。
-	*/
-	__getset(0,__proto,'sizeZ',function(){
-		return this._sizeZ;
-	});
-
-	/**
-	*获取Y轴尺寸。
-	*/
-	__getset(0,__proto,'sizeY',function(){
-		return this._sizeY;
-	});
-
-	/**
-	*获取X轴尺寸。
-	*/
-	__getset(0,__proto,'sizeX',function(){
-		return this._sizeX;
-	});
-
-	__static(BoxColliderShape,
-	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
-	]);
-	return BoxColliderShape;
-})(ColliderShape)
-
-
-/**
 *@private
 *web audio api方式播放声音
 */
@@ -60085,6 +60180,69 @@ var WebAudioSound=(function(_super){
 	]);
 	return WebAudioSound;
 })(EventDispatcher)
+
+
+/**
+*<code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
+*/
+//class laya.d3.physics.shape.BoxColliderShape extends laya.d3.physics.shape.ColliderShape
+var BoxColliderShape=(function(_super){
+	function BoxColliderShape(sizeX,sizeY,sizeZ){
+		/**@private */
+		//this._sizeX=NaN;
+		/**@private */
+		//this._sizeY=NaN;
+		/**@private */
+		//this._sizeZ=NaN;
+		BoxColliderShape.__super.call(this);
+		(sizeX===void 0)&& (sizeX=1.0);
+		(sizeY===void 0)&& (sizeY=1.0);
+		(sizeZ===void 0)&& (sizeZ=1.0);
+		this._sizeX=sizeX;
+		this._sizeY=sizeY;
+		this._sizeZ=sizeZ;
+		this._type=0;
+		BoxColliderShape._nativeSize.setValue(sizeX / 2,sizeY / 2,sizeZ / 2);
+		this._nativeShape=new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
+	}
+
+	__class(BoxColliderShape,'laya.d3.physics.shape.BoxColliderShape',_super);
+	var __proto=BoxColliderShape.prototype;
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new BoxColliderShape(this._sizeX,this._sizeY,this._sizeZ);
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*获取Z轴尺寸。
+	*/
+	__getset(0,__proto,'sizeZ',function(){
+		return this._sizeZ;
+	});
+
+	/**
+	*获取Y轴尺寸。
+	*/
+	__getset(0,__proto,'sizeY',function(){
+		return this._sizeY;
+	});
+
+	/**
+	*获取X轴尺寸。
+	*/
+	__getset(0,__proto,'sizeX',function(){
+		return this._sizeX;
+	});
+
+	__static(BoxColliderShape,
+	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
+	]);
+	return BoxColliderShape;
+})(ColliderShape)
 
 
 /**
@@ -62841,150 +62999,6 @@ var MeshTexture=(function(_super){
 
 
 /**
-*<code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
-*/
-//class laya.d3.physics.shape.CompoundColliderShape extends laya.d3.physics.shape.ColliderShape
-var CompoundColliderShape=(function(_super){
-	function CompoundColliderShape(){
-		CompoundColliderShape.__super.call(this);
-		this._childColliderShapes=[];
-		this._type=5;
-		this._nativeShape=new Laya3D._physics3D.btCompoundShape();
-	}
-
-	__class(CompoundColliderShape,'laya.d3.physics.shape.CompoundColliderShape',_super);
-	var __proto=CompoundColliderShape.prototype;
-	/**
-	*@private
-	*/
-	__proto._clearChildShape=function(shape){
-		shape._attatched=false;
-		shape._compoundParent=null;
-		shape._indexInCompound=-1;
-	}
-
-	/**
-	*@inheritDoc
-	*/
-	__proto._addReference=function(){}
-	/**
-	*@inheritDoc
-	*/
-	__proto._removeReference=function(){}
-	/**
-	*@private
-	*/
-	__proto._updateChildTransform=function(shape){
-		var offsetE=shape.localOffset.elements;
-		var rotationE=shape.localRotation.elements;
-		var nativeOffset=ColliderShape._nativeVector30;
-		var nativeQuaternion=ColliderShape._nativQuaternion0;
-		var nativeTransform=ColliderShape._nativeTransform0;
-		nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
-		nativeQuaternion.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
-		nativeTransform.setOrigin(nativeOffset);
-		nativeTransform.setRotation(nativeQuaternion);
-		this._nativeShape.updateChildTransform(shape._indexInCompound,nativeTransform,true);
-	}
-
-	/**
-	*添加子碰撞器形状。
-	*@param shape 子碰撞器形状。
-	*/
-	__proto.addChildShape=function(shape){
-		if (shape._attatched)
-			throw "CompoundColliderShape: this shape has attatched to other entity.";
-		shape._attatched=true;
-		shape._compoundParent=this;
-		shape._indexInCompound=this._childColliderShapes.length;
-		this._childColliderShapes.push(shape);
-		var offsetE=shape.localOffset.elements;
-		var rotationE=shape.localRotation.elements;
-		CompoundColliderShape._nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
-		CompoundColliderShape._nativRotation.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
-		CompoundColliderShape._nativeTransform.setOrigin(CompoundColliderShape._nativeOffset);
-		CompoundColliderShape._nativeTransform.setRotation(CompoundColliderShape._nativRotation);
-		var nativeScale=this._nativeShape.getLocalScaling();
-		this._nativeShape.setLocalScaling(CompoundColliderShape._nativeVector3One);
-		this._nativeShape.addChildShape(CompoundColliderShape._nativeTransform,shape._nativeShape);
-		this._nativeShape.setLocalScaling(nativeScale);
-		(this._attatchedCollisionObject)&& (this._attatchedCollisionObject.colliderShape=this);
-	}
-
-	/**
-	*移除子碰撞器形状。
-	*@param shape 子碰撞器形状。
-	*/
-	__proto.removeChildShape=function(shape){
-		if (shape._compoundParent===this){
-			var index=shape._indexInCompound;
-			this._clearChildShape(shape);
-			var endShape=this._childColliderShapes[this._childColliderShapes.length-1];
-			endShape._indexInCompound=index;
-			this._childColliderShapes[index]=endShape;
-			this._childColliderShapes.pop();
-			this._nativeShape.removeChildShapeByIndex(index);
-		}
-	}
-
-	/**
-	*清空子碰撞器形状。
-	*/
-	__proto.clearChildShape=function(){
-		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
-			this._clearChildShape(this._childColliderShapes[i]);
-			this._nativeShape.removeChildShapeByIndex(0);
-		}
-		this._childColliderShapes.length=0;
-	}
-
-	/**
-	*获取子形状数量。
-	*@return
-	*/
-	__proto.getChildShapeCount=function(){
-		return this._childColliderShapes.length;
-	}
-
-	/**
-	*@inheritDoc
-	*/
-	__proto.cloneTo=function(destObject){
-		var destCompoundColliderShape=destObject;
-		destCompoundColliderShape.clearChildShape();
-		for (var i=0,n=this._childColliderShapes.length;i < n;i++)
-		destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
-	}
-
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new CompoundColliderShape();
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*@inheritDoc
-	*/
-	__proto.destroy=function(){
-		_super.prototype.destroy.call(this);
-		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
-			var childShape=this._childColliderShapes[i];
-			if (childShape._referenceCount===0)
-				childShape.destroy();
-		}
-	}
-
-	__static(CompoundColliderShape,
-	['_nativeVector3One',function(){return this._nativeVector3One=new Laya3D._physics3D.btVector3(1,1,1);},'_nativeTransform',function(){return this._nativeTransform=new Laya3D._physics3D.btTransform();},'_nativeOffset',function(){return this._nativeOffset=new Laya3D._physics3D.btVector3(0,0,0);},'_nativRotation',function(){return this._nativRotation=new Laya3D._physics3D.btQuaternion(0,0,0,1);}
-	]);
-	return CompoundColliderShape;
-})(ColliderShape)
-
-
-/**
 *<code>Script3D</code> 类用于创建脚本的父类,该类为抽象类,不允许实例。
 */
 //class laya.d3.component.Script3D extends laya.components.Component
@@ -63237,6 +63251,150 @@ var Script3D=(function(_super){
 
 	return Script3D;
 })(Component)
+
+
+/**
+*<code>CompoundColliderShape</code> 类用于创建盒子形状碰撞器。
+*/
+//class laya.d3.physics.shape.CompoundColliderShape extends laya.d3.physics.shape.ColliderShape
+var CompoundColliderShape=(function(_super){
+	function CompoundColliderShape(){
+		CompoundColliderShape.__super.call(this);
+		this._childColliderShapes=[];
+		this._type=5;
+		this._nativeShape=new Laya3D._physics3D.btCompoundShape();
+	}
+
+	__class(CompoundColliderShape,'laya.d3.physics.shape.CompoundColliderShape',_super);
+	var __proto=CompoundColliderShape.prototype;
+	/**
+	*@private
+	*/
+	__proto._clearChildShape=function(shape){
+		shape._attatched=false;
+		shape._compoundParent=null;
+		shape._indexInCompound=-1;
+	}
+
+	/**
+	*@inheritDoc
+	*/
+	__proto._addReference=function(){}
+	/**
+	*@inheritDoc
+	*/
+	__proto._removeReference=function(){}
+	/**
+	*@private
+	*/
+	__proto._updateChildTransform=function(shape){
+		var offsetE=shape.localOffset.elements;
+		var rotationE=shape.localRotation.elements;
+		var nativeOffset=ColliderShape._nativeVector30;
+		var nativeQuaternion=ColliderShape._nativQuaternion0;
+		var nativeTransform=ColliderShape._nativeTransform0;
+		nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
+		nativeQuaternion.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
+		nativeTransform.setOrigin(nativeOffset);
+		nativeTransform.setRotation(nativeQuaternion);
+		this._nativeShape.updateChildTransform(shape._indexInCompound,nativeTransform,true);
+	}
+
+	/**
+	*添加子碰撞器形状。
+	*@param shape 子碰撞器形状。
+	*/
+	__proto.addChildShape=function(shape){
+		if (shape._attatched)
+			throw "CompoundColliderShape: this shape has attatched to other entity.";
+		shape._attatched=true;
+		shape._compoundParent=this;
+		shape._indexInCompound=this._childColliderShapes.length;
+		this._childColliderShapes.push(shape);
+		var offsetE=shape.localOffset.elements;
+		var rotationE=shape.localRotation.elements;
+		CompoundColliderShape._nativeOffset.setValue(-offsetE[0],offsetE[1],offsetE[2]);
+		CompoundColliderShape._nativRotation.setValue(-rotationE[0],rotationE[1],rotationE[2],-rotationE[3]);
+		CompoundColliderShape._nativeTransform.setOrigin(CompoundColliderShape._nativeOffset);
+		CompoundColliderShape._nativeTransform.setRotation(CompoundColliderShape._nativRotation);
+		var nativeScale=this._nativeShape.getLocalScaling();
+		this._nativeShape.setLocalScaling(CompoundColliderShape._nativeVector3One);
+		this._nativeShape.addChildShape(CompoundColliderShape._nativeTransform,shape._nativeShape);
+		this._nativeShape.setLocalScaling(nativeScale);
+		(this._attatchedCollisionObject)&& (this._attatchedCollisionObject.colliderShape=this);
+	}
+
+	/**
+	*移除子碰撞器形状。
+	*@param shape 子碰撞器形状。
+	*/
+	__proto.removeChildShape=function(shape){
+		if (shape._compoundParent===this){
+			var index=shape._indexInCompound;
+			this._clearChildShape(shape);
+			var endShape=this._childColliderShapes[this._childColliderShapes.length-1];
+			endShape._indexInCompound=index;
+			this._childColliderShapes[index]=endShape;
+			this._childColliderShapes.pop();
+			this._nativeShape.removeChildShapeByIndex(index);
+		}
+	}
+
+	/**
+	*清空子碰撞器形状。
+	*/
+	__proto.clearChildShape=function(){
+		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
+			this._clearChildShape(this._childColliderShapes[i]);
+			this._nativeShape.removeChildShapeByIndex(0);
+		}
+		this._childColliderShapes.length=0;
+	}
+
+	/**
+	*获取子形状数量。
+	*@return
+	*/
+	__proto.getChildShapeCount=function(){
+		return this._childColliderShapes.length;
+	}
+
+	/**
+	*@inheritDoc
+	*/
+	__proto.cloneTo=function(destObject){
+		var destCompoundColliderShape=destObject;
+		destCompoundColliderShape.clearChildShape();
+		for (var i=0,n=this._childColliderShapes.length;i < n;i++)
+		destCompoundColliderShape.addChildShape(this._childColliderShapes[i].clone());
+	}
+
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new CompoundColliderShape();
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*@inheritDoc
+	*/
+	__proto.destroy=function(){
+		_super.prototype.destroy.call(this);
+		for (var i=0,n=this._childColliderShapes.length;i < n;i++){
+			var childShape=this._childColliderShapes[i];
+			if (childShape._referenceCount===0)
+				childShape.destroy();
+		}
+	}
+
+	__static(CompoundColliderShape,
+	['_nativeVector3One',function(){return this._nativeVector3One=new Laya3D._physics3D.btVector3(1,1,1);},'_nativeTransform',function(){return this._nativeTransform=new Laya3D._physics3D.btTransform();},'_nativeOffset',function(){return this._nativeOffset=new Laya3D._physics3D.btVector3(0,0,0);},'_nativRotation',function(){return this._nativRotation=new Laya3D._physics3D.btQuaternion(0,0,0,1);}
+	]);
+	return CompoundColliderShape;
+})(ColliderShape)
 
 
 //class laya.webgl.shader.d2.skinAnishader.SkinSV extends laya.webgl.shader.d2.value.Value2D
@@ -77017,8 +77175,7 @@ var Sprite=(function(_super){
 			this.loadImage(value);
 			}else if (this._texture !=value){
 			this._texture && this._texture._removeReference();
-			this._texture=value
-			;
+			this._texture=value;
 			value && value._addReference();
 			this._setTexture(value);
 			this._setWidth(this._texture,this.width);
@@ -77818,6 +77975,8 @@ var UI_NodePanel=(function(_super){
 	function UI_NodePanel(){
 		this.m_bg=null;
 		this.m_nodeContainer=null;
+		this.m_help=null;
+		this.m_helpOver=null;
 		UI_NodePanel.__super.call(this);
 	}
 
@@ -77827,6 +77986,8 @@ var UI_NodePanel=(function(_super){
 		_super.prototype.constructFromXML.call(this,xml);
 		this.m_bg=(this.getChildAt(0));
 		this.m_nodeContainer=(this.getChildAt(1));
+		this.m_help=(this.getChildAt(2));
+		this.m_helpOver=(this.getChildAt(3));
 	}
 
 	UI_NodePanel.createInstance=function(){
@@ -79370,6 +79531,43 @@ var GComboBox=(function(_super){
 	});
 
 	return GComboBox;
+})(GComponent)
+
+
+//class Basic.UI_Alert extends fairygui.GComponent
+var UI_Alert=(function(_super){
+	function UI_Alert(){
+		this.m_c1=null;
+		this.m_frame=null;
+		this.m_title=null;
+		this.m_txt=null;
+		this.m_btnOK=null;
+		this.m_btnNO=null;
+		this.m_input_bg=null;
+		this.m_input=null;
+		UI_Alert.__super.call(this);
+	}
+
+	__class(UI_Alert,'Basic.UI_Alert',_super);
+	var __proto=UI_Alert.prototype;
+	__proto.constructFromXML=function(xml){
+		_super.prototype.constructFromXML.call(this,xml);
+		this.m_c1=this.getControllerAt(0);
+		this.m_frame=(this.getChildAt(0));
+		this.m_title=(this.getChildAt(1));
+		this.m_txt=(this.getChildAt(2));
+		this.m_btnOK=(this.getChildAt(3));
+		this.m_btnNO=(this.getChildAt(4));
+		this.m_input_bg=(this.getChildAt(5));
+		this.m_input=(this.getChildAt(6));
+	}
+
+	UI_Alert.createInstance=function(){
+		return (UIPackage.createObject("Basic","Alert"));
+	}
+
+	UI_Alert.URL="ui://3hcsjtonch2w3x";
+	return UI_Alert;
 })(GComponent)
 
 
@@ -81996,6 +82194,29 @@ var GProgressBar=(function(_super){
 	});
 
 	return GProgressBar;
+})(GComponent)
+
+
+//class Basic.UI_Mask extends fairygui.GComponent
+var UI_Mask=(function(_super){
+	function UI_Mask(){
+		this.m_bg=null;
+		UI_Mask.__super.call(this);
+	}
+
+	__class(UI_Mask,'Basic.UI_Mask',_super);
+	var __proto=UI_Mask.prototype;
+	__proto.constructFromXML=function(xml){
+		_super.prototype.constructFromXML.call(this,xml);
+		this.m_bg=(this.getChildAt(0));
+	}
+
+	UI_Mask.createInstance=function(){
+		return (UIPackage.createObject("Basic","Mask"));
+	}
+
+	UI_Mask.URL="ui://3hcsjtonch2w3y";
+	return UI_Mask;
 })(GComponent)
 
 
@@ -88714,6 +88935,166 @@ var UI_AutoSizeButton=(function(_super){
 })(GButton)
 
 
+//class script.panels.Alert extends fairygui.Window
+var Alert=(function(_super){
+	function Alert(){
+		this.v=null;
+		this.okCall=null;
+		this.noCall=null;
+		this._getInputCall=null;
+		if(Alert.ins){
+			console.log("Alert 单例对象不能用 new 创建");
+		}
+		Alert.__super.call(this);
+		this.modal=true;
+		this.v=UI_Alert.createInstance();
+		UIConfig$1.globalModalWaiting="ui://3hcsjtonch2w3y";
+		this.contentPane=this.v;
+		this.v.m_btnOK.on("click",this,this.onOKClick);
+		this.v.m_btnNO.on("click",this,this.onNoClick);
+		this.v.m_frame.getChild("closeButton").on("click",this,this.onNoClick);
+	}
+
+	__class(Alert,'script.panels.Alert',_super);
+	var __proto=Alert.prototype;
+	__proto.onOKClick=function(){
+		var txt=this.v.m_input.text;
+		this.hide();
+		var p=this.v.m_c1.selectedPage;
+		if(p=="ok" || p=="okno"){
+			if(this.okCall)this.okCall.call(Alert.theThis);
+			if(this.noCall)this.noCall.call(Alert.theThis);
+		};
+		var tmpFun=this.getInputCall;
+		if(p=="input"){
+			if(tmpFun)tmpFun(txt);
+		}
+		this.clear();
+	}
+
+	__proto.callEnd=function(){
+		if(this.okCall)this.okCall.call(Alert.theThis);
+		if(this.noCall)this.noCall.call(Alert.theThis);
+	}
+
+	__proto.clear=function(){
+		this.getInputCall=null;
+		this.okCall=null;
+		this.noCall=null;
+		this.v.m_input.text="";
+		this.v.m_txt.text="";
+	}
+
+	__proto.onNoClick=function(){
+		this.hide();
+		this.clear();
+	}
+
+	__proto.showMsg=function(str,okCall,noCall){
+		this.noCall=noCall;
+		this.okCall=okCall;
+		if(okCall && noCall){
+			this.v.m_c1.setSelectedPage("okno");
+		}
+		if(okCall && !noCall){
+			this.v.m_c1.setSelectedPage("ok");
+		}
+		if(!okCall && !noCall){
+			this.v.m_c1.setSelectedPage("ok");
+		}
+		this.show();
+		Alert.fadeIn(GRoot.inst.modalLayer);
+		this.center();
+		this.v.m_txt.text=str;
+		this.v.m_title.text="提示";
+	}
+
+	__proto.realGetInput=function(title,getInputCall,defaultStr){
+		(defaultStr===void 0)&& (defaultStr="");
+		this.v.m_c1.setSelectedPage("input");
+		this.getInputCall=getInputCall;
+		this.show();
+		this.center();
+		this.v.m_frame.title=title;
+		this.v.m_input.text=defaultStr;
+		Laya.stage.on("keydown",this,this.onKey);
+	}
+
+	__proto.onHide=function(){
+		Laya.stage.off("keyup",this,this.onKey);
+	}
+
+	__proto.onKey=function(e){
+		if(e.nativeEvent.keyCode==13){
+			if(Alert.okWhenPressEnter){
+				var t=this.v.m_input.text;
+				var t2;
+				if(t[t.length-1]=="\n"){
+					t2=t.substr(0,t.length-1);
+					}else{
+					t2=t;
+				}
+				this.v.m_input.text=t2;
+				this.onOKClick();
+			}
+		}
+	}
+
+	__getset(0,__proto,'getInputCall',function(){
+		return this._getInputCall;
+		},function(value){
+		this._getInputCall=value;
+	});
+
+	Alert.getInstance=function(){
+		if(Alert.ins==null){
+			Alert.ins=new Alert();
+		}
+		return Alert.ins;
+	}
+
+	Alert.fadeIn=function(g){
+		var oldAlpha=g.alpha;
+		g.alpha=0.01;
+		Tween.to(g,{alpha:oldAlpha},200);
+	}
+
+	Alert.getInput=function(title,getInputCall,defaultStr,okWhenPressEnter){
+		(defaultStr===void 0)&& (defaultStr="");
+		(okWhenPressEnter===void 0)&& (okWhenPressEnter=true);
+		script.panels.Alert.okWhenPressEnter=okWhenPressEnter;
+		Alert.getInstance().realGetInput(title,getInputCall,defaultStr);
+	}
+
+	Alert.show=function(s,okCall,noCall,theThis){
+		script.panels.Alert.theThis=theThis;
+		if(s){
+			Alert.getInstance().showMsg(s,okCall,noCall);
+		}
+	}
+
+	Alert.showTip=function(s,sec){
+		(sec===void 0)&& (sec=3);
+		GRoot.inst.showTooltips(s);
+		Laya.timer.once(sec*1000,GRoot.inst,GRoot.inst.hideTooltips);
+	}
+
+	Alert.showWait=function(msg){
+		(msg===void 0)&& (msg="...网络不稳定，正在尝试重连...");
+		GRoot.inst.showModalWait(msg);
+	}
+
+	Alert.hideWait=function(){
+		GRoot.inst.closeModalWait();
+	}
+
+	Alert.ins=null;
+	Alert.theThis=null;
+	Alert.okWhenPressEnter=false;
+	return Alert;
+})(Window$2)
+
+
 //class Basic.UI_NumericInput extends fairygui.GLabel
 var UI_NumericInput=(function(_super){
 	function UI_NumericInput(){
@@ -93778,42 +94159,6 @@ var DialogManager=(function(_super){
 
 
 /**
-*...
-*@author
-*/
-//class laya.d3.core.pixelLine.PixelLineMaterial extends laya.d3.core.material.BaseMaterial
-var PixelLineMaterial=(function(_super){
-	function PixelLineMaterial(){
-		PixelLineMaterial.__super.call(this);
-		this.setShaderName("LineShader");
-		this._shaderValues.setVector(PixelLineMaterial.COLOR,new Vector4(1.0,1.0,1.0,1.0));
-	}
-
-	__class(PixelLineMaterial,'laya.d3.core.pixelLine.PixelLineMaterial',_super);
-	var __proto=PixelLineMaterial.prototype;
-	/**
-	*设置颜色。
-	*@param value 颜色。
-	*/
-	/**
-	*获取颜色。
-	*@return 颜色。
-	*/
-	__getset(0,__proto,'color',function(){
-		return this._shaderValues.getVector(PixelLineMaterial.COLOR);
-		},function(value){
-		this._shaderValues.setVector(PixelLineMaterial.COLOR,value);
-	});
-
-	PixelLineMaterial.__init__=function(){}
-	__static(PixelLineMaterial,
-	['COLOR',function(){return this.COLOR=Shader3D.propertyNameToID("u_Color");},'defaultMaterial',function(){return this.defaultMaterial=new PixelLineMaterial();},'shaderDefines',function(){return this.shaderDefines=new ShaderDefines(BaseMaterial.shaderDefines);}
-	]);
-	return PixelLineMaterial;
-})(BaseMaterial)
-
-
-/**
 *HTML图文类，用于显示html内容
 *
 *支持的标签如下:
@@ -93987,6 +94332,42 @@ var HTMLDivElement=(function(_super){
 
 	return HTMLDivElement;
 })(Sprite)
+
+
+/**
+*...
+*@author
+*/
+//class laya.d3.core.pixelLine.PixelLineMaterial extends laya.d3.core.material.BaseMaterial
+var PixelLineMaterial=(function(_super){
+	function PixelLineMaterial(){
+		PixelLineMaterial.__super.call(this);
+		this.setShaderName("LineShader");
+		this._shaderValues.setVector(PixelLineMaterial.COLOR,new Vector4(1.0,1.0,1.0,1.0));
+	}
+
+	__class(PixelLineMaterial,'laya.d3.core.pixelLine.PixelLineMaterial',_super);
+	var __proto=PixelLineMaterial.prototype;
+	/**
+	*设置颜色。
+	*@param value 颜色。
+	*/
+	/**
+	*获取颜色。
+	*@return 颜色。
+	*/
+	__getset(0,__proto,'color',function(){
+		return this._shaderValues.getVector(PixelLineMaterial.COLOR);
+		},function(value){
+		this._shaderValues.setVector(PixelLineMaterial.COLOR,value);
+	});
+
+	PixelLineMaterial.__init__=function(){}
+	__static(PixelLineMaterial,
+	['COLOR',function(){return this.COLOR=Shader3D.propertyNameToID("u_Color");},'defaultMaterial',function(){return this.defaultMaterial=new PixelLineMaterial();},'shaderDefines',function(){return this.shaderDefines=new ShaderDefines(BaseMaterial.shaderDefines);}
+	]);
+	return PixelLineMaterial;
+})(BaseMaterial)
 
 
 /**
@@ -113164,51 +113545,6 @@ var UIGroup=(function(_super){
 
 
 /**
-*自适应缩放容器，容器设置大小后，容器大小始终保持stage大小，子内容按照原始最小宽高比缩放
-*/
-//class laya.ui.ScaleBox extends laya.ui.Box
-var ScaleBox=(function(_super){
-	function ScaleBox(){
-		this._oldW=0;
-		this._oldH=0;
-		ScaleBox.__super.call(this);
-	}
-
-	__class(ScaleBox,'laya.ui.ScaleBox',_super);
-	var __proto=ScaleBox.prototype;
-	__proto.onEnable=function(){
-		Laya.stage.on("resize",this,this.onResize);
-		this.onResize();
-	}
-
-	__proto.onDisable=function(){
-		Laya.stage.off("resize",this,this.onResize);
-	}
-
-	__proto.onResize=function(){
-		if (this.width > 0 && this.height > 0){
-			var scale=Math.min(Laya.stage.width / this._oldW,Laya.stage.height / this._oldH);
-			Laya.superSet(Box$1,this,'width',Laya.stage.width);
-			Laya.superSet(Box$1,this,'height',Laya.stage.height);
-			this.scale(scale,scale);
-		}
-	}
-
-	__getset(0,__proto,'height',_super.prototype._$get_height,function(value){
-		Laya.superSet(Box$1,this,'height',value);
-		this._oldH=value;
-	});
-
-	__getset(0,__proto,'width',_super.prototype._$get_width,function(value){
-		Laya.superSet(Box$1,this,'width',value);
-		this._oldW=value;
-	});
-
-	return ScaleBox;
-})(Box$1)
-
-
-/**
 *<code>Dialog</code> 组件是一个弹出对话框，实现对话框弹出，拖动，模式窗口功能。
 *可以通过UIConfig设置弹出框背景透明度，模式窗口点击边缘是否关闭等
 *通过设置zOrder属性，可以更改弹出的层次
@@ -113542,6 +113878,51 @@ var Dialog=(function(_super){
 	Dialog._manager=null;
 	return Dialog;
 })(View)
+
+
+/**
+*自适应缩放容器，容器设置大小后，容器大小始终保持stage大小，子内容按照原始最小宽高比缩放
+*/
+//class laya.ui.ScaleBox extends laya.ui.Box
+var ScaleBox=(function(_super){
+	function ScaleBox(){
+		this._oldW=0;
+		this._oldH=0;
+		ScaleBox.__super.call(this);
+	}
+
+	__class(ScaleBox,'laya.ui.ScaleBox',_super);
+	var __proto=ScaleBox.prototype;
+	__proto.onEnable=function(){
+		Laya.stage.on("resize",this,this.onResize);
+		this.onResize();
+	}
+
+	__proto.onDisable=function(){
+		Laya.stage.off("resize",this,this.onResize);
+	}
+
+	__proto.onResize=function(){
+		if (this.width > 0 && this.height > 0){
+			var scale=Math.min(Laya.stage.width / this._oldW,Laya.stage.height / this._oldH);
+			Laya.superSet(Box$1,this,'width',Laya.stage.width);
+			Laya.superSet(Box$1,this,'height',Laya.stage.height);
+			this.scale(scale,scale);
+		}
+	}
+
+	__getset(0,__proto,'height',_super.prototype._$get_height,function(value){
+		Laya.superSet(Box$1,this,'height',value);
+		this._oldH=value;
+	});
+
+	__getset(0,__proto,'width',_super.prototype._$get_width,function(value){
+		Laya.superSet(Box$1,this,'width',value);
+		this._oldW=value;
+	});
+
+	return ScaleBox;
+})(Box$1)
 
 
 /**
@@ -115097,7 +115478,7 @@ var Tab=(function(_super){
 })(UIGroup)
 
 
-	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Transition,View,Path,WebGLContext2D,GearSize,SceneUtils,LocalStorage,RelationItem,GearLook,GearAnimation,CallLater,EaseManager,GBasicTextField,GList,Timer,GameConfig,UIPackage,GearColor]);
+	Laya.__init([LoaderManager,CharBook,EventDispatcher,GraphicAnimation,Transition,CallLater,View,Path,WebGLContext2D,GearSize,SceneUtils,LocalStorage,Timer,RelationItem,GearLook,GearAnimation,EaseManager,GameConfig,GBasicTextField,GList,UIPackage,GearColor]);
 	/**LayaGameStart**/
 	new Main();
 

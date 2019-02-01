@@ -8,6 +8,8 @@ package Basic
 	{
 		public var m_bg:GGraph;
 		public var m_nodeContainer:UI_NodeContainer;
+		public var m_help:GTextField;
+		public var m_helpOver:GGraph;
 
 		public static const URL:String = "ui://3hcsjtona4tz3k";
 
@@ -26,6 +28,8 @@ package Basic
 
 			m_bg = GGraph(this.getChildAt(0));
 			m_nodeContainer = UI_NodeContainer(this.getChildAt(1));
+			m_help = GTextField(this.getChildAt(2));
+			m_helpOver = GGraph(this.getChildAt(3));
 		}
 	}
 }

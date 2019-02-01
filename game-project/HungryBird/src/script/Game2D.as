@@ -1,16 +1,21 @@
 package script {
-import laya.utils.Handler;
-import laya.net.Loader;
-import fairygui.*;
-import fairygui.GRoot;
-import script.panels.MainPanel;
-import Basic.UI_MainPanel;
-import fairygui.Window;
-import script.panels.PanelUtil;
-import script.panels.NodePanel;
-import laya.debug.tools.Base64Tool;
-import laya.debug.tools.Base64Atlas;
 import Basic.BasicBinder;
+import Basic.UI_MainPanel;
+
+import fairygui.GRoot;
+import fairygui.UIConfig;
+import fairygui.UIPackage;
+import fairygui.Window;
+
+import laya.debug.tools.Base64Atlas;
+import laya.debug.tools.Base64Tool;
+import laya.net.Loader;
+import laya.utils.Handler;
+
+import script.panels.Alert;
+import script.panels.MainPanel;
+import script.panels.NodePanel;
+import script.panels.PanelUtil;
 
 // 程序入口
 public class Game2D {
@@ -70,6 +75,7 @@ public class Game2D {
         BasicBinder.bindAll();
         PanelUtil.bindWindows();
         
+		new Alert();
         new NodePanel();
         new MainPanel();
     }

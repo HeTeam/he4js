@@ -9,11 +9,11 @@ import fairygui.GComponent;
 import fairygui.GGraph;
 import fairygui.GObject;
 
-import laya.display.Sprite;
 import laya.events.Event;
 import laya.maths.Point;
 
 import script.theitems.BoneAni;
+import fairygui.Window;
 
 // 程序入口
 public class MainPanel {
@@ -28,7 +28,8 @@ public class MainPanel {
 		m_selnut = v.getControllerAt(0);
         m_container = UI_MainPanelBirdContainer(v.getChildAt(1));
         m_bird = m_container.m_bird;
-        PanelUtil.toWindow(v);
+        var win:Window = PanelUtil.toWindow(v);
+		win.closeButton.visible = false;
         
         v.x = 300;
         v.y = 100;
