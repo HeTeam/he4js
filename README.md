@@ -25,3 +25,5 @@ he4js 无需安装，下载项目后，双击 index.html 即可启动演示程�
 ## Current Status
 
 当前处在最早期的筹备中（VERY work-in-progress）。
+
+<https://github.com/HeTeam/he4js/tree/master/game-project/HungryBird/src/he/ai>
