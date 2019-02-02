@@ -20,6 +20,8 @@ package he.ai {
 	 * 然后又出现了一个有壳坚果 B，由于 B 和 A 的不同点仅仅在于坐标不同，则 B 和 A 抽象成一颗通用的树：C，
 	 * 而 B 和 A 则成为了 C 的子对象，即实例。
 	 * 这个时候，如果出现了 无壳坚果 D，那么 D 和 C 抽象出一个更通用的坚果 E。
+	 * 
+	 * 
 	 */
 	public class Node {
 		public var id: String = "" + Node._gInstanceCounter++;
