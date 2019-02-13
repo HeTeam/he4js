@@ -1,4 +1,8 @@
 {
+	"expanded_nodes": [
+		"3hcsjton",
+		"/"
+	],
 	"docs": [
 		"3hcsjton",
 		"8ymy3i",
@@ -25,9 +29,5 @@
 	"active_doc": [
 		"3hcsjton",
 		"ch2w3x"
-	],
-	"expanded_nodes": [
-		"3hcsjton",
-		"/"
 	]
 }

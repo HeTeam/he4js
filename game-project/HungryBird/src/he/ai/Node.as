@@ -1,5 +1,7 @@
 package he.ai {
 	import laya.maths.Point;
+	import laya.events.Event;
+	import fairygui.Events;
 	/**
 	 * Node 神经节点，简称节点，用于记忆单个抽象事物，Node 中包含了多个 Port（突触） 。
 	 * 
@@ -16,23 +18,38 @@ package he.ai {
 	 * 而 Port 中的 value，记录的就是运动的落差、强烈程度等等。
 	 * 
 	 * 一个场景：
-	 * 假设有两种坚果，一种是无壳坚果，一种是有壳坚果，现在有一个有壳坚果 A，我们将其抽象成一棵树，
+	 * 假设有两种坚果，一种是【无壳坚果】，一种是【有壳坚果】，现在有一个有壳坚果 A，我们将其抽象成一棵树，
 	 * 然后又出现了一个有壳坚果 B，由于 B 和 A 的不同点仅仅在于坐标不同，则 B 和 A 抽象成一颗通用的树：C，
 	 * 而 B 和 A 则成为了 C 的子对象，即实例。
 	 * 这个时候，如果出现了 无壳坚果 D，那么 D 和 C 抽象出一个更通用的坚果 E。
 	 * 
+	 * 又一个场景：
+	 * 假设【中国】是一个节点，而【美国】是另一个节点，那么他们可以抽象出一个叫做【国家】的节点，
+	 * 这个大的节点之下，包含了大量关于经济、文化、历史、社会等上千万个主题的运动节点，
+	 * 而这些主题节点之下又包含了更多的子节点。
 	 * 
+	 * 又一个场景：
+	 * 一个【苹果】节点，直觉上我们认为苹果是静态的，其实不是，
+	 * 由于不是绝对零度，所以苹果内部发生着原子层面的布朗运动。
+	 * 并且，当季节变动，苹果内部也会发生着各种化学反应，使得青苹果慢慢变红。
+	 * 而【红色】这个节点，也是【光反射】这种运动的表象，其实也是一种运动所留下的痕迹。
+	 * 采摘后的苹果，如果不放入冰箱，则会在周围细菌的作用下慢慢腐烂。
+	 * 所以苹果其实是一个表示运动的动态节点，举一反三，其它物体也都是动态节点。
 	 */
 	public class Node {
 		public var id: String = "" + Node._gInstanceCounter++;
 		public var _ports: Vector.<Port> = new Vector.<Port>(); //以 数组 的方式记录突触
 		public var _dic:Object = {}; 							//以 key value 的方式记录突触
 		public var pos:Point = new Point();
+		public var baseType:String = "";
+		public var value:Number = 0;
+		public var valueStr:String = "";
 		
 		public static var _gInstanceCounter: Number = 0;
 		
 		public function Node() {
 			Net.inst.add(this);
+			EventCenter.inst.event(Event.ADDED,this);
 		}
 		public function dispose(): void {
 			var i:int;
@@ -55,30 +72,30 @@ package he.ai {
 			
 			if(index >= 0 && index <= numChildren) {
 				var cnt: Number = this._ports.length;
-				if(index == cnt)
-					this._ports.push(port);
-				else
-					this._ports.splice(index,0,port);
-				
 				this._dic[port.id] = port;
 				port.parentNode = this;
-				
+				if(index == cnt){
+					this._ports.push(port);
+				}else{
+					this._ports.splice(index,0,port);
+				}
+				EventCenter.inst.event(Event.ADDED,port);
 				return port;
 			}
 			else {
 				throw "Invalid port index";
 			}
 		}	
-		public function addPortByNode(child: Node): Node {
+		public function addPortByNode(child: Node): Port {
 			return this.addPortByNodeAt(child,this._ports.length);
 		}
-		public function addPortByNodeAt(child: Node,index: Number = 0): Node {
+		public function addPortByNodeAt(child: Node,index: Number = 0): Port {
 			if(!child)
 				throw "child is null";
 			
 			var port:Port = new Port(this,child);
 			addPortAt(port,index);
-			return child;
+			return port;
 		}
 		public function removePortByNode(child: Node,dispose: Boolean = false): Node {
 			var port:Port = getPort(child.id);
@@ -107,6 +124,7 @@ package he.ai {
 					port.dispose();
 				
 				delete this._dic[port.id];
+				EventCenter.inst.event(Event.REMOVED,port);
 				
 				return port;
 			}
@@ -148,6 +166,7 @@ package he.ai {
 			else
 				return _setChildIndex(port, oldIndex, index);
 		}
+		public static var IndexChange:String = "IndexChange";
 		private function _setChildIndex(child: Port, oldIndex:int, index:int):int
 		{
 			var cnt: Number = this._ports.length;
@@ -159,6 +178,7 @@ package he.ai {
 			
 			this._ports.splice(oldIndex,1);
 			this._ports.splice(index,0,child);
+			EventCenter.inst.event(IndexChange,{oldIndex:oldIndex,index:index,child:child})
 			
 			return index;
 		}

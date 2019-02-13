@@ -26,11 +26,11 @@ public class Game2D {
     {
         // Laya.init(1136, 640, Laya.WebGL);
         // laya.utils.Stat.show(0, 0);
-        //设置适配模式
+        // 设置适配模式
         // Laya.stage.scaleMode = "showall";
         // Laya.stage.alignH = "left";
         // Laya.stage.alignV = "top";
-        //设置横竖屏
+        // 设置横竖屏
         // Laya.stage.screenMode = "horizontal";
         if(!allInOne){
             Laya.loader.load([

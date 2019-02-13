@@ -21,14 +21,15 @@ package he.ai
 		
 		public function get typeStr():String
 		{
-			return NodeType.getStr(type);
+			return PortType.getStr(type);
 		}
 
 		public function dispose():void
 		{
 			childNode = null;
 			parentNode = null;
-			//todo: return to pool;
+			//todo: return to pool
+			//todo: update ui
 		}
 	}
 }

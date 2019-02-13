@@ -10,6 +10,7 @@ import fairygui.Window;
 import laya.events.Event;
 
 import script.Box;
+import he.ai.EventCenter;
 
 // 程序入口
 public class NodePanel {
@@ -34,6 +35,8 @@ public class NodePanel {
 		v.on(Event.RIGHT_MOUSE_DOWN,this,onDown);
 		
 		v.m_helpOver.onClick(this,onHelp);
+
+		EventCenter.inst.on(Event.ADDED,this,onNodeAdd)
     }
 	
 	private function onHelp():void
@@ -97,5 +100,9 @@ public class NodePanel {
         box.y = 100;
 		nodeContainer.addChild(box);
     }
+
+    public function onNodeAdd(e,d):void{
+		trace(e,d);
+	}
 }
 }

@@ -14,6 +14,10 @@ import laya.maths.Point;
 
 import script.theitems.BoneAni;
 import fairygui.Window;
+import he.ai.Think;
+import he.ai.Node;
+import he.ai.Port;
+import he.ai.NodeType;
 
 // 程序入口
 public class MainPanel {
@@ -43,7 +47,8 @@ public class MainPanel {
 	private function onContainerClick(e:Event):void
 	{
 		var nut:GComponent;
-		if(m_selnut.selectedIndex==0){
+		var isNut1:Boolean = m_selnut.selectedIndex==0;
+		if(isNut1){
 			nut = UI_Nut1.createInstance();
 		}else{
 			nut = UI_Nut2.createInstance();
@@ -54,8 +59,31 @@ public class MainPanel {
 		nut.setScale(0.5,0.5);
 		m_container.addChild(nut);
 		sortScene();
+
+		var node:Node;
+		var port:Port;
+		node = new Node();
+		
+		var nut_node:Node = node;
+
+		node = new Node();
+		node.baseType = NodeType.Distance;
+		node.value = getDistance(m_bird,nut);
+		nut_node.addPortByNode(node);
+
+		node.baseType = NodeType.CanEat;
+		node.value = isNut1 ? 0:1;
+		nut_node.addPortByNode(node);
+
+		Think.inst.dataIn(nut_node);
 	}
 	
+	private static var apos:Point = new Point;
+	private function getDistance(a:GObject,b:GObject):Number{
+		apos.x = a.x;
+		apos.y = a.y;
+		return apos.distance(b.x,b.y);
+	}
 	private function sortScene():void
 	{
 		var sort:Vector.<fairygui.GObject> = m_container._children.slice().sort(sortY);

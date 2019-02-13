@@ -8216,6 +8216,7 @@ var NodePanel=(function(){
 		this.v.on("mousedown",this,this.onDown);
 		this.v.on("rightmousedown",this,this.onDown);
 		this.v.m_helpOver.onClick(this,this.onHelp);
+		EventCenter.inst.on("added",this,this.onNodeAdd)
 	}
 
 	__class(NodePanel,'script.panels.NodePanel');
@@ -8273,6 +8274,10 @@ var NodePanel=(function(){
 		box.x=70;
 		box.y=100;
 		this.nodeContainer.addChild(box);
+	}
+
+	__proto.onNodeAdd=function(e,d){
+		console.log(e,d);
 	}
 
 	return NodePanel;
@@ -57908,6 +57913,28 @@ var GTextField=(function(_super){
 })(GObject)
 
 
+/**
+*消息分发中心，AGI 通过这这里向外部发送消息，通知界面程序更新视图。
+*/
+//class he.ai.EventCenter extends laya.events.EventDispatcher
+var EventCenter=(function(_super){
+	function EventCenter(){
+		EventCenter.__super.call(this);
+	}
+
+	__class(EventCenter,'he.ai.EventCenter',_super);
+	__getset(1,EventCenter,'inst',function(){
+		if(EventCenter._instance==null){
+			EventCenter._instance=new EventCenter;
+		}
+		return EventCenter._instance;
+	},laya.events.EventDispatcher._$SET_inst);
+
+	EventCenter._instance=null;
+	return EventCenter;
+})(EventDispatcher)
+
+
 //class fairygui.action.ChangePageAction extends fairygui.action.ControllerAction
 var ChangePageAction=(function(_super){
 	function ChangePageAction(){
@@ -64892,83 +64919,6 @@ var Transform3D=(function(_super){
 
 
 /**
-*<code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
-*/
-//class laya.d3.physics.shape.CylinderColliderShape extends laya.d3.physics.shape.ColliderShape
-var CylinderColliderShape=(function(_super){
-	function CylinderColliderShape(radius,height,orientation){
-		/**@private */
-		//this._orientation=0;
-		/**@private */
-		this._radius=1;
-		/**@private */
-		this._height=0.5;
-		CylinderColliderShape.__super.call(this);
-		(radius===void 0)&& (radius=0.5);
-		(height===void 0)&& (height=1.0);
-		(orientation===void 0)&& (orientation=1);
-		this._radius=radius;
-		this._height=height;
-		this._orientation=orientation;
-		this._type=2;
-		switch (orientation){
-			case 0:
-				CylinderColliderShape._nativeSize.setValue(height / 2,radius,radius);
-				this._nativeShape=new Laya3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
-				break ;
-			case 1:
-				CylinderColliderShape._nativeSize.setValue(radius,height / 2,radius);
-				this._nativeShape=new Laya3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
-				break ;
-			case 2:
-				CylinderColliderShape._nativeSize.setValue(radius,radius,height / 2);
-				this._nativeShape=new Laya3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
-				break ;
-			default :
-				throw "CapsuleColliderShape:unknown orientation.";
-			}
-	}
-
-	__class(CylinderColliderShape,'laya.d3.physics.shape.CylinderColliderShape',_super);
-	var __proto=CylinderColliderShape.prototype;
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new CylinderColliderShape(this._radius,this._height,this._orientation);
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*获取方向。
-	*/
-	__getset(0,__proto,'orientation',function(){
-		return this._orientation;
-	});
-
-	/**
-	*获取高度。
-	*/
-	__getset(0,__proto,'height',function(){
-		return this._height;
-	});
-
-	/**
-	*获取半径。
-	*/
-	__getset(0,__proto,'radius',function(){
-		return this._radius;
-	});
-
-	__static(CylinderColliderShape,
-	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
-	]);
-	return CylinderColliderShape;
-})(ColliderShape)
-
-
-/**
 *<p> <code>HttpRequest</code> 通过封装 HTML <code>XMLHttpRequest</code> 对象提供了对 HTTP 协议的完全的访问，包括做出 POST 和 HEAD 请求以及普通的 GET 请求的能力。 <code>HttpRequest</code> 只提供以异步的形式返回 Web 服务器的响应，并且能够以文本或者二进制的形式返回内容。</p>
 *<p><b>注意：</b>建议每次请求都使用新的 <code>HttpRequest</code> 对象，因为每次调用该对象的send方法时，都会清空之前设置的数据，并重置 HTTP 请求的状态，这会导致之前还未返回响应的请求被重置，从而得不到之前请求的响应结果。</p>
 */
@@ -65132,6 +65082,83 @@ var HttpRequest=(function(_super){
 
 	return HttpRequest;
 })(EventDispatcher)
+
+
+/**
+*<code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
+*/
+//class laya.d3.physics.shape.CylinderColliderShape extends laya.d3.physics.shape.ColliderShape
+var CylinderColliderShape=(function(_super){
+	function CylinderColliderShape(radius,height,orientation){
+		/**@private */
+		//this._orientation=0;
+		/**@private */
+		this._radius=1;
+		/**@private */
+		this._height=0.5;
+		CylinderColliderShape.__super.call(this);
+		(radius===void 0)&& (radius=0.5);
+		(height===void 0)&& (height=1.0);
+		(orientation===void 0)&& (orientation=1);
+		this._radius=radius;
+		this._height=height;
+		this._orientation=orientation;
+		this._type=2;
+		switch (orientation){
+			case 0:
+				CylinderColliderShape._nativeSize.setValue(height / 2,radius,radius);
+				this._nativeShape=new Laya3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
+				break ;
+			case 1:
+				CylinderColliderShape._nativeSize.setValue(radius,height / 2,radius);
+				this._nativeShape=new Laya3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
+				break ;
+			case 2:
+				CylinderColliderShape._nativeSize.setValue(radius,radius,height / 2);
+				this._nativeShape=new Laya3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
+				break ;
+			default :
+				throw "CapsuleColliderShape:unknown orientation.";
+			}
+	}
+
+	__class(CylinderColliderShape,'laya.d3.physics.shape.CylinderColliderShape',_super);
+	var __proto=CylinderColliderShape.prototype;
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new CylinderColliderShape(this._radius,this._height,this._orientation);
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*获取方向。
+	*/
+	__getset(0,__proto,'orientation',function(){
+		return this._orientation;
+	});
+
+	/**
+	*获取高度。
+	*/
+	__getset(0,__proto,'height',function(){
+		return this._height;
+	});
+
+	/**
+	*获取半径。
+	*/
+	__getset(0,__proto,'radius',function(){
+		return this._radius;
+	});
+
+	__static(CylinderColliderShape,
+	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
+	]);
+	return CylinderColliderShape;
+})(ColliderShape)
 
 
 /**
@@ -65462,44 +65489,6 @@ var Texture=(function(_super){
 	Texture._rect2=new Rectangle();
 	return Texture;
 })(EventDispatcher)
-
-
-/**
-*...
-*@author ww
-*/
-//class laya.ani.bone.canvasmesh.SkinMeshForGraphic extends laya.ani.bone.canvasmesh.MeshData
-var SkinMeshForGraphic=(function(_super){
-	function SkinMeshForGraphic(){
-		/**
-		*矩阵
-		*/
-		this.transform=null;
-		SkinMeshForGraphic.__super.call(this);
-	}
-
-	__class(SkinMeshForGraphic,'laya.ani.bone.canvasmesh.SkinMeshForGraphic',_super);
-	var __proto=SkinMeshForGraphic.prototype;
-	__proto.init2=function(texture,ps,verticles,uvs){
-		if (this.transform){
-			this.transform=null;
-		};
-		var _ps=ps || [0,1,3,3,1,2];
-		this.texture=texture;
-		if (Render.isWebGL){
-			this.indexes=new Uint16Array(_ps);
-			this.vertices=new Float32Array(verticles);
-			this.uvs=new Float32Array(uvs);
-		}
-		else {
-			this.indexes=_ps;
-			this.vertices=verticles;
-			this.uvs=uvs;
-		}
-	}
-
-	return SkinMeshForGraphic;
-})(MeshData)
 
 
 /**
@@ -65961,6 +65950,44 @@ var AnimationPlayer=(function(_super){
 
 	return AnimationPlayer;
 })(EventDispatcher)
+
+
+/**
+*...
+*@author ww
+*/
+//class laya.ani.bone.canvasmesh.SkinMeshForGraphic extends laya.ani.bone.canvasmesh.MeshData
+var SkinMeshForGraphic=(function(_super){
+	function SkinMeshForGraphic(){
+		/**
+		*矩阵
+		*/
+		this.transform=null;
+		SkinMeshForGraphic.__super.call(this);
+	}
+
+	__class(SkinMeshForGraphic,'laya.ani.bone.canvasmesh.SkinMeshForGraphic',_super);
+	var __proto=SkinMeshForGraphic.prototype;
+	__proto.init2=function(texture,ps,verticles,uvs){
+		if (this.transform){
+			this.transform=null;
+		};
+		var _ps=ps || [0,1,3,3,1,2];
+		this.texture=texture;
+		if (Render.isWebGL){
+			this.indexes=new Uint16Array(_ps);
+			this.vertices=new Float32Array(verticles);
+			this.uvs=new Float32Array(uvs);
+		}
+		else {
+			this.indexes=_ps;
+			this.vertices=verticles;
+			this.uvs=uvs;
+		}
+	}
+
+	return SkinMeshForGraphic;
+})(MeshData)
 
 
 /**
