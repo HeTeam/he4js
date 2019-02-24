@@ -39,7 +39,7 @@ public class Game2D {
             ], Handler.create(this, this.onLoaded));
         }else{
             //加载 index.html 中的 多个 png
-            var _imgsData;
+            var _imgsData:*;
             __JS__('_imgsData = imgsData');
             var base64:Base64Atlas = new Base64Atlas(_imgsData);
             base64.preLoad(new Handler(this,onLoaded));
@@ -53,8 +53,8 @@ public class Game2D {
         //如果要集中所有文件到 index.html
         if(allInOne){
             //加载 index.html 中的 UI 配置
-            var _basicUIData;
-            var _otherbin;
+            var _basicUIData:*;
+            var _otherbin:*;
             __JS__('_basicUIData = basicUIData');
             __JS__('_otherbin = otherbin');
             fairygui.UIPackage.addPackage("res/Basic",laya.debug.tools.Base64Tool.decode(_basicUIData));
