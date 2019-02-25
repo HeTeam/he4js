@@ -10,6 +10,9 @@ package he.ai
 	 * 
 	 * AGI 树算
 	 * http://blog.poerlang.com/project/public/2019/02/24/agi-tree-compute.html
+	 * 
+	 * AGI 价值评估
+	 * http://blog.poerlang.com/project/public/2019/02/25/agi-value.html
 	 */
 	public class Think
 	{
