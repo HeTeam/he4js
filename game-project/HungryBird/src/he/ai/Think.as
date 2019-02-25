@@ -13,6 +13,10 @@ package he.ai
 	 * 
 	 * AGI 价值评估
 	 * http://blog.poerlang.com/project/public/2019/02/25/agi-value.html
+	 * 
+	 * AI 树运行效果
+	 * https://www.bilibili.com/video/av44645818
+	 * 
 	 */
 	public class Think
 	{
