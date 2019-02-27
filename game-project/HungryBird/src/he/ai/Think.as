@@ -6,13 +6,13 @@ package he.ai
 	 * 详情请看如下链接：
 	 * 
 	 * AGI 思考控制器
-	 * http://blog.poerlang.com/project/public/2019/02/10/agi-think.html
+	 * https://moketao.github.io/project/public/2019/02/10/agi-think.html
 	 * 
 	 * AGI 树算
-	 * http://blog.poerlang.com/project/public/2019/02/24/agi-tree-compute.html
+	 * https://moketao.github.io/project/public/2019/02/24/agi-tree-compute.html
 	 * 
 	 * AGI 价值评估
-	 * http://blog.poerlang.com/project/public/2019/02/25/agi-value.html
+	 * https://moketao.github.io/project/public/2019/02/25/agi-value.html
 	 * 
 	 * AI 树运行效果
 	 * https://www.bilibili.com/video/av44645818
