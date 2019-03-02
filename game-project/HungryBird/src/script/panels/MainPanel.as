@@ -18,6 +18,8 @@ import he.ai.Think;
 import he.ai.Node;
 import he.ai.Port;
 import he.ai.NodeType;
+import he.ai.EventCenter;
+import he.ai.EventNames;
 
 // 程序入口
 public class MainPanel {
@@ -60,20 +62,19 @@ public class MainPanel {
 		m_container.addChild(nut);
 		sortScene();
 
-		var node:Node;
-		var port:Port;
-		node = new Node();
-		
-		var nut_node:Node = node;
+		var nut_node:Node = new Node();
 
-		node = new Node();
-		node.baseType = NodeType.Distance;
-		node.value = getDistance(m_bird,nut);
-		nut_node.addPortByNode(node);
+		var attr_node1:Node = new Node();
+        attr_node1.baseType = NodeType.Distance;
+        attr_node1.value = getDistance(m_bird,nut);
+		var port1:Port = nut_node.addPortByNode(attr_node1);
+		EventCenter.inst.event(EventNames.Link,[port1]);
 
-		node.baseType = NodeType.CanEat;
-		node.value = isNut1 ? 0:1;
-		nut_node.addPortByNode(node);
+        var attr_node2:Node = new Node();
+        attr_node2.baseType = NodeType.CanEat;
+        attr_node2.value = isNut1 ? 0:1;
+		var port2:Port = nut_node.addPortByNode(attr_node2);
+		EventCenter.inst.event(EventNames.Link,[port2]);
 
 		Think.inst.dataIn(nut_node);
 	}

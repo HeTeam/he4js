@@ -144,6 +144,7 @@
     <component id="ch2w3w" name="NodeContainer.xml" path="/panels/" exported="true"/>
     <component id="ch2w3x" name="Alert.xml" path="/panels/" exported="true"/>
     <component id="ch2w3y" name="Mask.xml" path="/panels/" exported="true"/>
+    <component id="tzto3z" name="LineContainer.xml" path="/panels/" exported="true"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>

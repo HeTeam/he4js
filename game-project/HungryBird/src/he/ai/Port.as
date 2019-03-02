@@ -3,31 +3,46 @@ package he.ai
 	/**
 	 * Port 突触，负责连接节点，并记录连接强度或运动落差。 
 	 * 
-	 * 规律：Port 总是成对出现，在一个节点下建立一个 Port，这个 Port 会指向另一个新的 Node，而这个新的 Node 也将拥有一个指回来的 Port。
+	 * 规律：突触是两个节点之间共享的，在 a 节点下建立一个突触，这个突触会指向 b 节点，a 和 b 共同拥有这个突触，在 a 和 b 的突触列表里都能找到这个突触。
 	 */
 	public class Port
 	{
-		public var value:Number=0; 	//连接强度，运动落差
-		public var id:String;		//唯一标识
-		public var parentNode:Node;	//上级节点
-		public var childNode:Node;	//下级节点
-		public var type:int;		//标注类型，只用于在思考时辨别 childNode 是因何而生的或指向什么样的节点，比如 "抽象"，代表 childNode 指向一个相对抽象节点， 或 "具象"，表示 childNode 指向一个相对具象的节点。
-		public function Port(parent:Node,child:Node)
+		public var a_value:Number=0; 	//连接强度，运动落差
+		public var b_value:Number=0; 	//连接强度，运动落差
+		public var id:String;		//唯一标识，由两个节点的 id 加上下划线构成（会经过排序，id 大的在前面）。
+		public var a:Node;	// a 节点
+		public var b:Node;	// b 节点
+		public var a_type:int;		//标注类型，只用于在思考时辨别 childNode 是因何而生的或指向什么样的节点，比如 "抽象"，代表 childNode 指向一个相对抽象节点， 或 "具象"，表示 childNode 指向一个相对具象的节点。
+		public var b_type:int;		//标注类型，只用于在思考时辨别 childNode 是因何而生的或指向什么样的节点，比如 "抽象"，代表 childNode 指向一个相对抽象节点， 或 "具象"，表示 childNode 指向一个相对具象的节点。
+		public function Port(_a:Node,_b:Node)
 		{
-			parentNode = parent;
-			childNode = child;
-			this.id = child.id;
+			a = _a;
+			b = _b;
+			this.id = Util.getSortIDs(a,b);
+			dic[this.id] = this;
 		}
-		
-		public function get typeStr():String
+		public static var dic:Object = {};
+		public static function has(n1:Node,n2:Node):*{
+			var str:String = Util.getSortIDs(n1,n2);
+			return dic[str]? true:false;
+		}
+		public static function get(n1:Node,n2:Node):*{
+			var str:String = Util.getSortIDs(n1,n2);
+			return dic[str];
+		}
+		public function get a_typeStr():String
 		{
-			return PortType.getStr(type);
+			return PortType.getStr(a_type);
+		}
+		public function getOtherID(a_or_b:Node):String
+		{
+			return a == a_or_b ? b.id : a.id;
 		}
 
 		public function dispose():void
 		{
-			childNode = null;
-			parentNode = null;
+			b = null;
+			a = null;
 			//todo: return to pool
 			//todo: update ui
 		}

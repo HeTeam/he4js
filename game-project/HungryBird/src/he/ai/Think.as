@@ -35,7 +35,7 @@ package he.ai
 		}
 		public function dataIn(node:Node):void
 		{
-			// todo
-		}
+            Net.inst.add(node);
+        }
 	}
 }

@@ -4,6 +4,10 @@
     <graph id="n3_ch2w" name="bg" xy="0,0" size="384,470" type="rect" lineSize="0" fillColor="#ff999999">
       <relation target="" sidePair="width-width,height-height"/>
     </graph>
+    <component id="n8_tzto" name="lineContainer" src="tzto3z" fileName="panels/LineContainer.xml" xy="0,0">
+      <relation target="n4_ch2w" sidePair="left-left,top-top"/>
+      <relation target="n4_ch2w" sidePair="width-width,height-height"/>
+    </component>
     <component id="n4_ch2w" name="nodeContainer" src="ch2w3w" fileName="panels/NodeContainer.xml" xy="0,0" size="378,477"/>
     <text id="n5_ch2w" name="help" xy="355,3" size="27,16" font="Helvetica" fontSize="12" color="#666666" align="right" text="help">
       <relation target="" sidePair="right-right,top-top"/>

@@ -72,6 +72,8 @@ public class Game2D {
         fairygui.UIConfig.horizontalScrollBar = "ui://Basic/ScrollBar_HZ";
         fairygui.UIConfig.popupMenu = "ui://Basic/PopupMenu";
         fairygui.UIConfig.buttonSound = "ui://Basic/click";
+        fairygui.UIConfig.clickDragSensitivity = 1;
+        fairygui.UIConfig.touchDragSensitivity = 3;
         BasicBinder.bindAll();
         PanelUtil.bindWindows();
         
