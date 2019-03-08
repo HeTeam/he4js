@@ -17,9 +17,14 @@ import laya.utils.Tween;
 
 import script.Box;
 import he.ai.EventCenter;
+import laya.maths.Rectangle;
+import laya.maths.Point;
+import he.qtree.Quadtree;
 
 // 程序入口
 public class NodePanel {
+	public var quadTreeDepth:int = 3;
+	public var qtreeSize:Rectangle = new Rectangle(0,0,300,600);
     public var v:UI_NodePanel = UI_NodePanel.createInstance();
     private var isDrag:Boolean;
 
@@ -37,6 +42,9 @@ public class NodePanel {
 		GRoot.inst.addChild(v);
 		v.width = GRoot.inst.width;
 		v.height = GRoot.inst.height;
+		
+		qtree = new Quadtree(qtreeSize.x,qtreeSize.y,qtreeSize.right,qtreeSize.bottom,quadTreeDepth);
+		nodeContainer['qtree'] = qtree;
 
 		v.on(Event.MOUSE_DOWN,this,onDown);
 		v.on(Event.RIGHT_MOUSE_DOWN,this,onDown);
@@ -92,15 +100,16 @@ public class NodePanel {
 		}
 		isDrag = false;
 	}
-
     private function onNodeAdd(node:Node):void{
         var box:Box
         box = UI_Box.createInstance() as Box;
 		box.data = node;
 		node.ui = box;
-        box.x = Math.floor(50+ 160 * Math.random());
-        box.y = Math.floor(50+ 500 * Math.random()); // todo： 改成其它布局，避免重叠
+		var pos:Point = qtree.findSpace();
+        box.x = pos.x;
+        box.y = pos.y;
         nodeContainer.addChild(box);
+		trace(qtree)
 	}
     private function onLink(port:Port):void {
 		var has:* = LineContainer.inst.has(port.a,port.b);
@@ -112,11 +121,13 @@ public class NodePanel {
 		Tween.to(port.b.ui,{y:targetY, x:targetX},100+300*Math.random(),laya.utils.Ease.circOut,Handler.create(this,addLine,[port.a,port.b]));
     }
 
-    private function addLine(n1,n2):void {
+    private function addLine(n1:Node,n2:Node):void {
         n1.ui.x = Math.round(n1.ui.x);
         n1.ui.y = Math.round(n1.ui.y);
         n2.ui.x = Math.round(n2.ui.x);
         n2.ui.y = Math.round(n2.ui.y);
+		n1.ui.updateInQuadTree();
+		n2.ui.updateInQuadTree();
         LineContainer.inst.drawLine(n1,n2);
     }
 	private function onIndexChange(node:Node):void {
@@ -125,5 +136,7 @@ public class NodePanel {
     private function onRemove(node:Node):void {
 //        trace("onRemove",node);
     }
+
+    public var qtree:Quadtree;
 }
 }
