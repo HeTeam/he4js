@@ -2289,7 +2289,7 @@ var EventNames=(function(){
 	function EventNames(){}
 	__class(EventNames,'he.ai.EventNames');
 	EventNames.AddNode="AddNode";
-	EventNames.IndexChange="IndexChange";
+	EventNames.PortIndexChange="PortIndexChange";
 	EventNames.Link="Link";
 	EventNames.Remove="Remove";
 	return EventNames;
@@ -2607,6 +2607,65 @@ var PageOption=(function(){
 	});
 
 	return PageOption;
+})()
+
+
+//class he.qtree.Quadtree
+var Quadtree=(function(){
+	function Quadtree(minX,minY,maxX,maxY,depth){
+		this.depth=0;
+		this._root=null;
+		this._bounds=null;
+		this._objectNodeMapping=null;
+		this._bounds=new Rectangle(minX,minY,maxX-minX,maxY-minY);
+		this.depth=depth;
+		this._root=new QuadtreeNode(this._bounds,depth);
+		this._objectNodeMapping=new Object();
+	}
+
+	__class(Quadtree,'he.qtree.Quadtree');
+	var __proto=Quadtree.prototype;
+	__proto.findSpace=function(){
+		return this._root.findSpace();
+	}
+
+	__proto.insert=function(object){
+		var targetQuadtreeNode=this._root.insert(object);
+		if (targetQuadtreeNode){
+			this._objectNodeMapping[object]=targetQuadtreeNode;
+		}
+		return targetQuadtreeNode !=null;
+	}
+
+	__proto.nodeForObject=function(object){
+		return this._objectNodeMapping[object];
+	}
+
+	__proto.remove=function(object){
+		var node=this._objectNodeMapping[object];
+		if (!node)return false;
+		node.removeObject(object);
+		delete this._objectNodeMapping[object];
+		return true;
+	}
+
+	__proto.update=function(object){
+		var wasRemoved=this.remove(object);
+		if (!wasRemoved){
+			throw new Error("Can't update object which has not been added to Quadtree.");
+		}
+		this.insert(object);
+	}
+
+	__proto.objectsInRectangle=function(rectangle){
+		return this._root.objectInBounds(rectangle);
+	}
+
+	__getset(0,__proto,'root',function(){
+		return this._root;
+	});
+
+	return Quadtree;
 })()
 
 
@@ -8377,6 +8436,8 @@ var Node$1=(function(){
 		this.id=""+he.ai.Node._gInstanceCounter++;
 		//以 数组 的方式记录突触
 		this.ports_dic={};
+		//以 PortID 的方式记录突触
+		this._dic={};
 		this.baseType="";
 		this.value=0;
 		this.valueStr="";
@@ -8412,6 +8473,7 @@ var Node$1=(function(){
 		if(index >=0 && index <=numChildren){
 			var cnt=this._ports.length;
 			this.ports_dic[port.id]=port;
+			this._dic[port.getOtherID(this)]=port;
 			if(index==cnt){
 				this._ports.push(port);
 				}else{
@@ -8463,6 +8525,10 @@ var Node$1=(function(){
 		return this.ports_dic[portName];
 	}
 
+	__proto.getPortByOtherNode=function(node){
+		return this._dic[node.id];
+	}
+
 	__proto.removePortAt=function(index,dispose){
 		(dispose===void 0)&& (dispose=false);
 		if(index >=0 && index < this.numChildren){
@@ -8472,6 +8538,7 @@ var Node$1=(function(){
 			if(dispose)
 				port.dispose();
 			delete this.ports_dic[port.id];
+			delete this._dic[port.getOtherID(this)];
 			EventCenter.inst.event(EventNames.Remove,port);
 			return port;
 		}
@@ -8528,7 +8595,7 @@ var Node$1=(function(){
 			return oldIndex;
 		this._ports.splice(oldIndex,1);
 		this._ports.splice(index,0,child);
-		EventCenter.inst.event(EventNames.IndexChange,{oldIndex:oldIndex,index:index,child:child})
+		EventCenter.inst.event(EventNames.PortIndexChange,{oldIndex:oldIndex,index:index,child:child})
 		return index;
 	}
 
@@ -8591,11 +8658,15 @@ var PopupDirection=(function(){
 //class script.panels.NodePanel
 var NodePanel=(function(){
 	function NodePanel(){
+		this.quadTreeDepth=3;
 		this.isDrag=false;
 		this.nodeContainer=null;
 		this.lineContainer=null;
 		this.moveStage=false;
 		this.help_tips="右键或中建可拖拽背景视图";
+		// trace("onRemove",node);
+		this.qtree=null;
+		this.qtreeSize=new Rectangle(0,0,300,600);
 		this.v=UI_NodePanel.createInstance();
 		this.v.x=0;
 		this.v.y=0;
@@ -8604,12 +8675,14 @@ var NodePanel=(function(){
 		GRoot.inst.addChild(this.v);
 		this.v.width=GRoot.inst.width;
 		this.v.height=GRoot.inst.height;
+		this.qtree=new Quadtree(this.qtreeSize.x,this.qtreeSize.y,this.qtreeSize.right,this.qtreeSize.bottom,this.quadTreeDepth);
+		this.nodeContainer['qtree']=this.qtree;
 		this.v.on("mousedown",this,this.onDown);
 		this.v.on("rightmousedown",this,this.onDown);
 		this.v.m_helpOver.onClick(this,this.onHelp);
 		EventCenter.inst.on(EventNames.AddNode,this,this.onNodeAdd)
 		EventCenter.inst.on(EventNames.Link,this,this.onLink)
-		EventCenter.inst.on(EventNames.IndexChange,this,this.onIndexChange)
+		EventCenter.inst.on(EventNames.PortIndexChange,this,this.onIndexChange)
 		EventCenter.inst.on(EventNames.Remove,this,this.onRemove)
 	}
 
@@ -8659,9 +8732,11 @@ var NodePanel=(function(){
 		box=UI_Box.createInstance();
 		box.data=node;
 		node.ui=box;
-		box.x=Math.floor(50+160 *Math.random());
-		box.y=Math.floor(50+500 *Math.random());
+		var pos=this.qtree.findSpace();
+		box.x=pos.x;
+		box.y=pos.y;
 		this.nodeContainer.addChild(box);
+		console.log(this.qtree)
 	}
 
 	__proto.onLink=function(port){
@@ -9486,6 +9561,165 @@ var PackageItem=(function(){
 })()
 
 
+//class he.qtree.QuadtreeNode
+var QuadtreeNode=(function(){
+	function QuadtreeNode(bounds,depth){
+		this._topRight=null;
+		this._topLeft=null;
+		this._bottomRight=null;
+		this._bottomLeft=null;
+		this._bounds=null;
+		this.depth=0;
+		this.hasChild=false;
+		this._objectContainer=null;
+		this.xMidPoint=NaN;
+		this.yMidPoint=NaN;
+		this.subBoundTopLeft=null;
+		this.subBoundTopRight=null;
+		this.subBoundBottomRight=null;
+		this.subBoundBottomLeft=null;
+		this.subs=null;
+		this.parent=null;
+		this.sum=0;
+		this.depth=depth;
+		this._objectContainer=[];
+		this._bounds=bounds;
+		if(depth>0){
+			depth--;
+			this.hasChild=true;
+			this.xMidPoint=this._bounds.width / 2
+			this.yMidPoint=this._bounds.height / 2;
+			this.subBoundTopLeft=new Rectangle(this._bounds.x,this._bounds.y,this.xMidPoint,this.yMidPoint);
+			this.subBoundTopRight=new Rectangle(this._bounds.x+this.xMidPoint,this._bounds.y,this.xMidPoint,this.yMidPoint);
+			this.subBoundBottomLeft=new Rectangle(this._bounds.x,this._bounds.y+this.yMidPoint,this.xMidPoint,this.yMidPoint);
+			this.subBoundBottomRight=new Rectangle(this._bounds.x+this.xMidPoint,this._bounds.y+this.yMidPoint,this.xMidPoint,this.yMidPoint);
+			this._topLeft=new QuadtreeNode(this.subBoundTopLeft,depth);
+			this._topRight=new QuadtreeNode(this.subBoundTopRight,depth);
+			this._bottomLeft=new QuadtreeNode(this.subBoundBottomLeft,depth);
+			this._bottomRight=new QuadtreeNode(this.subBoundBottomRight,depth);
+			this.subs=new Array;
+			this.subs.push(this._topLeft);
+			this.subs.push(this._topRight);
+			this.subs.push(this._bottomLeft);
+			this.subs.push(this._bottomRight);
+			for (var i=0;i<4;i++){
+				this.subs[i].parent=this;
+			}
+		}
+	}
+
+	__class(QuadtreeNode,'he.qtree.QuadtreeNode');
+	var __proto=QuadtreeNode.prototype;
+	__proto.removeObject=function(object){
+		for (var i=0;i < this._objectContainer.length;i++){
+			var element=this._objectContainer[i];
+			if (element.object===object){
+				this._objectContainer.splice(i,1);
+				this.addSum(-1);
+				return;
+			}
+		}
+	}
+
+	__proto.objectInBoundsHelper=function(checkingBounds,found){
+		if (!checkingBounds.intersects(this._bounds)){
+			return;
+		}
+		var nodeElement;
+		for(var $each_nodeElement in this._objectContainer){
+			nodeElement=this._objectContainer[$each_nodeElement];
+			if (checkingBounds.contains(nodeElement.object.x,nodeElement.object.y)){
+				found.push(nodeElement.object);
+			}
+		}
+		if (this._topLeft){
+			this._topLeft.objectInBoundsHelper(checkingBounds,found);
+		}
+		if (this._topRight){
+			this._topRight.objectInBoundsHelper(checkingBounds,found);
+		}
+		if (this._bottomLeft){
+			this._bottomLeft.objectInBoundsHelper(checkingBounds,found);
+		}
+		if (this._bottomRight){
+			this._bottomRight.objectInBoundsHelper(checkingBounds,found);
+		}
+	}
+
+	__proto.objectInBounds=function(checkingBounds){
+		var found=[];
+		this.objectInBoundsHelper(checkingBounds,found);
+		return found;
+	}
+
+	__proto.findSpace=function(){
+		if(!this.hasChild){
+			return new Point(this.bounds.x,this.bounds.y);
+		};
+		var minSub;
+		var minLen=QuadtreeNode.max;
+		var minIndex=0;
+		for(var index=0;index < 4;index++){
+			var now=this.subs[index];
+			if(now.sum < minLen){
+				minIndex=index;
+				minSub=now;
+				minLen=minSub.sum;
+			}
+		}
+		return minSub.findSpace();
+	}
+
+	__proto.addSum=function(n){
+		this.sum+=n;
+		if(this.parent){
+			this.parent.addSum(n);
+		}
+	}
+
+	__proto.insert=function(object){
+		if (!this._bounds.contains(object.x,object.y)){
+			return null;
+		}
+		if(!this.hasChild){
+			this._objectContainer.push(object);
+			this.addSum(1);
+			return this;
+		}
+		if (this.subBoundTopLeft.contains(object.x,object.y)){
+			return this._topLeft.insert(object);
+		}
+		if (this.subBoundTopRight.contains(object.x,object.y)){
+			return this._topRight.insert(object);
+		}
+		if (this.subBoundBottomLeft.contains(object.x,object.y)){
+			return this._bottomLeft.insert(object);
+		}
+		if (this.subBoundBottomRight.contains(object.x,object.y)){
+			return this._bottomRight.insert(object);
+		}
+		return null;
+	}
+
+	__getset(0,__proto,'bounds',function(){
+		return this._bounds;
+	});
+
+	__getset(0,__proto,'objects',function(){
+		var objects=__newvec(this._objectContainer.length);
+		var element;
+		for(var $each_element in this._objectContainer){
+			element=this._objectContainer[$each_element];
+			objects.push(element.object);
+		}
+		return objects;
+	});
+
+	QuadtreeNode.max=999999999;
+	return QuadtreeNode;
+})()
+
+
 /**
 *Port 突触，负责连接节点，并记录连接强度或运动落差。
 *
@@ -9493,7 +9727,7 @@ var PackageItem=(function(){
 */
 //class he.ai.Port
 var Port=(function(){
-	function Port(aa,bb){
+	function Port(_a,_b){
 		this.a_value=0;
 		//连接强度，运动落差
 		this.b_value=0;
@@ -9507,14 +9741,18 @@ var Port=(function(){
 		this.a_type=0;
 		//标注类型，只用于在思考时辨别 childNode 是因何而生的或指向什么样的节点，比如 "抽象"，代表 childNode 指向一个相对抽象节点， 或 "具象"，表示 childNode 指向一个相对具象的节点。
 		this.b_type=0;
-		this.a=aa;
-		this.b=bb;
+		this.a=_a;
+		this.b=_b;
 		this.id=Util.getSortIDs(this.a,this.b);
 		Port.dic[this.id]=this;
 	}
 
 	__class(Port,'he.ai.Port');
 	var __proto=Port.prototype;
+	__proto.getOtherID=function(a_or_b){
+		return this.a==a_or_b ? this.b.id :this.a.id;
+	}
+
 	__proto.dispose=function(){
 		this.b=null;
 		this.a=null;
@@ -57825,214 +58063,6 @@ var GImage=(function(_super){
 })(GObject)
 
 
-//class fairygui.GTextField extends fairygui.GObject
-var GTextField=(function(_super){
-	function GTextField(){
-		this._gearColor=null;
-		this._templateVars=null;
-		this._text=null;
-		GTextField.__super.call(this);
-		this._gearColor=new GearColor(this);
-	}
-
-	__class(GTextField,'fairygui.GTextField',_super);
-	var __proto=GTextField.prototype;
-	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
-	__proto.parseTemplate=function(template){
-		var pos1=0,pos2=0,pos3=0;
-		var tag;
-		var value;
-		var result="";
-		while((pos2=template.indexOf("{",pos1))!=-1){
-			if (pos2 > 0 && template.charCodeAt(pos2-1)==92){
-				result+=template.substring(pos1,pos2-1);
-				result+="{";
-				pos1=pos2+1;
-				continue ;
-			}
-			result+=template.substring(pos1,pos2);
-			pos1=pos2;
-			pos2=template.indexOf("}",pos1);
-			if(pos2==-1)
-				break ;
-			if(pos2==pos1+1){
-				result+=template.substr(pos1,2);
-				pos1=pos2+1;
-				continue ;
-			}
-			tag=template.substring(pos1+1,pos2);
-			pos3=tag.indexOf("=");
-			if(pos3!=-1){
-				value=this._templateVars[tag.substring(0,pos3)];
-				if(value==null)
-					result+=tag.substring(pos3+1);
-				else
-				result+=value;
-			}
-			else{
-				value=this._templateVars[tag];
-				if(value!=null)
-					result+=value;
-			}
-			pos1=pos2+1;
-		}
-		if (pos1 < template.length)
-			result+=template.substr(pos1);
-		return result;
-	}
-
-	__proto.setVar=function(name,value){
-		if(!this._templateVars)
-			this._templateVars={};
-		this._templateVars[name]=value;
-		return this;
-	}
-
-	__proto.flushVars=function(){
-		this.text=this._text;
-	}
-
-	__proto.handleControllerChanged=function(c){
-		_super.prototype.handleControllerChanged.call(this,c);
-		if(this._gearColor.controller==c)
-			this._gearColor.apply();
-	}
-
-	__proto.setup_beforeAdd=function(buffer,beginPos){
-		_super.prototype.setup_beforeAdd.call(this,buffer,beginPos);
-		buffer.seek(beginPos,5);
-		var iv=0;
-		this.font=buffer.readS();
-		this.fontSize=buffer.getInt16();
-		this.color=buffer.readColorS();
-		iv=buffer.readByte();
-		this.align=iv==0?"left":(iv==1?"center":"right");
-		iv=buffer.readByte();
-		this.valign=iv==0?"top":(iv==1?"middle":"bottom");
-		this.leading=buffer.getInt16();
-		this.letterSpacing=buffer.getInt16();
-		this.ubbEnabled=buffer.readBool();
-		this.autoSize=buffer.readByte();
-		this.underline=buffer.readBool();
-		this.italic=buffer.readBool();
-		this.bold=buffer.readBool();
-		this.singleLine=buffer.readBool();
-		if (buffer.readBool()){
-			this.strokeColor=buffer.readColorS();
-			this.stroke=buffer.getFloat32()+1;
-		}
-		if (buffer.readBool())
-			buffer.skip(12);
-		if (buffer.readBool())
-			this._templateVars={};
-	}
-
-	__proto.setup_afterAdd=function(buffer,beginPos){
-		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
-		buffer.seek(beginPos,6);
-		var str=buffer.readS();
-		if (str !=null)
-			this.text=str;
-	}
-
-	/**
-	*@see AutoSizeType
-	*/
-	/**
-	*@see AutoSizeType
-	*/
-	__getset(0,__proto,'autoSize',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'ubbEnabled',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'templateVars',function(){
-		return this._templateVars;
-		},function(value){
-		if(this._templateVars==null && value==null)
-			return;
-		this._templateVars=value;
-		this.flushVars();
-	});
-
-	__getset(0,__proto,'strokeColor',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'stroke',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'fontSize',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'align',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'color',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'singleLine',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'underline',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'italic',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'letterSpacing',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'valign',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'bold',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'textWidth',function(){
-		return 0;
-	});
-
-	__getset(0,__proto,'leading',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'font',function(){
-		return null;
-		},function(value){
-	});
-
-	return GTextField;
-})(GObject)
-
-
 //class fairygui.Controller extends laya.events.EventDispatcher
 var Controller=(function(_super){
 	function Controller(){
@@ -58275,6 +58305,214 @@ var Controller=(function(_super){
 	Controller._nextPageId=0;
 	return Controller;
 })(EventDispatcher)
+
+
+//class fairygui.GTextField extends fairygui.GObject
+var GTextField=(function(_super){
+	function GTextField(){
+		this._gearColor=null;
+		this._templateVars=null;
+		this._text=null;
+		GTextField.__super.call(this);
+		this._gearColor=new GearColor(this);
+	}
+
+	__class(GTextField,'fairygui.GTextField',_super);
+	var __proto=GTextField.prototype;
+	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
+	__proto.parseTemplate=function(template){
+		var pos1=0,pos2=0,pos3=0;
+		var tag;
+		var value;
+		var result="";
+		while((pos2=template.indexOf("{",pos1))!=-1){
+			if (pos2 > 0 && template.charCodeAt(pos2-1)==92){
+				result+=template.substring(pos1,pos2-1);
+				result+="{";
+				pos1=pos2+1;
+				continue ;
+			}
+			result+=template.substring(pos1,pos2);
+			pos1=pos2;
+			pos2=template.indexOf("}",pos1);
+			if(pos2==-1)
+				break ;
+			if(pos2==pos1+1){
+				result+=template.substr(pos1,2);
+				pos1=pos2+1;
+				continue ;
+			}
+			tag=template.substring(pos1+1,pos2);
+			pos3=tag.indexOf("=");
+			if(pos3!=-1){
+				value=this._templateVars[tag.substring(0,pos3)];
+				if(value==null)
+					result+=tag.substring(pos3+1);
+				else
+				result+=value;
+			}
+			else{
+				value=this._templateVars[tag];
+				if(value!=null)
+					result+=value;
+			}
+			pos1=pos2+1;
+		}
+		if (pos1 < template.length)
+			result+=template.substr(pos1);
+		return result;
+	}
+
+	__proto.setVar=function(name,value){
+		if(!this._templateVars)
+			this._templateVars={};
+		this._templateVars[name]=value;
+		return this;
+	}
+
+	__proto.flushVars=function(){
+		this.text=this._text;
+	}
+
+	__proto.handleControllerChanged=function(c){
+		_super.prototype.handleControllerChanged.call(this,c);
+		if(this._gearColor.controller==c)
+			this._gearColor.apply();
+	}
+
+	__proto.setup_beforeAdd=function(buffer,beginPos){
+		_super.prototype.setup_beforeAdd.call(this,buffer,beginPos);
+		buffer.seek(beginPos,5);
+		var iv=0;
+		this.font=buffer.readS();
+		this.fontSize=buffer.getInt16();
+		this.color=buffer.readColorS();
+		iv=buffer.readByte();
+		this.align=iv==0?"left":(iv==1?"center":"right");
+		iv=buffer.readByte();
+		this.valign=iv==0?"top":(iv==1?"middle":"bottom");
+		this.leading=buffer.getInt16();
+		this.letterSpacing=buffer.getInt16();
+		this.ubbEnabled=buffer.readBool();
+		this.autoSize=buffer.readByte();
+		this.underline=buffer.readBool();
+		this.italic=buffer.readBool();
+		this.bold=buffer.readBool();
+		this.singleLine=buffer.readBool();
+		if (buffer.readBool()){
+			this.strokeColor=buffer.readColorS();
+			this.stroke=buffer.getFloat32()+1;
+		}
+		if (buffer.readBool())
+			buffer.skip(12);
+		if (buffer.readBool())
+			this._templateVars={};
+	}
+
+	__proto.setup_afterAdd=function(buffer,beginPos){
+		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
+		buffer.seek(beginPos,6);
+		var str=buffer.readS();
+		if (str !=null)
+			this.text=str;
+	}
+
+	/**
+	*@see AutoSizeType
+	*/
+	/**
+	*@see AutoSizeType
+	*/
+	__getset(0,__proto,'autoSize',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'ubbEnabled',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'templateVars',function(){
+		return this._templateVars;
+		},function(value){
+		if(this._templateVars==null && value==null)
+			return;
+		this._templateVars=value;
+		this.flushVars();
+	});
+
+	__getset(0,__proto,'strokeColor',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'stroke',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'fontSize',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'align',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'color',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'singleLine',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'underline',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'italic',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'letterSpacing',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'valign',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'bold',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'textWidth',function(){
+		return 0;
+	});
+
+	__getset(0,__proto,'leading',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'font',function(){
+		return null;
+		},function(value){
+	});
+
+	return GTextField;
+})(GObject)
 
 
 //class fairygui.utils.ByteBuffer extends laya.utils.Byte
@@ -65572,83 +65810,6 @@ var HttpRequest=(function(_super){
 
 
 /**
-*<code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
-*/
-//class laya.d3.physics.shape.CylinderColliderShape extends laya.d3.physics.shape.ColliderShape
-var CylinderColliderShape=(function(_super){
-	function CylinderColliderShape(radius,height,orientation){
-		/**@private */
-		//this._orientation=0;
-		/**@private */
-		this._radius=1;
-		/**@private */
-		this._height=0.5;
-		CylinderColliderShape.__super.call(this);
-		(radius===void 0)&& (radius=0.5);
-		(height===void 0)&& (height=1.0);
-		(orientation===void 0)&& (orientation=1);
-		this._radius=radius;
-		this._height=height;
-		this._orientation=orientation;
-		this._type=2;
-		switch (orientation){
-			case 0:
-				CylinderColliderShape._nativeSize.setValue(height / 2,radius,radius);
-				this._nativeShape=new Laya3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
-				break ;
-			case 1:
-				CylinderColliderShape._nativeSize.setValue(radius,height / 2,radius);
-				this._nativeShape=new Laya3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
-				break ;
-			case 2:
-				CylinderColliderShape._nativeSize.setValue(radius,radius,height / 2);
-				this._nativeShape=new Laya3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
-				break ;
-			default :
-				throw "CapsuleColliderShape:unknown orientation.";
-			}
-	}
-
-	__class(CylinderColliderShape,'laya.d3.physics.shape.CylinderColliderShape',_super);
-	var __proto=CylinderColliderShape.prototype;
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new CylinderColliderShape(this._radius,this._height,this._orientation);
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*获取方向。
-	*/
-	__getset(0,__proto,'orientation',function(){
-		return this._orientation;
-	});
-
-	/**
-	*获取高度。
-	*/
-	__getset(0,__proto,'height',function(){
-		return this._height;
-	});
-
-	/**
-	*获取半径。
-	*/
-	__getset(0,__proto,'radius',function(){
-		return this._radius;
-	});
-
-	__static(CylinderColliderShape,
-	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
-	]);
-	return CylinderColliderShape;
-})(ColliderShape)
-
-
-/**
 *<code>Texture</code> 是一个纹理处理类。
 */
 //class laya.resource.Texture extends laya.events.EventDispatcher
@@ -65976,6 +66137,83 @@ var Texture=(function(_super){
 	Texture._rect2=new Rectangle();
 	return Texture;
 })(EventDispatcher)
+
+
+/**
+*<code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
+*/
+//class laya.d3.physics.shape.CylinderColliderShape extends laya.d3.physics.shape.ColliderShape
+var CylinderColliderShape=(function(_super){
+	function CylinderColliderShape(radius,height,orientation){
+		/**@private */
+		//this._orientation=0;
+		/**@private */
+		this._radius=1;
+		/**@private */
+		this._height=0.5;
+		CylinderColliderShape.__super.call(this);
+		(radius===void 0)&& (radius=0.5);
+		(height===void 0)&& (height=1.0);
+		(orientation===void 0)&& (orientation=1);
+		this._radius=radius;
+		this._height=height;
+		this._orientation=orientation;
+		this._type=2;
+		switch (orientation){
+			case 0:
+				CylinderColliderShape._nativeSize.setValue(height / 2,radius,radius);
+				this._nativeShape=new Laya3D._physics3D.btCylinderShapeX(CylinderColliderShape._nativeSize);
+				break ;
+			case 1:
+				CylinderColliderShape._nativeSize.setValue(radius,height / 2,radius);
+				this._nativeShape=new Laya3D._physics3D.btCylinderShape(CylinderColliderShape._nativeSize);
+				break ;
+			case 2:
+				CylinderColliderShape._nativeSize.setValue(radius,radius,height / 2);
+				this._nativeShape=new Laya3D._physics3D.btCylinderShapeZ(CylinderColliderShape._nativeSize);
+				break ;
+			default :
+				throw "CapsuleColliderShape:unknown orientation.";
+			}
+	}
+
+	__class(CylinderColliderShape,'laya.d3.physics.shape.CylinderColliderShape',_super);
+	var __proto=CylinderColliderShape.prototype;
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new CylinderColliderShape(this._radius,this._height,this._orientation);
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*获取方向。
+	*/
+	__getset(0,__proto,'orientation',function(){
+		return this._orientation;
+	});
+
+	/**
+	*获取高度。
+	*/
+	__getset(0,__proto,'height',function(){
+		return this._height;
+	});
+
+	/**
+	*获取半径。
+	*/
+	__getset(0,__proto,'radius',function(){
+		return this._radius;
+	});
+
+	__static(CylinderColliderShape,
+	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
+	]);
+	return CylinderColliderShape;
+})(ColliderShape)
 
 
 /**
@@ -90644,6 +90882,31 @@ var Text=(function(_super){
 })(Sprite)
 
 
+//class Basic.UI_WindowFrame extends fairygui.GLabel
+var UI_WindowFrame=(function(_super){
+	function UI_WindowFrame(){
+		this.m_dragArea=null;
+		this.m_contentArea=null;
+		UI_WindowFrame.__super.call(this);
+	}
+
+	__class(UI_WindowFrame,'Basic.UI_WindowFrame',_super);
+	var __proto=UI_WindowFrame.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_dragArea=(this.getChildAt(1));
+		this.m_contentArea=(this.getChildAt(3));
+	}
+
+	UI_WindowFrame.createInstance=function(){
+		return (UIPackage.createObject("Basic","WindowFrame"));
+	}
+
+	UI_WindowFrame.URL="ui://3hcsjton8ymy3g";
+	return UI_WindowFrame;
+})(GLabel)
+
+
 //class script.panels.LineContainer extends Basic.UI_NodeContainer
 var LineContainer=(function(_super){
 	function LineContainer(){
@@ -90723,31 +90986,6 @@ var LineContainer=(function(_super){
 	]);
 	return LineContainer;
 })(UI_NodeContainer)
-
-
-//class Basic.UI_WindowFrame extends fairygui.GLabel
-var UI_WindowFrame=(function(_super){
-	function UI_WindowFrame(){
-		this.m_dragArea=null;
-		this.m_contentArea=null;
-		UI_WindowFrame.__super.call(this);
-	}
-
-	__class(UI_WindowFrame,'Basic.UI_WindowFrame',_super);
-	var __proto=UI_WindowFrame.prototype;
-	__proto.constructFromXML=function(xml){
-		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_dragArea=(this.getChildAt(1));
-		this.m_contentArea=(this.getChildAt(3));
-	}
-
-	UI_WindowFrame.createInstance=function(){
-		return (UIPackage.createObject("Basic","WindowFrame"));
-	}
-
-	UI_WindowFrame.URL="ui://3hcsjton8ymy3g";
-	return UI_WindowFrame;
-})(GLabel)
 
 
 //class Basic.UI_WindowFrame_with_close_btn_and_resizer extends fairygui.GLabel
@@ -90836,11 +91074,14 @@ var UI_FileTabButton=(function(_super){
 //class script.Box extends Basic.UI_Box
 var Box=(function(_super){
 	function Box(){
+		this.qnode=null;
+		this.qtree=null;
 		Box.__super.call(this);
 		this.onClick(this,this.blink)
 		this.draggable=true;
 		this.on("fui_drag_end",this,this.onDrag);
 		this.on("fui_drag_move",this,this.onDrag);
+		this.on("added",this,this.addToQuadTree);
 	}
 
 	__class(Box,'script.Box',_super);
@@ -90848,6 +91089,19 @@ var Box=(function(_super){
 	__proto.blink=function(){
 		this.m_blinkMV.play();
 		console.log(this.data);
+	}
+
+	__proto.addToQuadTree=function(){
+		this.qtree=this.parent ["qtree"];
+		if(this.qtree){
+			this.qtree.insert(this);
+		}
+	}
+
+	__proto.updateInQuadTree=function(){
+		if(this.qtree){
+			this.qtree.update(this);
+		}
 	}
 
 	__proto.onDrag=function(){
@@ -116111,7 +116365,7 @@ var Tab=(function(_super){
 })(UIGroup)
 
 
-	Laya.__init([EventDispatcher,LoaderManager,CharBook,GraphicAnimation,Transition,CallLater,View,Path,WebGLContext2D,GearSize,SceneUtils,LocalStorage,Timer,RelationItem,GearLook,GearAnimation,EaseManager,GList,GameConfig,GBasicTextField,UIPackage,GearColor]);
+	Laya.__init([EventDispatcher,LoaderManager,CharBook,GraphicAnimation,Transition,CallLater,View,Path,WebGLContext2D,SceneUtils,LocalStorage,Timer,RelationItem,GearLook,GearSize,EaseManager,GList,GameConfig,GBasicTextField,UIPackage,GearColor,GearAnimation]);
 	/**LayaGameStart**/
 	new Main();
 
