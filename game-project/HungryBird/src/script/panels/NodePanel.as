@@ -109,7 +109,7 @@ public class NodePanel {
         box.x = pos.x;
         box.y = pos.y;
         nodeContainer.addChild(box);
-		trace(qtree)
+		trace(node)
 	}
     private function onLink(port:Port):void {
 		var has:* = LineContainer.inst.has(port.a,port.b);

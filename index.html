@@ -2650,10 +2650,7 @@ var Quadtree=(function(){
 	}
 
 	__proto.update=function(object){
-		var wasRemoved=this.remove(object);
-		if (!wasRemoved){
-			throw new Error("Can't update object which has not been added to Quadtree.");
-		}
+		this.remove(object);
 		this.insert(object);
 	}
 
@@ -2686,6 +2683,31 @@ var Quadtree=(function(){
 *AI 树运行效果
 *https://www.bilibili.com/video/av44645818
 *
+*AGI 小鸟实验实施方案：
+*
+*★ 第一阶段，领悟距离。
+*将坚果和距离改变，捆绑关联到搬运动画，动画时，思维控制器可以静默 1 秒。
+*将物体、近距离，捆绑到吃动画，并可以获得奖励。
+*添加饥饿按钮
+*小鸟饥饿后会做出吃东西的动作。
+*乱投，直投。
+*吃不到，吃到，吃不到，吃到。
+*比较二者有什么不同，推导出距离。
+*距离小到一定程度，才能吃到。
+*构建优化网络，当观众点击饥饿按钮时，
+*小鸟不再做出吃东西的动作，而是运行优化网络。
+*满足下面的情况，才做出吃的动作：
+*有破壳的坚果，距离近。
+*如果距离不够近，则移动。
+*注意力聚焦。
+*调速。
+*打印面板，显示小鸟内心独白。
+*
+*★ 第二阶段，领悟破壳坚果和有壳坚果的不同。
+*
+*★ 第三阶段，领悟导致破壳的原因。
+*
+*★ 第四阶段，做出主动破壳的行为。
 */
 //class he.ai.Think
 var Think=(function(){
@@ -8736,7 +8758,7 @@ var NodePanel=(function(){
 		box.x=pos.x;
 		box.y=pos.y;
 		this.nodeContainer.addChild(box);
-		console.log(this.qtree)
+		console.log(node)
 	}
 
 	__proto.onLink=function(port){
@@ -8754,6 +8776,8 @@ var NodePanel=(function(){
 		n1.ui.y=Math.round(n1.ui.y);
 		n2.ui.x=Math.round(n2.ui.x);
 		n2.ui.y=Math.round(n2.ui.y);
+		n1.ui.updateInQuadTree();
+		n2.ui.updateInQuadTree();
 		LineContainer.inst.drawLine(n1,n2);
 	}
 

@@ -46,10 +46,7 @@ package he.qtree
 
         public function update(object:Object):void
         {
-            const wasRemoved:Boolean = this.remove(object);
-            if (!wasRemoved) {
-                throw new Error("Can't update object which has not been added to Quadtree.");
-            }
+            this.remove(object);
             this.insert(object);
         }
 

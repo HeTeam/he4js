@@ -7,8 +7,6 @@ import script.panels.LineContainer;
 import laya.events.Event;
 import he.qtree.QuadtreeNode;
 import he.qtree.Quadtree;
-import laya.maths.Rectangle;
-
 public class Box extends UI_Box{
     public var qnode:QuadtreeNode;
     public var qtree:Quadtree;
