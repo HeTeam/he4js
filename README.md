@@ -19,7 +19,7 @@ he4js 是 he4o 的精简版，建立 he4js 这个项目的初衷如下：
 
 ## Download and Install
 
-he4js 无需安装，下载项目后，双击 index.html 即可启动演示程序。
+he4js 无需安装，无需下载整个项目，仅仅需要下载一个文件：[index.html](https://github.com/HeTeam/he4js/raw/master/index.html)（鼠标右键另存到任意目录），双击 index.html 即可启动演示程序。
 
 
 ## Current Status
