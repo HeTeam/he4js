@@ -60,7 +60,7 @@ package he.ai
 		}
 		public function dataIn(node:Node):void
 		{
-            Net.inst.add(node);
-        }
+			Net.inst.add(node);
+		}
 	}
 }

@@ -7,7 +7,7 @@ package he.ai
 			if(n1.id > n2.id){
 				return n1.id+"_"+n2.id;
 			}else{
-                return n2.id+"_"+n1.id;
+				return n2.id+"_"+n1.id;
 			}
 		}
 	}
