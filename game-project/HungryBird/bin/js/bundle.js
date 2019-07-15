@@ -1310,6 +1310,11 @@ var GObject=(function(){
 		this._relations.dispose();
 		this._displayObject.destroy();
 		this._displayObject=null;
+		for (var i=0;i < 8;i++){
+			var gear=this._gears[i];
+			if (gear !=null)
+				gear.dispose();
+		}
 	}
 
 	__proto.onClick=function(thisObj,listener,args){
@@ -1668,6 +1673,10 @@ var GObject=(function(){
 			this._draggable=value;
 			this.initDrag();
 		}
+	});
+
+	__getset(0,__proto,'isDisposed',function(){
+		return this._displayObject==null;
 	});
 
 	__getset(0,__proto,'icon',function(){
@@ -2628,13 +2637,13 @@ var Quadtree=(function(){
 *详情请看如下链接：
 *
 *AGI 思考控制器
-*https://blog.poerlang.com/project/public/2019/02/10/agi-think.html
+*http://blog.poerlang.com/blog/index.php/2019/02/10/ctrl.html
 *
 *AGI 树算
-*https://blog.poerlang.com/project/public/2019/02/24/agi-tree-compute.html
+*http://poerlang.com/blog/index.php/2019/02/24/ai-tree-1.html
 *
 *AGI 价值评估
-*https://blog.poerlang.com/project/public/2019/02/25/agi-value.html
+*http://poerlang.com/blog/index.php/2019/02/25/agi-value.html
 *
 *AI 树运行效果
 *https://www.bilibili.com/video/av44645818
@@ -2646,7 +2655,7 @@ var Quadtree=(function(){
 *将物体、近距离，捆绑到吃动画，并可以获得奖励。
 *添加饥饿按钮
 *小鸟饥饿后会做出吃东西的动作。
-*乱投，直投。
+*乱投（远距离投放无壳坚果），直投（近距离投放无壳坚果）。
 *吃不到，吃到，吃不到，吃到。
 *比较二者有什么不同，推导出距离。
 *距离小到一定程度，才能吃到。
@@ -3083,8 +3092,10 @@ var TweenManager=(function(){
 				freePosCount++;
 			}
 			else{
-				if(!tweener._paused)
-					tweener._update(dt);
+				if (((tweener._target instanceof fairygui.GObject ))&& (tweener._target).isDisposed)
+					tweener._killed=true;
+				else if(!tweener._paused)
+				tweener._update(dt);
 				if (freePosStart !=-1){
 					TweenManager._activeTweens[freePosStart]=tweener;
 					TweenManager._activeTweens[i]=null;
@@ -3505,6 +3516,13 @@ var GearBase=(function(){
 
 	__class(GearBase,'fairygui.gears.GearBase');
 	var __proto=GearBase.prototype;
+	__proto.dispose=function(){
+		if (this._tweenConfig !=null && this._tweenConfig._tweener !=null){
+			this._tweenConfig._tweener.kill();
+			this._tweenConfig._tweener=null;
+		}
+	}
+
 	__proto.setup=function(buffer){
 		this._controller=this._owner.parent.getControllerAt(buffer.getInt16());
 		this.init();
@@ -3689,16 +3707,16 @@ var UBBParser=(function(){
 
 	__proto.onTag_COLOR=function(tagName,end,attr){
 		if (!end)
-			return "<font color=\""+attr+"\">";
+			return "<span style=\"color:"+attr+"\">";
 		else
-		return "</font>";
+		return "</span>";
 	}
 
 	__proto.onTag_FONT=function(tagName,end,attr){
 		if (!end)
-			return "<font face=\""+attr+"\">";
+			return "<span style=\"font-family:"+attr+"\">";
 		else
-		return "</font>";
+		return "</span>";
 	}
 
 	__proto.onTag_SIZE=function(tagName,end,attr){
@@ -3713,10 +3731,10 @@ var UBBParser=(function(){
 			attr=""+(this.smallFontSize+parseInt(attr.substr(1)));
 			else if (attr.length && attr.charAt(0)=="-")
 			attr=""+(this.smallFontSize-parseInt(attr.substr(1)));
-			return "<font size=\""+attr+"\">";
+			return "<span style=\"font-size:"+attr+"\">";
 		}
 		else
-		return "</font>";
+		return "</span>";
 	}
 
 	__proto.getTagText=function(remove){
@@ -5065,6 +5083,7 @@ var Transition=(function(){
 	__proto.setValue=function(label,__args){
 		var args=[];for(var i=1,sz=arguments.length;i<sz;i++)args.push(arguments[i]);
 		var cnt=this._items.length;
+		var found=false;
 		var value;
 		for (var i=0;i < cnt;i++){
 			var item=this._items[i];
@@ -5073,9 +5092,11 @@ var Transition=(function(){
 					value=item.tweenConfig.startValue;
 				else
 				value=item.value;
+				found=true;
 			}
 			else if (item.tweenConfig !=null && item.tweenConfig.endLabel==label){
 				value=item.tweenConfig.endValue;
+				found=true;
 			}
 			else
 			continue ;
@@ -5134,21 +5155,28 @@ var Transition=(function(){
 					break ;
 				}
 		}
+		if (!found)
+			throw new Error("label not exists");
 	}
 
 	__proto.setHook=function(label,callback){
 		var cnt=this._items.length;
+		var found=false;
 		for (var i=0;i < cnt;i++){
 			var item=this._items[i];
 			if (item.label==label){
 				item.hook=callback;
+				found=true;
 				break ;
 			}
 			else if (item.tweenConfig !=null && item.tweenConfig.endLabel==label){
 				item.tweenConfig.endHook=callback;
+				found=true;
 				break ;
 			}
 		}
+		if (!found)
+			throw new Error("label not exists");
 	}
 
 	__proto.clearHooks=function(){
@@ -5163,22 +5191,38 @@ var Transition=(function(){
 
 	__proto.setTarget=function(label,newTarget){
 		var cnt=this._items.length;
+		var found=false;
 		for (var i=0;i < cnt;i++){
 			var item=this._items[i];
 			if (item.label==label){
-				item.targetId=newTarget.id;
+				item.targetId=(newTarget==this._owner || newTarget==null)? "" :newTarget.id;
+				if (this._playing){
+					if (item.targetId.length > 0)
+						item.target=this._owner.getChildById(item.targetId);
+					else
+					item.target=this._owner;
+				}
+				else
 				item.target=null;
+				found=true;
 			}
 		}
+		if (!found)
+			throw new Error("label not exists");
 	}
 
 	__proto.setDuration=function(label,value){
 		var cnt=this._items.length;
+		var found=false;
 		for (var i=0;i < cnt;i++){
 			var item=this._items[i];
-			if (item.tweenConfig !=null && item.label==label)
+			if (item.tweenConfig !=null && item.label==label){
 				item.tweenConfig.duration=value;
+				found=true;
+			}
 		}
+		if (!found)
+			throw new Error("label not exists");
 	}
 
 	__proto.getLabelTime=function(label){
@@ -7284,7 +7328,13 @@ var ScrollPane=(function(){
 			pos.y=this.alignByPage(pos.y,"y",inertialScrolling);
 		}
 		else if (this._snapToItem){
-			var pt=this._owner.getSnappingPosition(-pos.x,-pos.y,ScrollPane.sHelperPoint);
+			var xDir=0;
+			var yDir=0;
+			if(inertialScrolling){
+				xDir=pos.x-this._containerPos.x;
+				yDir=pos.y-this._containerPos.y;
+			};
+			var pt=this._owner.getSnappingPositionWithDir(-pos.x,-pos.y,xDir,yDir,ScrollPane.sHelperPoint);
 			if (pos.x < 0 && pos.x >-this._overlapSize.x)
 				pos.x=-pt.x;
 			if (pos.y < 0 && pos.y >-this._overlapSize.y)
@@ -7308,7 +7358,7 @@ var ScrollPane=(function(){
 					page++;
 			}
 			else{
-				if (delta > testPageSize *(change < 0 ? 0.3 :0.7))
+				if (delta > testPageSize *(change < 0 ? UIConfig$1.defaultScrollPagingThreshold :(1-UIConfig$1.defaultScrollPagingThreshold)))
 					page++;
 			}
 			pos=-page *this._pageSize[axis];
@@ -9322,6 +9372,8 @@ var UIConfig$1=(function(){
 	UIConfig.defaultScrollBarDisplay=1;
 	UIConfig.defaultScrollTouchEffect=true;
 	UIConfig.defaultScrollBounceEffect=true;
+	UIConfig.defaultScrollSnappingThreshold=0.1;
+	UIConfig.defaultScrollPagingThreshold=0.3;
 	UIConfig.popupMenu=null;
 	UIConfig.popupMenu_seperator=null;
 	UIConfig.loaderErrorSign=null;
@@ -56460,6 +56512,13 @@ var GComponent=(function(_super){
 	}
 
 	__proto.getSnappingPosition=function(xValue,yValue,resultPoint){
+		return this.getSnappingPositionWithDir(xValue,yValue,0,0,resultPoint);
+	}
+
+	/**
+	*dir正数表示右移或者下移，负数表示左移或者上移
+	*/
+	__proto.getSnappingPositionWithDir=function(xValue,yValue,xDir,yDir,resultPoint){
 		if(!resultPoint)
 			resultPoint=new Point();
 		var cnt=this._children.length;
@@ -57121,8 +57180,10 @@ var GLoader=(function(_super){
 					this._content2.setXY(0,0);
 					this._content2.setScale(1,1);
 				}
-				else
-				this._content.pos(0,0);
+				else{
+					this._content.size(this._contentWidth,this._contentHeight);
+					this._content.pos(0,0);
+				}
 				return;
 			}
 		};
@@ -58619,7 +58680,7 @@ var ByteBuffer=(function(_super){
 
 
 /**
-*消息分发中心，AGI 通过这这里向外部发送消息，通知界面程序更新视图。
+*消息分发中心，AGI 通过这里向外部发送消息，通知界面程序更新视图。
 */
 //class he.ai.EventCenter extends laya.events.EventDispatcher
 var EventCenter=(function(_super){
@@ -79883,6 +79944,7 @@ var Window$2=(function(_super){
 			if(this._contentPane !=null){
 				this.addChild(this._contentPane);
 				this.setSize(this._contentPane.width,this._contentPane.height);
+				this._contentPane.addRelation(this,24);
 				this._frame=(this._contentPane.getChild("frame"));
 				if(this._frame !=null){
 					this.closeButton=this._frame.getChild("closeButton");
@@ -81251,42 +81313,58 @@ var GList=(function(_super){
 		}
 	}
 
-	__proto.getSnappingPosition=function(xValue,yValue,resultPoint){
+	__proto.shouldSnapToNext=function(dir,delta,size){
+		return dir<0 && delta>UIConfig$1.defaultScrollSnappingThreshold*size
+		|| dir>0 && delta>(1-UIConfig$1.defaultScrollSnappingThreshold)*size
+		|| dir==0 && delta>size/2;
+	}
+
+	__proto.getSnappingPositionWithDir=function(xValue,yValue,xDir,yDir,resultPoint){
 		if (this._virtual){
 			if(!resultPoint)
 				resultPoint=new Point();
 			var saved=NaN;
 			var index=0;
+			var size=NaN;
 			if (this._layout==0 || this._layout==2){
 				saved=yValue;
 				fairygui.GList.pos_param=yValue;
 				index=this.getIndexOnPos1(false);
 				yValue=fairygui.GList.pos_param;
-				if (index < this._virtualItems.length && saved-yValue > this._virtualItems[index].height / 2 && index < this._realNumItems)
-					yValue+=this._virtualItems[index].height+this._lineGap;
+				if (index < this._virtualItems.length && index < this._realNumItems){
+					size=this._virtualItems[index].height;
+					if(this.shouldSnapToNext(yDir,saved-yValue,size))
+						yValue+=size+this._lineGap;
+				}
 			}
 			else if (this._layout==1 || this._layout==3){
 				saved=xValue;
 				fairygui.GList.pos_param=xValue;
 				index=this.getIndexOnPos2(false);
 				xValue=fairygui.GList.pos_param;
-				if (index < this._virtualItems.length && saved-xValue > this._virtualItems[index].width / 2 && index < this._realNumItems)
-					xValue+=this._virtualItems[index].width+this._columnGap;
+				if (index < this._virtualItems.length && index < this._realNumItems){
+					size=this._virtualItems[index].width;
+					if(this.shouldSnapToNext(xDir,saved-xValue,size))
+						xValue+=size+this._columnGap;
+				}
 			}
 			else{
 				saved=xValue;
 				fairygui.GList.pos_param=xValue;
 				index=this.getIndexOnPos3(false);
 				xValue=fairygui.GList.pos_param;
-				if (index < this._virtualItems.length && saved-xValue > this._virtualItems[index].width / 2 && index < this._realNumItems)
-					xValue+=this._virtualItems[index].width+this._columnGap;
+				if (index < this._virtualItems.length && index < this._realNumItems){
+					size=this._virtualItems[index].width;
+					if(this.shouldSnapToNext(xDir,saved-xValue,size))
+						xValue+=size+this._columnGap;
+				}
 			}
 			resultPoint.x=xValue;
 			resultPoint.y=yValue;
 			return resultPoint;
 		}
 		else
-		return _super.prototype.getSnappingPosition.call(this,xValue,yValue,resultPoint);
+		return _super.prototype.getSnappingPositionWithDir.call(this,xValue,yValue,xDir,yDir,resultPoint);
 	}
 
 	__proto.scrollToView=function(index,ani,setFirst){
@@ -82780,7 +82858,6 @@ var GProgressBar=(function(_super){
 		this._barMaxHeightDelta=0;
 		this._barStartX=0;
 		this._barStartY=0;
-		this._tweening=false;
 		GProgressBar.__super.call(this);
 		this._titleType=0;
 		this._value=50;
@@ -82790,20 +82867,16 @@ var GProgressBar=(function(_super){
 	__class(GProgressBar,'fairygui.GProgressBar',_super);
 	var __proto=GProgressBar.prototype;
 	__proto.tweenValue=function(value,duration){
-		var _$this=this;
-		if(this._value !=value){
-			if(this._tweening){
-				GTween.kill(this,false,this.update);
-				this._tweening=false;
-			};
-			var oldValule=this._value;
-			this._value=value;
-			this._tweening=true;
-			return GTween.to(oldValule,this._value,duration).setTarget(this,this.update).setEase(0)
-			.onComplete(function(){_$this._tweening=false;},this);
+		var oldValule=NaN;
+		var tweener=GTween.getTween(this,this.update);
+		if(tweener!=null){
+			oldValule=tweener.value.x;
+			tweener.kill();
 		}
 		else
-		return null;
+		oldValule=this._value;
+		this._value=value;
+		return GTween.to(oldValule,this._value,duration).setTarget(this,this.update).setEase(0);
 	}
 
 	__proto.update=function(newValue){
@@ -82907,20 +82980,11 @@ var GProgressBar=(function(_super){
 		this.update(this._value);
 	}
 
-	__proto.dispose=function(){
-		if(this._tweening)
-			GTween.kill(this);
-		_super.prototype.dispose.call(this);
-	}
-
 	__getset(0,__proto,'value',function(){
 		return this._value;
 		},function(value){
-		if(this._tweening){
-			GTween.kill(this,true,this.update);
-			this._tweening=false;
-		}
 		if(this._value !=value){
+			GTween.kill(this,false,this.update);
 			this._value=value;
 			this.update(this._value);
 		}
@@ -84072,6 +84136,8 @@ var GRichTextField=(function(_super){
 
 	__proto.handleSizeChanged=function(){
 		this.div.size(this.width,this.height);
+		this.div.style.width=this.width;
+		this.div.style.height=this.height;
 	}
 
 	__getset(0,__proto,'ubbEnabled',function(){
@@ -89437,8 +89503,8 @@ var Image=(function(_super){
 	}
 
 	__proto.doDraw=function(){
-		var w=this.width;
-		var h=this.height;
+		var w=this._width;
+		var h=this._height;
 		var g=this.graphics;
 		var tex=this._source;
 		g.clear();
@@ -89503,8 +89569,8 @@ var Image=(function(_super){
 	}
 
 	__proto.doFill=function(){
-		var w=this.width;
-		var h=this.height;
+		var w=this._width;
+		var h=this._height;
 		var g=this._mask.graphics;
 		g.clear();
 		if(w==0 || h==0)
@@ -89568,7 +89634,7 @@ var Image=(function(_super){
 		},function(value){
 		if(this._source!=value){
 			this._source=value;
-			if(this.width==0){
+			if(this._width==0){
 				if(this._source)
 					this.size(this._source.width,this._source.height);
 				else
