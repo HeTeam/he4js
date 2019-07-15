@@ -12,7 +12,7 @@ import script.Box;
 
 // 程序入口
 public class PanelUtil {
-    public static function bindWindows():void{
+    public static function bindAllWindows():void{
         fairygui.UIObjectFactory.setPackageItemExtension(UI_MainPanel.URL, PanelWithResize);
         fairygui.UIObjectFactory.setPackageItemExtension(UI_Box.URL, Box);
         fairygui.UIObjectFactory.setPackageItemExtension(UI_NodeContainer.URL, NodeContainer);

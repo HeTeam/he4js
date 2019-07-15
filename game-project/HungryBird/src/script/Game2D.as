@@ -75,7 +75,7 @@ public class Game2D {
         fairygui.UIConfig.clickDragSensitivity = 1;
         fairygui.UIConfig.touchDragSensitivity = 3;
         BasicBinder.bindAll();
-        PanelUtil.bindWindows();
+        PanelUtil.bindAllWindows();
         
 		new Alert();
         new NodePanel();

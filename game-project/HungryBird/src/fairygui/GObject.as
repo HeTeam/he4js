@@ -257,7 +257,6 @@ package fairygui {
 					if (_group != null)
 						_group.setBoundsChangedFlag(true);
 				}
-				
 				this.displayObject.event(Events.SIZE_CHANGED);
 			}
 		}

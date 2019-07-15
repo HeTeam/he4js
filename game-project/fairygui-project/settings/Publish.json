@@ -4,7 +4,7 @@
 		"classNamePrefix":"UI_",
 		"codePath":"/Users/moketao/Desktop/he4js/he4js/game-project/HungryBird/src",
 		"codeType":"AS3",
-		"getMemberByName":false,
+		"getMemberByName":true,
 		"ignoreNoname":true,
 		"memberNamePrefix":"m_",
 		"packageName":""

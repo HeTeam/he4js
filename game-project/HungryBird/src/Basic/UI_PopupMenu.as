@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_list = GList(this.getChildAt(1));
+			m_list = GList(this.getChild("list"));
 		}
 	}
 }

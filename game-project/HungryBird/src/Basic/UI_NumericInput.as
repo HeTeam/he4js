@@ -25,9 +25,9 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_c1 = this.getControllerAt(0);
-			m_grayed = this.getControllerAt(1);
-			m_holder = GGraph(this.getChildAt(2));
+			m_c1 = this.getController("c1");
+			m_grayed = this.getController("grayed");
+			m_holder = GGraph(this.getChild("holder"));
 		}
 	}
 }

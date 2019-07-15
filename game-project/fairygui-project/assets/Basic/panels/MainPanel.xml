@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="378,477">
-  <controller name="selnut" pages="0,,1," selected="0"/>
+  <controller name="selnut" pages="0,,1," selected="1"/>
   <displayList>
-    <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn_and_resizer.xml" xy="-1,0" size="378,477" locked="true">
+    <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn_and_resizer.xml" xy="2,3" size="372,470">
       <relation target="" sidePair="width-width,height-height"/>
     </component>
-    <component id="n4_oorc" name="container" src="oorc3o" fileName="panels/MainPanelBirdContainer.xml" xy="9,48" size="359,382">
+    <component id="n4_oorc" name="container" src="oorc3o" fileName="panels/MainPanelBirdContainer.xml" xy="13,54" size="350,361">
       <relation target="" sidePair="width-width,height-height"/>
     </component>
-    <text id="n2_8ymy" name="title" xy="156,13" size="50,21" fontSize="15" color="#333333" text="主窗口">
+    <text id="n2_8ymy" name="title" xy="161,20" size="50,21" fontSize="15" color="#333333" text="主窗口">
       <relation target="" sidePair="center-center"/>
     </text>
-    <component id="n5_xuqg" name="btn_nut0" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="5,433" size="93,39">
+    <component id="n5_xuqg" name="btn_nut0" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="18,420" size="93,39">
       <relation target="" sidePair="bottom-bottom"/>
-      <Button checked="true" title="带壳坚果" icon="ui://3hcsjtonxuqg3p" controller="selnut" page="0"/>
+      <Button title="带壳坚果" icon="ui://3hcsjtonxuqg3p" controller="selnut" page="0"/>
     </component>
-    <component id="n7_xuqg" name="btn_nut1" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="102,433" size="93,39">
+    <component id="n7_xuqg" name="btn_nut1" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="115,420" size="93,39">
       <relation target="" sidePair="bottom-bottom"/>
-      <Button title="无壳坚果" icon="ui://3hcsjtonxuqg3q" controller="selnut" page="1"/>
+      <Button checked="true" title="无壳坚果" icon="ui://3hcsjtonxuqg3q" controller="selnut" page="1"/>
+    </component>
+    <component id="n8_f6tz" name="btn_eat" src="f6tz40" fileName="default/Button/ButtonWithTitle.xml" xy="213,420" size="99,39">
+      <relation target="" sidePair="bottom-bottom"/>
+      <Button title="动作：吃坚果"/>
     </component>
   </displayList>
 </component>

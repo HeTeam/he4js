@@ -145,6 +145,7 @@
     <component id="ch2w3x" name="Alert.xml" path="/panels/" exported="true"/>
     <component id="ch2w3y" name="Mask.xml" path="/panels/" exported="true"/>
     <component id="tzto3z" name="LineContainer.xml" path="/panels/" exported="true"/>
+    <component id="f6tz40" name="ButtonWithTitle.xml" path="/default/Button/" exported="true"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>

@@ -27,11 +27,11 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_c1 = this.getControllerAt(1);
-			m_indent = GGraph(this.getChildAt(3));
-			m_input = GTextInput(this.getChildAt(6));
-			m_expandButton = GButton(this.getChildAt(8));
-			m_sign = GLoader(this.getChildAt(9));
+			m_c1 = this.getController("c1");
+			m_indent = GGraph(this.getChild("indent"));
+			m_input = GTextInput(this.getChild("input"));
+			m_expandButton = GButton(this.getChild("expandButton"));
+			m_sign = GLoader(this.getChild("sign"));
 		}
 	}
 }

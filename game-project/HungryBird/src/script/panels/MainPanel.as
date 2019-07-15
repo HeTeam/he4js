@@ -44,6 +44,12 @@ public class MainPanel {
 		m_bird.setNativeObject(bird_ui);
 		
 		m_container.on(Event.MOUSE_DOWN,this,onContainerClick);
+
+		//v.m_btn_eat.onClick(this,onEat)
+    }
+
+    private function onEat():void {
+        trace("234423")
     }
 	
 	private function onContainerClick(e:Event):void

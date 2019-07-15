@@ -27,11 +27,11 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_bg = GGraph(this.getChildAt(0));
-			m_lineContainer = UI_LineContainer(this.getChildAt(1));
-			m_nodeContainer = UI_NodeContainer(this.getChildAt(2));
-			m_help = GTextField(this.getChildAt(3));
-			m_helpOver = GGraph(this.getChildAt(4));
+			m_bg = GGraph(this.getChild("bg"));
+			m_lineContainer = UI_LineContainer(this.getChild("lineContainer"));
+			m_nodeContainer = UI_NodeContainer(this.getChild("nodeContainer"));
+			m_help = GTextField(this.getChild("help"));
+			m_helpOver = GGraph(this.getChild("helpOver"));
 		}
 	}
 }

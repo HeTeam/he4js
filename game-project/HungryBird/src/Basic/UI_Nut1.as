@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_t0 = this.getTransitionAt(0);
+			m_t0 = this.getTransition("t0");
 		}
 	}
 }

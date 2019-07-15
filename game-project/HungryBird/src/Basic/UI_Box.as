@@ -25,9 +25,9 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_bg = GGraph(this.getChildAt(0));
-			m_blink = GGraph(this.getChildAt(1));
-			m_blinkMV = this.getTransitionAt(0);
+			m_bg = GGraph(this.getChild("bg"));
+			m_blink = GGraph(this.getChild("blink"));
+			m_blinkMV = this.getTransition("blinkMV");
 		}
 	}
 }

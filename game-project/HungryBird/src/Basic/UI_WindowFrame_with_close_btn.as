@@ -25,9 +25,9 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_dragArea = GGraph(this.getChildAt(1));
-			m_contentArea = GGraph(this.getChildAt(3));
-			m_closeButton = GButton(this.getChildAt(4));
+			m_dragArea = GGraph(this.getChild("dragArea"));
+			m_contentArea = GGraph(this.getChild("contentArea"));
+			m_closeButton = GButton(this.getChild("closeButton"));
 		}
 	}
 }

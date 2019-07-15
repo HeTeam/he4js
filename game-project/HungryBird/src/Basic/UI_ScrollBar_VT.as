@@ -26,10 +26,10 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_arrow1 = GButton(this.getChildAt(1));
-			m_arrow2 = GButton(this.getChildAt(2));
-			m_bar = GGraph(this.getChildAt(3));
-			m_grip = GButton(this.getChildAt(4));
+			m_arrow1 = GButton(this.getChild("arrow1"));
+			m_arrow2 = GButton(this.getChild("arrow2"));
+			m_bar = GGraph(this.getChild("bar"));
+			m_grip = GButton(this.getChild("grip"));
 		}
 	}
 }

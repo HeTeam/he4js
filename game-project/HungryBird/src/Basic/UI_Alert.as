@@ -30,14 +30,14 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_c1 = this.getControllerAt(0);
-			m_frame = UI_WindowFrame_with_close_btn(this.getChildAt(0));
-			m_title = GTextField(this.getChildAt(1));
-			m_txt = GTextField(this.getChildAt(2));
-			m_btnOK = UI_Button(this.getChildAt(3));
-			m_btnNO = UI_Button(this.getChildAt(4));
-			m_input_bg = GGraph(this.getChildAt(5));
-			m_input = GTextInput(this.getChildAt(6));
+			m_c1 = this.getController("c1");
+			m_frame = UI_WindowFrame_with_close_btn(this.getChild("frame"));
+			m_title = GTextField(this.getChild("title"));
+			m_txt = GTextField(this.getChild("txt"));
+			m_btnOK = UI_Button(this.getChild("btnOK"));
+			m_btnNO = UI_Button(this.getChild("btnNO"));
+			m_input_bg = GGraph(this.getChild("input_bg"));
+			m_input = GTextInput(this.getChild("input"));
 		}
 	}
 }

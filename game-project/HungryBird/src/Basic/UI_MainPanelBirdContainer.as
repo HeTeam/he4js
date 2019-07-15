@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_bird = GGraph(this.getChildAt(0));
+			m_bird = GGraph(this.getChild("bird"));
 		}
 	}
 }

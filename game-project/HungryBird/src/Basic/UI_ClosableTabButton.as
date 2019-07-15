@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_closeButton = GButton(this.getChildAt(3));
+			m_closeButton = GButton(this.getChild("closeButton"));
 		}
 	}
 }

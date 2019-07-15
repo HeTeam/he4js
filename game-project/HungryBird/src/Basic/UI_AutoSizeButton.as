@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_grayed = this.getControllerAt(1);
+			m_grayed = this.getController("grayed");
 		}
 	}
 }

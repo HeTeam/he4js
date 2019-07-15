@@ -4,18 +4,18 @@ package Basic
 {
 	import fairygui.*;
 
-	public class UI_ButtonWithTitleAndIcon extends fairygui.GButton
+	public class UI_ButtonWithTitle extends fairygui.GButton
 	{
 		public var m_grayed:Controller;
 
-		public static const URL:String = "ui://3hcsjtonxuqg3v";
+		public static const URL:String = "ui://3hcsjtonf6tz40";
 
-		public static function createInstance():UI_ButtonWithTitleAndIcon
+		public static function createInstance():UI_ButtonWithTitle
 		{
-			return UI_ButtonWithTitleAndIcon(UIPackage.createObject("Basic","ButtonWithTitleAndIcon"));
+			return UI_ButtonWithTitle(UIPackage.createObject("Basic","ButtonWithTitle"));
 		}
 
-		public function UI_ButtonWithTitleAndIcon()
+		public function UI_ButtonWithTitle()
 		{
 		}
 

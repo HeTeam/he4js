@@ -25,9 +25,9 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_indent = GGraph(this.getChildAt(3));
-			m_expandButton = GButton(this.getChildAt(5));
-			m_sign = GLoader(this.getChildAt(6));
+			m_indent = GGraph(this.getChild("indent"));
+			m_expandButton = GButton(this.getChild("expandButton"));
+			m_sign = GLoader(this.getChild("sign"));
 		}
 	}
 }

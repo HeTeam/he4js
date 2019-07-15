@@ -12,6 +12,7 @@ package Basic
 		public var m_title:GTextField;
 		public var m_btn_nut0:UI_ButtonWithTitleAndIcon;
 		public var m_btn_nut1:UI_ButtonWithTitleAndIcon;
+		public var m_btn_eat:UI_ButtonWithTitle;
 
 		public static const URL:String = "ui://3hcsjton8ymy3i";
 
@@ -28,12 +29,13 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_selnut = this.getControllerAt(0);
-			m_frame = UI_WindowFrame_with_close_btn_and_resizer(this.getChildAt(0));
-			m_container = UI_MainPanelBirdContainer(this.getChildAt(1));
-			m_title = GTextField(this.getChildAt(2));
-			m_btn_nut0 = UI_ButtonWithTitleAndIcon(this.getChildAt(3));
-			m_btn_nut1 = UI_ButtonWithTitleAndIcon(this.getChildAt(4));
+			m_selnut = this.getController("selnut");
+			m_frame = UI_WindowFrame_with_close_btn_and_resizer(this.getChild("frame"));
+			m_container = UI_MainPanelBirdContainer(this.getChild("container"));
+			m_title = GTextField(this.getChild("title"));
+			m_btn_nut0 = UI_ButtonWithTitleAndIcon(this.getChild("btn_nut0"));
+			m_btn_nut1 = UI_ButtonWithTitleAndIcon(this.getChild("btn_nut1"));
+			m_btn_eat = UI_ButtonWithTitle(this.getChild("btn_eat"));
 		}
 	}
 }
