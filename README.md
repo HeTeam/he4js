@@ -1,5 +1,7 @@
 # he4js
 
+![img](img.png)
+
 he4js 意指 "He For JavaScript"，he 是一个 **通用人工智能系统** （AGI），而 he4js 是一个演示 he 的程序。
 
 
