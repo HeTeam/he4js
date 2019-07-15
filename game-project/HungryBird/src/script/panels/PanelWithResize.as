@@ -12,7 +12,8 @@ public class PanelWithResize extends Window {
     public function PanelWithResize() {
         
     }
-    public var aframe:GComponent
+    public var view:GComponent;
+    public var aframe:GComponent;
     override public function set contentPane(val: GComponent):void {
         super.contentPane = val;
         contentPane.relations.clearAll();//去掉 size 事件绑定，避免无限 resize。
@@ -65,7 +66,7 @@ public class PanelWithResize extends Window {
         var hh:int = newPoint.y+this.heightfix;
         ww = ww < miniWidth ? miniWidth : ww;
         hh = hh < miniH ? miniH : hh;
-        this.setSize(ww,hh);
+        this.view.setSize(ww,hh);
     }
     public function resizeEnd():void {
         GRoot.inst.off(Event.MOUSE_UP,this,resizeEnd);

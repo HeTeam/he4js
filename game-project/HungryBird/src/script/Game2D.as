@@ -15,7 +15,7 @@ import laya.utils.Handler;
 import script.panels.Alert;
 import script.panels.MainPanel;
 import script.panels.NodePanel;
-import script.panels.PanelUtil;
+import script.panels.PanelBinder;
 
 // 程序入口
 public class Game2D {
@@ -75,11 +75,11 @@ public class Game2D {
         fairygui.UIConfig.clickDragSensitivity = 1;
         fairygui.UIConfig.touchDragSensitivity = 3;
         BasicBinder.bindAll();
-        PanelUtil.bindAllWindows();
+        PanelBinder.bindAll();
         
 		new Alert();
         new NodePanel();
-        new MainPanel();
+        MainPanel.inst().show();
     }
 }
 }
