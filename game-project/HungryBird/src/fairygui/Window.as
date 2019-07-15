@@ -42,7 +42,7 @@ package fairygui {
 				if(this._contentPane != null) {
 					this.addChild(this._contentPane);
 					this.setSize(this._contentPane.width,this._contentPane.height);
-					//this._contentPane.addRelation(this,RelationType.Size);
+					this._contentPane.addRelation(this,RelationType.Size);
 					this._frame = GComponent(this._contentPane.getChild("frame"));
 					if(this._frame != null) {
 						this.closeButton = this._frame.getChild("closeButton");
