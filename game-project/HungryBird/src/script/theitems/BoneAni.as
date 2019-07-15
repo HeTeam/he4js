@@ -16,11 +16,13 @@ package script.theitems
 		private var scaleNum:Number;
 
 		private var endFun:Function;
-
+        public var defIndex:int = 0;
 		private var loop:Boolean;
+        private var caller:Object;
 
-		public function BoneAni(mAniPath:String,loop:Boolean=false,endFun:Function=null,scaleNum:Number=1)
+		public function BoneAni(mAniPath:String,loop:Boolean=false,endFun:Function=null,scaleNum:Number=1,caller:Object=null)
 		{
+            this.caller = caller;
 			this.loop = loop;
 			this.endFun = endFun;
 			this.scaleNum = scaleNum;
@@ -30,6 +32,7 @@ package script.theitems
 			mFactory.on(Event.ERROR, this, onError);
 			mFactory.loadAni(mAniPath);
 		}
+
 		private function onError(e:*):void
 		{
 			trace("error"+e);
@@ -46,7 +49,13 @@ package script.theitems
 		
 		private function completeHandler():void
 		{
-			if(endFun)endFun();
+			if(endFun){
+                if(caller){
+                    endFun.apply(caller);
+                }else {
+                    endFun();
+                }
+            }
 		}
 		public function play():void
 		{

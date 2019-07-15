@@ -32,7 +32,7 @@ public class MainPanel extends PanelWithResize{
         }
         return _inst;
     }
-
+    public var bird_ui:BoneAni;
     public function MainPanel()
     {
         super.view = v = UI_MainPanel.createInstance();
@@ -41,16 +41,21 @@ public class MainPanel extends PanelWithResize{
         v.x = 300;
         v.y = 100;
 
-        var bird_ui:* = new BoneAni("res/bird.sk",true,null,0.2);
+        bird_ui = new BoneAni("res/bird.sk",true,AniEndFun,0.2,this);
         v.m_container.m_bird.setNativeObject(bird_ui);
 
 		v.m_container.on(Event.MOUSE_DOWN,this,onContainerClick);
 
-		v.m_btn_eat.onClick(this,onEat)
+		v.m_btn_eat.onClick(this,onEat);
+
+    }
+
+    private function AniEndFun():void {
+        bird_ui.mArmature.play("happy",true);
     }
 
     private function onEat():void {
-        trace("234423")
+        bird_ui.mArmature.play("eat",false);
     }
 	
 	private function onContainerClick(e:Event):void

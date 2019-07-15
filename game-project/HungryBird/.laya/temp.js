@@ -2684,84 +2684,6 @@ var Think=(function(){
 })()
 
 
-// 程序入口
-//class script.panels.MainPanel
-var MainPanel=(function(){
-	function MainPanel(){
-		this.m_container=null;
-		this.m_bird=null;
-		this.bird_ui=null;
-		this.v=null;
-		this.m_selnut=null;
-		this.v=UI_MainPanel.createInstance();
-		this.m_selnut=this.v.getControllerAt(0);
-		this.m_container=(this.v.getChildAt(1));
-		this.m_bird=this.m_container.m_bird;
-		var win=PanelUtil.toWindow(this.v);
-		win.closeButton.visible=false;
-		this.v.x=300;
-		this.v.y=100;
-		this.bird_ui=new BoneAni("res/bird.sk",true,null,0.2);
-		this.m_bird.setNativeObject(this.bird_ui);
-		this.m_container.on("mousedown",this,this.onContainerClick);
-	}
-
-	__class(MainPanel,'script.panels.MainPanel');
-	var __proto=MainPanel.prototype;
-	__proto.onContainerClick=function(e){
-		var nut;
-		var isNut1=this.m_selnut.selectedIndex==0;
-		if(isNut1){
-			nut=UI_Nut1.createInstance();
-			}else{
-			nut=UI_Nut2.createInstance();
-		};
-		var click_pos=this.m_container.globalToLocal(e.stageX,e.stageY);
-		nut.x=click_pos.x;
-		nut.y=click_pos.y;
-		nut.setScale(0.5,0.5);
-		this.m_container.addChild(nut);
-		this.sortScene();
-		var nut_node=new Node$1();
-		var attr_node1=new Node$1();
-		attr_node1.baseType=NodeType.Distance;
-		attr_node1.value=this.getDistance(this.m_bird,nut);
-		var port1=nut_node.addPortByNode(attr_node1);
-		EventCenter.inst.event(EventNames.Link,[port1]);
-		var attr_node2=new Node$1();
-		attr_node2.baseType=NodeType.CanEat;
-		attr_node2.value=isNut1 ? 0:1;
-		var port2=nut_node.addPortByNode(attr_node2);
-		EventCenter.inst.event(EventNames.Link,[port2]);
-		Think.inst.dataIn(nut_node);
-	}
-
-	__proto.getDistance=function(a,b){
-		MainPanel.apos.x=a.x;
-		MainPanel.apos.y=a.y;
-		return MainPanel.apos.distance(b.x,b.y);
-	}
-
-	__proto.sortScene=function(){
-		var sort=this.m_container._children.slice().sort(this.sortY);
-		for (var i=0;i < sort.length;i++){
-			sort[i].sortingOrder=i;
-		}
-	}
-
-	__proto.sortY=function(a,b){
-		if(a.y > b.y)return 1;
-		if(b.y > a.y)return-1;
-		return 0;
-	}
-
-	__static(MainPanel,
-	['apos',function(){return this.apos=new Point;}
-	]);
-	return MainPanel;
-})()
-
-
 //class fairygui.TranslationHelper
 var TranslationHelper=(function(){
 	function TranslationHelper(){}
@@ -2981,10 +2903,10 @@ var Game2D=(function(){
 		UIConfig$1.clickDragSensitivity=1;
 		UIConfig$1.touchDragSensitivity=3;
 		BasicBinder.bindAll();
-		PanelUtil.bindWindows();
+		PanelBinder.bindAll();
 		new Alert();
 		new NodePanel();
-		new MainPanel();
+		MainPanel.inst().show();
 	}
 
 	Game2D.allInOne=false;
@@ -4620,27 +4542,17 @@ var GameConfig=(function(){
 
 
 // 程序入口
-//class script.panels.PanelUtil
-var PanelUtil=(function(){
-	function PanelUtil(){}
-	__class(PanelUtil,'script.panels.PanelUtil');
-	PanelUtil.bindWindows=function(){
-		UIObjectFactory.setPackageItemExtension("ui://3hcsjton8ymy3i",PanelWithResize);
+//class script.panels.PanelBinder
+var PanelBinder=(function(){
+	function PanelBinder(){}
+	__class(PanelBinder,'script.panels.PanelBinder');
+	PanelBinder.bindAll=function(){
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonifv90",Box);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3w",NodeContainer);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtontzto3z",LineContainer);
 	}
 
-	PanelUtil.toWindow=function(v,show){
-		(show===void 0)&& (show=true);
-		v["contentPane"]=v;
-		if(show){
-			GRoot.inst.showWindow(v);
-		}
-		return v;
-	}
-
-	return PanelUtil;
+	return PanelBinder;
 })()
 
 
@@ -6153,6 +6065,7 @@ var BasicBinder=(function(){
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3w",UI_NodeContainer);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3x",UI_Alert);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonch2w3y",UI_Mask);
+		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonf6tz40",UI_ButtonWithTitle);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonifv90",UI_Box);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtonoorc3o",UI_MainPanelBirdContainer);
 		UIObjectFactory.setPackageItemExtension("ui://3hcsjtontzto3z",UI_LineContainer);
@@ -58093,6 +58006,214 @@ var GImage=(function(_super){
 })(GObject)
 
 
+//class fairygui.GTextField extends fairygui.GObject
+var GTextField=(function(_super){
+	function GTextField(){
+		this._gearColor=null;
+		this._templateVars=null;
+		this._text=null;
+		GTextField.__super.call(this);
+		this._gearColor=new GearColor(this);
+	}
+
+	__class(GTextField,'fairygui.GTextField',_super);
+	var __proto=GTextField.prototype;
+	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
+	__proto.parseTemplate=function(template){
+		var pos1=0,pos2=0,pos3=0;
+		var tag;
+		var value;
+		var result="";
+		while((pos2=template.indexOf("{",pos1))!=-1){
+			if (pos2 > 0 && template.charCodeAt(pos2-1)==92){
+				result+=template.substring(pos1,pos2-1);
+				result+="{";
+				pos1=pos2+1;
+				continue ;
+			}
+			result+=template.substring(pos1,pos2);
+			pos1=pos2;
+			pos2=template.indexOf("}",pos1);
+			if(pos2==-1)
+				break ;
+			if(pos2==pos1+1){
+				result+=template.substr(pos1,2);
+				pos1=pos2+1;
+				continue ;
+			}
+			tag=template.substring(pos1+1,pos2);
+			pos3=tag.indexOf("=");
+			if(pos3!=-1){
+				value=this._templateVars[tag.substring(0,pos3)];
+				if(value==null)
+					result+=tag.substring(pos3+1);
+				else
+				result+=value;
+			}
+			else{
+				value=this._templateVars[tag];
+				if(value!=null)
+					result+=value;
+			}
+			pos1=pos2+1;
+		}
+		if (pos1 < template.length)
+			result+=template.substr(pos1);
+		return result;
+	}
+
+	__proto.setVar=function(name,value){
+		if(!this._templateVars)
+			this._templateVars={};
+		this._templateVars[name]=value;
+		return this;
+	}
+
+	__proto.flushVars=function(){
+		this.text=this._text;
+	}
+
+	__proto.handleControllerChanged=function(c){
+		_super.prototype.handleControllerChanged.call(this,c);
+		if(this._gearColor.controller==c)
+			this._gearColor.apply();
+	}
+
+	__proto.setup_beforeAdd=function(buffer,beginPos){
+		_super.prototype.setup_beforeAdd.call(this,buffer,beginPos);
+		buffer.seek(beginPos,5);
+		var iv=0;
+		this.font=buffer.readS();
+		this.fontSize=buffer.getInt16();
+		this.color=buffer.readColorS();
+		iv=buffer.readByte();
+		this.align=iv==0?"left":(iv==1?"center":"right");
+		iv=buffer.readByte();
+		this.valign=iv==0?"top":(iv==1?"middle":"bottom");
+		this.leading=buffer.getInt16();
+		this.letterSpacing=buffer.getInt16();
+		this.ubbEnabled=buffer.readBool();
+		this.autoSize=buffer.readByte();
+		this.underline=buffer.readBool();
+		this.italic=buffer.readBool();
+		this.bold=buffer.readBool();
+		this.singleLine=buffer.readBool();
+		if (buffer.readBool()){
+			this.strokeColor=buffer.readColorS();
+			this.stroke=buffer.getFloat32()+1;
+		}
+		if (buffer.readBool())
+			buffer.skip(12);
+		if (buffer.readBool())
+			this._templateVars={};
+	}
+
+	__proto.setup_afterAdd=function(buffer,beginPos){
+		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
+		buffer.seek(beginPos,6);
+		var str=buffer.readS();
+		if (str !=null)
+			this.text=str;
+	}
+
+	/**
+	*@see AutoSizeType
+	*/
+	/**
+	*@see AutoSizeType
+	*/
+	__getset(0,__proto,'autoSize',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'ubbEnabled',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'templateVars',function(){
+		return this._templateVars;
+		},function(value){
+		if(this._templateVars==null && value==null)
+			return;
+		this._templateVars=value;
+		this.flushVars();
+	});
+
+	__getset(0,__proto,'strokeColor',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'stroke',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'fontSize',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'align',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'color',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'singleLine',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'underline',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'italic',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'letterSpacing',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'valign',function(){
+		return null;
+		},function(value){
+	});
+
+	__getset(0,__proto,'bold',function(){
+		return false;
+		},function(value){
+	});
+
+	__getset(0,__proto,'textWidth',function(){
+		return 0;
+	});
+
+	__getset(0,__proto,'leading',function(){
+		return 0;
+		},function(value){
+	});
+
+	__getset(0,__proto,'font',function(){
+		return null;
+		},function(value){
+	});
+
+	return GTextField;
+})(GObject)
+
+
 //class fairygui.Controller extends laya.events.EventDispatcher
 var Controller=(function(_super){
 	function Controller(){
@@ -58335,214 +58456,6 @@ var Controller=(function(_super){
 	Controller._nextPageId=0;
 	return Controller;
 })(EventDispatcher)
-
-
-//class fairygui.GTextField extends fairygui.GObject
-var GTextField=(function(_super){
-	function GTextField(){
-		this._gearColor=null;
-		this._templateVars=null;
-		this._text=null;
-		GTextField.__super.call(this);
-		this._gearColor=new GearColor(this);
-	}
-
-	__class(GTextField,'fairygui.GTextField',_super);
-	var __proto=GTextField.prototype;
-	Laya.imps(__proto,{"fairygui.gears.IColorGear":true})
-	__proto.parseTemplate=function(template){
-		var pos1=0,pos2=0,pos3=0;
-		var tag;
-		var value;
-		var result="";
-		while((pos2=template.indexOf("{",pos1))!=-1){
-			if (pos2 > 0 && template.charCodeAt(pos2-1)==92){
-				result+=template.substring(pos1,pos2-1);
-				result+="{";
-				pos1=pos2+1;
-				continue ;
-			}
-			result+=template.substring(pos1,pos2);
-			pos1=pos2;
-			pos2=template.indexOf("}",pos1);
-			if(pos2==-1)
-				break ;
-			if(pos2==pos1+1){
-				result+=template.substr(pos1,2);
-				pos1=pos2+1;
-				continue ;
-			}
-			tag=template.substring(pos1+1,pos2);
-			pos3=tag.indexOf("=");
-			if(pos3!=-1){
-				value=this._templateVars[tag.substring(0,pos3)];
-				if(value==null)
-					result+=tag.substring(pos3+1);
-				else
-				result+=value;
-			}
-			else{
-				value=this._templateVars[tag];
-				if(value!=null)
-					result+=value;
-			}
-			pos1=pos2+1;
-		}
-		if (pos1 < template.length)
-			result+=template.substr(pos1);
-		return result;
-	}
-
-	__proto.setVar=function(name,value){
-		if(!this._templateVars)
-			this._templateVars={};
-		this._templateVars[name]=value;
-		return this;
-	}
-
-	__proto.flushVars=function(){
-		this.text=this._text;
-	}
-
-	__proto.handleControllerChanged=function(c){
-		_super.prototype.handleControllerChanged.call(this,c);
-		if(this._gearColor.controller==c)
-			this._gearColor.apply();
-	}
-
-	__proto.setup_beforeAdd=function(buffer,beginPos){
-		_super.prototype.setup_beforeAdd.call(this,buffer,beginPos);
-		buffer.seek(beginPos,5);
-		var iv=0;
-		this.font=buffer.readS();
-		this.fontSize=buffer.getInt16();
-		this.color=buffer.readColorS();
-		iv=buffer.readByte();
-		this.align=iv==0?"left":(iv==1?"center":"right");
-		iv=buffer.readByte();
-		this.valign=iv==0?"top":(iv==1?"middle":"bottom");
-		this.leading=buffer.getInt16();
-		this.letterSpacing=buffer.getInt16();
-		this.ubbEnabled=buffer.readBool();
-		this.autoSize=buffer.readByte();
-		this.underline=buffer.readBool();
-		this.italic=buffer.readBool();
-		this.bold=buffer.readBool();
-		this.singleLine=buffer.readBool();
-		if (buffer.readBool()){
-			this.strokeColor=buffer.readColorS();
-			this.stroke=buffer.getFloat32()+1;
-		}
-		if (buffer.readBool())
-			buffer.skip(12);
-		if (buffer.readBool())
-			this._templateVars={};
-	}
-
-	__proto.setup_afterAdd=function(buffer,beginPos){
-		_super.prototype.setup_afterAdd.call(this,buffer,beginPos);
-		buffer.seek(beginPos,6);
-		var str=buffer.readS();
-		if (str !=null)
-			this.text=str;
-	}
-
-	/**
-	*@see AutoSizeType
-	*/
-	/**
-	*@see AutoSizeType
-	*/
-	__getset(0,__proto,'autoSize',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'ubbEnabled',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'templateVars',function(){
-		return this._templateVars;
-		},function(value){
-		if(this._templateVars==null && value==null)
-			return;
-		this._templateVars=value;
-		this.flushVars();
-	});
-
-	__getset(0,__proto,'strokeColor',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'stroke',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'fontSize',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'align',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'color',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'singleLine',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'underline',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'italic',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'letterSpacing',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'valign',function(){
-		return null;
-		},function(value){
-	});
-
-	__getset(0,__proto,'bold',function(){
-		return false;
-		},function(value){
-	});
-
-	__getset(0,__proto,'textWidth',function(){
-		return 0;
-	});
-
-	__getset(0,__proto,'leading',function(){
-		return 0;
-		},function(value){
-	});
-
-	__getset(0,__proto,'font',function(){
-		return null;
-		},function(value){
-	});
-
-	return GTextField;
-})(GObject)
 
 
 //class fairygui.utils.ByteBuffer extends laya.utils.Byte
@@ -60965,69 +60878,6 @@ var WebAudioSound=(function(_super){
 
 
 /**
-*<code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
-*/
-//class laya.d3.physics.shape.BoxColliderShape extends laya.d3.physics.shape.ColliderShape
-var BoxColliderShape=(function(_super){
-	function BoxColliderShape(sizeX,sizeY,sizeZ){
-		/**@private */
-		//this._sizeX=NaN;
-		/**@private */
-		//this._sizeY=NaN;
-		/**@private */
-		//this._sizeZ=NaN;
-		BoxColliderShape.__super.call(this);
-		(sizeX===void 0)&& (sizeX=1.0);
-		(sizeY===void 0)&& (sizeY=1.0);
-		(sizeZ===void 0)&& (sizeZ=1.0);
-		this._sizeX=sizeX;
-		this._sizeY=sizeY;
-		this._sizeZ=sizeZ;
-		this._type=0;
-		BoxColliderShape._nativeSize.setValue(sizeX / 2,sizeY / 2,sizeZ / 2);
-		this._nativeShape=new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
-	}
-
-	__class(BoxColliderShape,'laya.d3.physics.shape.BoxColliderShape',_super);
-	var __proto=BoxColliderShape.prototype;
-	/**
-	*@inheritDoc
-	*/
-	__proto.clone=function(){
-		var dest=new BoxColliderShape(this._sizeX,this._sizeY,this._sizeZ);
-		this.cloneTo(dest);
-		return dest;
-	}
-
-	/**
-	*获取Z轴尺寸。
-	*/
-	__getset(0,__proto,'sizeZ',function(){
-		return this._sizeZ;
-	});
-
-	/**
-	*获取Y轴尺寸。
-	*/
-	__getset(0,__proto,'sizeY',function(){
-		return this._sizeY;
-	});
-
-	/**
-	*获取X轴尺寸。
-	*/
-	__getset(0,__proto,'sizeX',function(){
-		return this._sizeX;
-	});
-
-	__static(BoxColliderShape,
-	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
-	]);
-	return BoxColliderShape;
-})(ColliderShape)
-
-
-/**
 *@private
 *场景资源加载器
 */
@@ -61157,6 +61007,69 @@ var SceneLoader=(function(_super){
 	]);
 	return SceneLoader;
 })(EventDispatcher)
+
+
+/**
+*<code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
+*/
+//class laya.d3.physics.shape.BoxColliderShape extends laya.d3.physics.shape.ColliderShape
+var BoxColliderShape=(function(_super){
+	function BoxColliderShape(sizeX,sizeY,sizeZ){
+		/**@private */
+		//this._sizeX=NaN;
+		/**@private */
+		//this._sizeY=NaN;
+		/**@private */
+		//this._sizeZ=NaN;
+		BoxColliderShape.__super.call(this);
+		(sizeX===void 0)&& (sizeX=1.0);
+		(sizeY===void 0)&& (sizeY=1.0);
+		(sizeZ===void 0)&& (sizeZ=1.0);
+		this._sizeX=sizeX;
+		this._sizeY=sizeY;
+		this._sizeZ=sizeZ;
+		this._type=0;
+		BoxColliderShape._nativeSize.setValue(sizeX / 2,sizeY / 2,sizeZ / 2);
+		this._nativeShape=new Laya3D._physics3D.btBoxShape(BoxColliderShape._nativeSize);
+	}
+
+	__class(BoxColliderShape,'laya.d3.physics.shape.BoxColliderShape',_super);
+	var __proto=BoxColliderShape.prototype;
+	/**
+	*@inheritDoc
+	*/
+	__proto.clone=function(){
+		var dest=new BoxColliderShape(this._sizeX,this._sizeY,this._sizeZ);
+		this.cloneTo(dest);
+		return dest;
+	}
+
+	/**
+	*获取Z轴尺寸。
+	*/
+	__getset(0,__proto,'sizeZ',function(){
+		return this._sizeZ;
+	});
+
+	/**
+	*获取Y轴尺寸。
+	*/
+	__getset(0,__proto,'sizeY',function(){
+		return this._sizeY;
+	});
+
+	/**
+	*获取X轴尺寸。
+	*/
+	__getset(0,__proto,'sizeX',function(){
+		return this._sizeX;
+	});
+
+	__static(BoxColliderShape,
+	['_nativeSize',function(){return this._nativeSize=new Laya3D._physics3D.btVector3(0,0,0);}
+	]);
+	return BoxColliderShape;
+})(ColliderShape)
 
 
 /**
@@ -78740,7 +78653,7 @@ var UI_NodeContainer=(function(_super){
 	var __proto=UI_NodeContainer.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_tmp=(this.getChildAt(0));
+		this.m_tmp=(this.getChild("tmp"));
 	}
 
 	UI_NodeContainer.createInstance=function(){
@@ -78767,11 +78680,11 @@ var UI_NodePanel=(function(_super){
 	var __proto=UI_NodePanel.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_bg=(this.getChildAt(0));
-		this.m_lineContainer=(this.getChildAt(1));
-		this.m_nodeContainer=(this.getChildAt(2));
-		this.m_help=(this.getChildAt(3));
-		this.m_helpOver=(this.getChildAt(4));
+		this.m_bg=(this.getChild("bg"));
+		this.m_lineContainer=(this.getChild("lineContainer"));
+		this.m_nodeContainer=(this.getChild("nodeContainer"));
+		this.m_help=(this.getChild("help"));
+		this.m_helpOver=(this.getChild("helpOver"));
 	}
 
 	UI_NodePanel.createInstance=function(){
@@ -79220,6 +79133,273 @@ var GButton=(function(_super){
 })(GComponent)
 
 
+//class fairygui.Window extends fairygui.GComponent
+var Window$2=(function(_super){
+	function Window(){
+		this._contentPane=null;
+		this._modalWaitPane=null;
+		this._closeButton=null;
+		this._dragArea=null;
+		this._contentArea=null;
+		this._frame=null;
+		this._modal=false;
+		this._uiSources=null;
+		this._inited=false;
+		this._loading=false;
+		this._requestingCmd=0;
+		this.bringToFontOnClick=false;
+		Window.__super.call(this);
+		this.focusable=true;
+		this._uiSources=[];
+		this.bringToFontOnClick=UIConfig$1.bringWindowToFrontOnClick;
+		this.displayObject.on("display",this,this.__onShown);
+		this.displayObject.on("undisplay",this,this.__onHidden);
+		this.displayObject.on("mousedown",this,this.__mouseDown);
+	}
+
+	__class(Window,'fairygui.Window',_super,'Window$2');
+	var __proto=Window.prototype;
+	__proto.addUISource=function(source){
+		this._uiSources.push(source);
+	}
+
+	__proto.show=function(){
+		GRoot.inst.showWindow(this);
+	}
+
+	__proto.showOn=function(root){
+		root.showWindow(this);
+	}
+
+	__proto.hide=function(){
+		if(this.isShowing)
+			this.doHideAnimation();
+	}
+
+	__proto.hideImmediately=function(){
+		var r=((this.parent instanceof fairygui.GRoot ))? (this.parent):null;
+		if(!r)
+			r=GRoot.inst;
+		r.hideWindowImmediately(this);
+	}
+
+	__proto.centerOn=function(r,restraint){
+		(restraint===void 0)&& (restraint=false);
+		this.setXY(Math.round((r.width-this.width)/ 2),Math.round((r.height-this.height)/ 2));
+		if(restraint){
+			this.addRelation(r,3);
+			this.addRelation(r,10);
+		}
+	}
+
+	__proto.toggleStatus=function(){
+		if(this.isTop)
+			this.hide();
+		else
+		this.show();
+	}
+
+	__proto.bringToFront=function(){
+		this.root.bringToFront(this);
+	}
+
+	__proto.showModalWait=function(requestingCmd){
+		(requestingCmd===void 0)&& (requestingCmd=0);
+		if(requestingCmd !=0)
+			this._requestingCmd=requestingCmd;
+		if(UIConfig$1.windowModalWaiting){
+			if(!this._modalWaitPane)
+				this._modalWaitPane=UIPackage.createObjectFromURL(UIConfig$1.windowModalWaiting);
+			this.layoutModalWaitPane();
+			this.addChild(this._modalWaitPane);
+		}
+	}
+
+	__proto.layoutModalWaitPane=function(){
+		if(this._contentArea !=null){
+			var pt=this._frame.localToGlobal();
+			pt=this.globalToLocal(pt.x,pt.y,pt);
+			this._modalWaitPane.setXY(pt.x+this._contentArea.x,pt.y+this._contentArea.y);
+			this._modalWaitPane.setSize(this._contentArea.width,this._contentArea.height);
+		}
+		else
+		this._modalWaitPane.setSize(this.width,this.height);
+	}
+
+	__proto.closeModalWait=function(requestingCmd){
+		(requestingCmd===void 0)&& (requestingCmd=0);
+		if(requestingCmd !=0){
+			if(this._requestingCmd !=requestingCmd)
+				return false;
+		}
+		this._requestingCmd=0;
+		if(this._modalWaitPane && this._modalWaitPane.parent !=null)
+			this.removeChild(this._modalWaitPane);
+		return true;
+	}
+
+	__proto.init=function(){
+		if(this._inited || this._loading)
+			return;
+		if(this._uiSources.length > 0){
+			this._loading=false;
+			var cnt=this._uiSources.length;
+			for(var i=0;i < cnt;i++){
+				var lib=this._uiSources[i];
+				if(!lib.loaded){
+					lib.load(this.__uiLoadComplete,this);
+					this._loading=true;
+				}
+			}
+			if(!this._loading)
+				this._init();
+		}
+		else
+		this._init();
+	}
+
+	__proto.onInit=function(){}
+	__proto.onShown=function(){}
+	__proto.onHide=function(){}
+	__proto.doShowAnimation=function(){
+		this.onShown();
+	}
+
+	__proto.doHideAnimation=function(){
+		this.hideImmediately();
+	}
+
+	__proto.__uiLoadComplete=function(){
+		var cnt=this._uiSources.length;
+		for(var i=0;i < cnt;i++){
+			var lib=this._uiSources[i];
+			if(!lib.loaded)
+				return;
+		}
+		this._loading=false;
+		this._init();
+	}
+
+	__proto._init=function(){
+		this._inited=true;
+		this.onInit();
+		if(this.isShowing)
+			this.doShowAnimation();
+	}
+
+	__proto.dispose=function(){
+		if(this.parent !=null)
+			this.hideImmediately();
+		_super.prototype.dispose.call(this);
+	}
+
+	__proto.closeEventHandler=function(){
+		this.hide();
+	}
+
+	__proto.__onShown=function(){
+		if(!this._inited)
+			this.init();
+		else
+		this.doShowAnimation();
+	}
+
+	__proto.__onHidden=function(){
+		this.closeModalWait();
+		this.onHide();
+	}
+
+	__proto.__mouseDown=function(){
+		if(this.isShowing && this.bringToFontOnClick)
+			this.bringToFront();
+	}
+
+	__proto.__dragStart=function(evt){
+		GObject.cast(evt.currentTarget).stopDrag();
+		this.startDrag();
+	}
+
+	__getset(0,__proto,'modalWaiting',function(){
+		return this._modalWaitPane && this._modalWaitPane.parent !=null;
+	});
+
+	__getset(0,__proto,'modal',function(){
+		return this._modal;
+		},function(val){
+		this._modal=val;
+	});
+
+	__getset(0,__proto,'isTop',function(){
+		return this.parent !=null && this.parent.getChildIndex(this)==this.parent.numChildren-1;
+	});
+
+	__getset(0,__proto,'contentArea',function(){
+		return this._contentArea;
+		},function(value){
+		this._contentArea=value;
+	});
+
+	__getset(0,__proto,'dragArea',function(){
+		return this._dragArea;
+		},function(value){
+		if(this._dragArea !=value){
+			if(this._dragArea !=null){
+				this._dragArea.draggable=false;
+				this._dragArea.off("fui_drag_start",this,this.__dragStart);
+			}
+			this._dragArea=value;
+			if(this._dragArea !=null){
+				if((this._dragArea instanceof fairygui.GGraph ))
+					this._dragArea.asGraph.drawRect(0,null,null);
+				this._dragArea.draggable=true;
+				this._dragArea.on("fui_drag_start",this,this.__dragStart);
+			}
+		}
+	});
+
+	__getset(0,__proto,'isShowing',function(){
+		return this.parent !=null;
+	});
+
+	__getset(0,__proto,'closeButton',function(){
+		return this._closeButton;
+		},function(value){
+		if(this._closeButton !=null)
+			this._closeButton.offClick(this,this.closeEventHandler);
+		this._closeButton=value;
+		if(this._closeButton !=null)
+			this._closeButton.onClick(this,this.closeEventHandler);
+	});
+
+	__getset(0,__proto,'frame',function(){
+		return this._frame;
+	});
+
+	__getset(0,__proto,'contentPane',function(){
+		return this._contentPane;
+		},function(val){
+		if(this._contentPane !=val){
+			if(this._contentPane !=null)
+				this.removeChild(this._contentPane);
+			this._contentPane=val;
+			if(this._contentPane !=null){
+				this.addChild(this._contentPane);
+				this.setSize(this._contentPane.width,this._contentPane.height);
+				this._contentPane.addRelation(this,24);
+				this._frame=(this._contentPane.getChild("frame"));
+				if(this._frame !=null){
+					this.closeButton=this._frame.getChild("closeButton");
+					this.dragArea=this._frame.getChild("dragArea");
+					this.contentArea=this._frame.getChild("contentArea");
+				}
+			}
+		}
+	});
+
+	return Window;
+})(GComponent)
+
+
 //class fairygui.GRoot extends fairygui.GComponent
 var GRoot=(function(_super){
 	function GRoot(){
@@ -79623,7 +79803,7 @@ var UI_ComboBoxPopup=(function(_super){
 	var __proto=UI_ComboBoxPopup.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_list=(this.getChildAt(1));
+		this.m_list=(this.getChild("list"));
 	}
 
 	UI_ComboBoxPopup.createInstance=function(){
@@ -79646,7 +79826,7 @@ var UI_Nut2=(function(_super){
 	var __proto=UI_Nut2.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_t0=this.getTransitionAt(0);
+		this.m_t0=this.getTransition("t0");
 	}
 
 	UI_Nut2.createInstance=function(){
@@ -79669,7 +79849,7 @@ var UI_Nut1=(function(_super){
 	var __proto=UI_Nut1.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_t0=this.getTransitionAt(0);
+		this.m_t0=this.getTransition("t0");
 	}
 
 	UI_Nut1.createInstance=function(){
@@ -79678,273 +79858,6 @@ var UI_Nut1=(function(_super){
 
 	UI_Nut1.URL="ui://3hcsjtonxuqg3t";
 	return UI_Nut1;
-})(GComponent)
-
-
-//class fairygui.Window extends fairygui.GComponent
-var Window$2=(function(_super){
-	function Window(){
-		this._contentPane=null;
-		this._modalWaitPane=null;
-		this._closeButton=null;
-		this._dragArea=null;
-		this._contentArea=null;
-		this._frame=null;
-		this._modal=false;
-		this._uiSources=null;
-		this._inited=false;
-		this._loading=false;
-		this._requestingCmd=0;
-		this.bringToFontOnClick=false;
-		Window.__super.call(this);
-		this.focusable=true;
-		this._uiSources=[];
-		this.bringToFontOnClick=UIConfig$1.bringWindowToFrontOnClick;
-		this.displayObject.on("display",this,this.__onShown);
-		this.displayObject.on("undisplay",this,this.__onHidden);
-		this.displayObject.on("mousedown",this,this.__mouseDown);
-	}
-
-	__class(Window,'fairygui.Window',_super,'Window$2');
-	var __proto=Window.prototype;
-	__proto.addUISource=function(source){
-		this._uiSources.push(source);
-	}
-
-	__proto.show=function(){
-		GRoot.inst.showWindow(this);
-	}
-
-	__proto.showOn=function(root){
-		root.showWindow(this);
-	}
-
-	__proto.hide=function(){
-		if(this.isShowing)
-			this.doHideAnimation();
-	}
-
-	__proto.hideImmediately=function(){
-		var r=((this.parent instanceof fairygui.GRoot ))? (this.parent):null;
-		if(!r)
-			r=GRoot.inst;
-		r.hideWindowImmediately(this);
-	}
-
-	__proto.centerOn=function(r,restraint){
-		(restraint===void 0)&& (restraint=false);
-		this.setXY(Math.round((r.width-this.width)/ 2),Math.round((r.height-this.height)/ 2));
-		if(restraint){
-			this.addRelation(r,3);
-			this.addRelation(r,10);
-		}
-	}
-
-	__proto.toggleStatus=function(){
-		if(this.isTop)
-			this.hide();
-		else
-		this.show();
-	}
-
-	__proto.bringToFront=function(){
-		this.root.bringToFront(this);
-	}
-
-	__proto.showModalWait=function(requestingCmd){
-		(requestingCmd===void 0)&& (requestingCmd=0);
-		if(requestingCmd !=0)
-			this._requestingCmd=requestingCmd;
-		if(UIConfig$1.windowModalWaiting){
-			if(!this._modalWaitPane)
-				this._modalWaitPane=UIPackage.createObjectFromURL(UIConfig$1.windowModalWaiting);
-			this.layoutModalWaitPane();
-			this.addChild(this._modalWaitPane);
-		}
-	}
-
-	__proto.layoutModalWaitPane=function(){
-		if(this._contentArea !=null){
-			var pt=this._frame.localToGlobal();
-			pt=this.globalToLocal(pt.x,pt.y,pt);
-			this._modalWaitPane.setXY(pt.x+this._contentArea.x,pt.y+this._contentArea.y);
-			this._modalWaitPane.setSize(this._contentArea.width,this._contentArea.height);
-		}
-		else
-		this._modalWaitPane.setSize(this.width,this.height);
-	}
-
-	__proto.closeModalWait=function(requestingCmd){
-		(requestingCmd===void 0)&& (requestingCmd=0);
-		if(requestingCmd !=0){
-			if(this._requestingCmd !=requestingCmd)
-				return false;
-		}
-		this._requestingCmd=0;
-		if(this._modalWaitPane && this._modalWaitPane.parent !=null)
-			this.removeChild(this._modalWaitPane);
-		return true;
-	}
-
-	__proto.init=function(){
-		if(this._inited || this._loading)
-			return;
-		if(this._uiSources.length > 0){
-			this._loading=false;
-			var cnt=this._uiSources.length;
-			for(var i=0;i < cnt;i++){
-				var lib=this._uiSources[i];
-				if(!lib.loaded){
-					lib.load(this.__uiLoadComplete,this);
-					this._loading=true;
-				}
-			}
-			if(!this._loading)
-				this._init();
-		}
-		else
-		this._init();
-	}
-
-	__proto.onInit=function(){}
-	__proto.onShown=function(){}
-	__proto.onHide=function(){}
-	__proto.doShowAnimation=function(){
-		this.onShown();
-	}
-
-	__proto.doHideAnimation=function(){
-		this.hideImmediately();
-	}
-
-	__proto.__uiLoadComplete=function(){
-		var cnt=this._uiSources.length;
-		for(var i=0;i < cnt;i++){
-			var lib=this._uiSources[i];
-			if(!lib.loaded)
-				return;
-		}
-		this._loading=false;
-		this._init();
-	}
-
-	__proto._init=function(){
-		this._inited=true;
-		this.onInit();
-		if(this.isShowing)
-			this.doShowAnimation();
-	}
-
-	__proto.dispose=function(){
-		if(this.parent !=null)
-			this.hideImmediately();
-		_super.prototype.dispose.call(this);
-	}
-
-	__proto.closeEventHandler=function(){
-		this.hide();
-	}
-
-	__proto.__onShown=function(){
-		if(!this._inited)
-			this.init();
-		else
-		this.doShowAnimation();
-	}
-
-	__proto.__onHidden=function(){
-		this.closeModalWait();
-		this.onHide();
-	}
-
-	__proto.__mouseDown=function(){
-		if(this.isShowing && this.bringToFontOnClick)
-			this.bringToFront();
-	}
-
-	__proto.__dragStart=function(evt){
-		GObject.cast(evt.currentTarget).stopDrag();
-		this.startDrag();
-	}
-
-	__getset(0,__proto,'modalWaiting',function(){
-		return this._modalWaitPane && this._modalWaitPane.parent !=null;
-	});
-
-	__getset(0,__proto,'modal',function(){
-		return this._modal;
-		},function(val){
-		this._modal=val;
-	});
-
-	__getset(0,__proto,'isTop',function(){
-		return this.parent !=null && this.parent.getChildIndex(this)==this.parent.numChildren-1;
-	});
-
-	__getset(0,__proto,'contentArea',function(){
-		return this._contentArea;
-		},function(value){
-		this._contentArea=value;
-	});
-
-	__getset(0,__proto,'dragArea',function(){
-		return this._dragArea;
-		},function(value){
-		if(this._dragArea !=value){
-			if(this._dragArea !=null){
-				this._dragArea.draggable=false;
-				this._dragArea.off("fui_drag_start",this,this.__dragStart);
-			}
-			this._dragArea=value;
-			if(this._dragArea !=null){
-				if((this._dragArea instanceof fairygui.GGraph ))
-					this._dragArea.asGraph.drawRect(0,null,null);
-				this._dragArea.draggable=true;
-				this._dragArea.on("fui_drag_start",this,this.__dragStart);
-			}
-		}
-	});
-
-	__getset(0,__proto,'isShowing',function(){
-		return this.parent !=null;
-	});
-
-	__getset(0,__proto,'closeButton',function(){
-		return this._closeButton;
-		},function(value){
-		if(this._closeButton !=null)
-			this._closeButton.offClick(this,this.closeEventHandler);
-		this._closeButton=value;
-		if(this._closeButton !=null)
-			this._closeButton.onClick(this,this.closeEventHandler);
-	});
-
-	__getset(0,__proto,'frame',function(){
-		return this._frame;
-	});
-
-	__getset(0,__proto,'contentPane',function(){
-		return this._contentPane;
-		},function(val){
-		if(this._contentPane !=val){
-			if(this._contentPane !=null)
-				this.removeChild(this._contentPane);
-			this._contentPane=val;
-			if(this._contentPane !=null){
-				this.addChild(this._contentPane);
-				this.setSize(this._contentPane.width,this._contentPane.height);
-				this._contentPane.addRelation(this,24);
-				this._frame=(this._contentPane.getChild("frame"));
-				if(this._frame !=null){
-					this.closeButton=this._frame.getChild("closeButton");
-					this.dragArea=this._frame.getChild("dragArea");
-					this.contentArea=this._frame.getChild("contentArea");
-				}
-			}
-		}
-	});
-
-	return Window;
 })(GComponent)
 
 
@@ -80337,14 +80250,14 @@ var UI_Alert=(function(_super){
 	var __proto=UI_Alert.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_c1=this.getControllerAt(0);
-		this.m_frame=(this.getChildAt(0));
-		this.m_title=(this.getChildAt(1));
-		this.m_txt=(this.getChildAt(2));
-		this.m_btnOK=(this.getChildAt(3));
-		this.m_btnNO=(this.getChildAt(4));
-		this.m_input_bg=(this.getChildAt(5));
-		this.m_input=(this.getChildAt(6));
+		this.m_c1=this.getController("c1");
+		this.m_frame=(this.getChild("frame"));
+		this.m_title=(this.getChild("title"));
+		this.m_txt=(this.getChild("txt"));
+		this.m_btnOK=(this.getChild("btnOK"));
+		this.m_btnNO=(this.getChild("btnNO"));
+		this.m_input_bg=(this.getChild("input_bg"));
+		this.m_input=(this.getChild("input"));
 	}
 
 	UI_Alert.createInstance=function(){
@@ -80596,9 +80509,9 @@ var UI_Box=(function(_super){
 	var __proto=UI_Box.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_bg=(this.getChildAt(0));
-		this.m_blink=(this.getChildAt(1));
-		this.m_blinkMV=this.getTransitionAt(0);
+		this.m_bg=(this.getChild("bg"));
+		this.m_blink=(this.getChild("blink"));
+		this.m_blinkMV=this.getTransition("blinkMV");
 	}
 
 	UI_Box.createInstance=function(){
@@ -80621,7 +80534,7 @@ var UI_PopupMenu=(function(_super){
 	var __proto=UI_PopupMenu.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_list=(this.getChildAt(1));
+		this.m_list=(this.getChild("list"));
 	}
 
 	UI_PopupMenu.createInstance=function(){
@@ -80642,6 +80555,7 @@ var UI_MainPanel=(function(_super){
 		this.m_title=null;
 		this.m_btn_nut0=null;
 		this.m_btn_nut1=null;
+		this.m_btn_eat=null;
 		UI_MainPanel.__super.call(this);
 	}
 
@@ -80649,12 +80563,13 @@ var UI_MainPanel=(function(_super){
 	var __proto=UI_MainPanel.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_selnut=this.getControllerAt(0);
-		this.m_frame=(this.getChildAt(0));
-		this.m_container=(this.getChildAt(1));
-		this.m_title=(this.getChildAt(2));
-		this.m_btn_nut0=(this.getChildAt(3));
-		this.m_btn_nut1=(this.getChildAt(4));
+		this.m_selnut=this.getController("selnut");
+		this.m_frame=(this.getChild("frame"));
+		this.m_container=(this.getChild("container"));
+		this.m_title=(this.getChild("title"));
+		this.m_btn_nut0=(this.getChild("btn_nut0"));
+		this.m_btn_nut1=(this.getChild("btn_nut1"));
+		this.m_btn_eat=(this.getChild("btn_eat"));
 	}
 
 	UI_MainPanel.createInstance=function(){
@@ -80677,7 +80592,7 @@ var UI_MainPanelBirdContainer=(function(_super){
 	var __proto=UI_MainPanelBirdContainer.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_bird=(this.getChildAt(0));
+		this.m_bird=(this.getChild("bird"));
 	}
 
 	UI_MainPanelBirdContainer.createInstance=function(){
@@ -80700,7 +80615,7 @@ var UI_LineContainer=(function(_super){
 	var __proto=UI_LineContainer.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_tmp=(this.getChildAt(0));
+		this.m_tmp=(this.getChild("tmp"));
 	}
 
 	UI_LineContainer.createInstance=function(){
@@ -83018,7 +82933,7 @@ var UI_Mask=(function(_super){
 	var __proto=UI_Mask.prototype;
 	__proto.constructFromXML=function(xml){
 		_super.prototype.constructFromXML.call(this,xml);
-		this.m_bg=(this.getChildAt(0));
+		this.m_bg=(this.getChild("bg"));
 	}
 
 	UI_Mask.createInstance=function(){
@@ -89228,9 +89143,9 @@ var UI_WindowFrame_with_close_btn=(function(_super){
 	var __proto=UI_WindowFrame_with_close_btn.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_dragArea=(this.getChildAt(1));
-		this.m_contentArea=(this.getChildAt(3));
-		this.m_closeButton=(this.getChildAt(4));
+		this.m_dragArea=(this.getChild("dragArea"));
+		this.m_contentArea=(this.getChild("contentArea"));
+		this.m_closeButton=(this.getChild("closeButton"));
 	}
 
 	UI_WindowFrame_with_close_btn.createInstance=function(){
@@ -89244,7 +89159,7 @@ var UI_WindowFrame_with_close_btn=(function(_super){
 
 //class script.theitems.BoneAni extends laya.display.Sprite
 var BoneAni=(function(_super){
-	function BoneAni(mAniPath,loop,endFun,scaleNum){
+	function BoneAni(mAniPath,loop,endFun,scaleNum,caller){
 		this.mAniPath=null;
 		this.mFactory=null;
 		this.mActionIndex=0;
@@ -89253,10 +89168,13 @@ var BoneAni=(function(_super){
 		this.mCurrSkinIndex=0;
 		this.scaleNum=NaN;
 		this.endFun=null;
+		this.defIndex=0;
 		this.loop=false;
+		this.caller=null;
 		BoneAni.__super.call(this);
 		(loop===void 0)&& (loop=false);
 		(scaleNum===void 0)&& (scaleNum=1);
+		this.caller=caller;
 		this.loop=loop;
 		this.endFun=endFun;
 		this.scaleNum=scaleNum;
@@ -89282,7 +89200,13 @@ var BoneAni=(function(_super){
 	}
 
 	__proto.completeHandler=function(){
-		if(this.endFun)this.endFun();
+		if(this.endFun){
+			if(this.caller){
+				this.endFun.apply(this.caller);
+				}else {
+				this.endFun();
+			}
+		}
 	}
 
 	__proto.play=function(){
@@ -89335,9 +89259,9 @@ var UI_TreeItem=(function(_super){
 	var __proto=UI_TreeItem.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_indent=(this.getChildAt(3));
-		this.m_expandButton=(this.getChildAt(5));
-		this.m_sign=(this.getChildAt(6));
+		this.m_indent=(this.getChild("indent"));
+		this.m_expandButton=(this.getChild("expandButton"));
+		this.m_sign=(this.getChild("sign"));
 	}
 
 	UI_TreeItem.createInstance=function(){
@@ -89363,10 +89287,10 @@ var UI_ScrollBar_HZ=(function(_super){
 	var __proto=UI_ScrollBar_HZ.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_bar=(this.getChildAt(1));
-		this.m_grip=(this.getChildAt(2));
-		this.m_arrow2=(this.getChildAt(3));
-		this.m_arrow1=(this.getChildAt(4));
+		this.m_bar=(this.getChild("bar"));
+		this.m_grip=(this.getChild("grip"));
+		this.m_arrow2=(this.getChild("arrow2"));
+		this.m_arrow1=(this.getChild("arrow1"));
 	}
 
 	UI_ScrollBar_HZ.createInstance=function(){
@@ -89389,7 +89313,7 @@ var UI_Button=(function(_super){
 	var __proto=UI_Button.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_grayed=this.getControllerAt(1);
+		this.m_grayed=this.getController("grayed");
 	}
 
 	UI_Button.createInstance=function(){
@@ -89399,6 +89323,79 @@ var UI_Button=(function(_super){
 	UI_Button.URL="ui://3hcsjton8ymy1";
 	return UI_Button;
 })(GButton)
+
+
+//class script.panels.PanelWithResize extends fairygui.Window
+var PanelWithResize=(function(_super){
+	function PanelWithResize(){
+		this.view=null;
+		this.aframe=null;
+		this._resizer=null;
+		this.widthfix=0;
+		this.heightfix=0;
+		this.miniWidth=350;
+		this.miniH=150;
+		PanelWithResize.__super.call(this);
+		this.mousefix=new Point;
+	}
+
+	__class(PanelWithResize,'script.panels.PanelWithResize',_super);
+	var __proto=PanelWithResize.prototype;
+	__proto.___resizeStart=function(evt){
+		this.mousefix=this.globalToLocal(evt.stageX,evt.stageY,this.mousefix);
+		this.widthfix=this.width-this.mousefix.x;
+		this.heightfix=this.height-this.mousefix.y;
+		GObject.cast(evt.currentTarget).stopDrag();
+		GRoot.inst.on("mouseup",this,this.resizeEnd);
+		Laya.timer.loop(50,this,this.panelResize,null,true,true);
+	}
+
+	__proto.panelResize=function(){
+		var newPoint=this.globalToLocal(this.displayListContainer.stage.mouseX,this.displayListContainer.stage.mouseY);
+		var ww=newPoint.x+this.widthfix;
+		var hh=newPoint.y+this.heightfix;
+		ww=ww < this.miniWidth ? this.miniWidth :ww;
+		hh=hh < this.miniH ? this.miniH :hh;
+		this.view.setSize(ww,hh);
+	}
+
+	__proto.resizeEnd=function(){
+		GRoot.inst.off("mouseup",this,this.resizeEnd);
+		Laya.timer.clear(this,this.panelResize);
+		this.panelResize();
+	}
+
+	__getset(0,__proto,'resizer',function(){
+		return this._resizer;
+		},function(value){
+		if(this._resizer !=value){
+			if(this._resizer !=null){
+				this._resizer.draggable=false;
+				this._resizer.off("fui_drag_start",this,this.___resizeStart);
+			}
+			this._resizer=value;
+			if(this._resizer !=null){
+				if((this._resizer instanceof fairygui.GGraph ))
+					this._resizer.asGraph.drawRect(0,null,null);
+				this._resizer.on("mousedown",this,this.___resizeStart);
+			}
+		}
+	});
+
+	__getset(0,__proto,'contentPane',_super.prototype._$get_contentPane,function(val){
+		Laya.superSet(Window$2,this,'contentPane',val);
+		this.contentPane.relations.clearAll();
+		if(val !=null){
+			this.aframe=(val.getChild("frame"));
+			if(this.aframe !=null){
+				this.resizer=this.aframe.getChild("resizer");
+				this._resizer.visible=true;
+			}
+		}
+	});
+
+	return PanelWithResize;
+})(Window$2)
 
 
 //class Basic.UI_ScrollBar_VT extends fairygui.GScrollBar
@@ -89415,10 +89412,10 @@ var UI_ScrollBar_VT=(function(_super){
 	var __proto=UI_ScrollBar_VT.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_arrow1=(this.getChildAt(1));
-		this.m_arrow2=(this.getChildAt(2));
-		this.m_bar=(this.getChildAt(3));
-		this.m_grip=(this.getChildAt(4));
+		this.m_arrow1=(this.getChild("arrow1"));
+		this.m_arrow2=(this.getChild("arrow2"));
+		this.m_bar=(this.getChild("bar"));
+		this.m_grip=(this.getChild("grip"));
 	}
 
 	UI_ScrollBar_VT.createInstance=function(){
@@ -89441,7 +89438,7 @@ var UI_ButtonWithTitleAndIcon=(function(_super){
 	var __proto=UI_ButtonWithTitleAndIcon.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_grayed=this.getControllerAt(1);
+		this.m_grayed=this.getController("grayed");
 	}
 
 	UI_ButtonWithTitleAndIcon.createInstance=function(){
@@ -89701,52 +89698,6 @@ var Image=(function(_super){
 })(Sprite)
 
 
-//class Basic.UI_ClosableTabIconButton extends fairygui.GButton
-var UI_ClosableTabIconButton=(function(_super){
-	function UI_ClosableTabIconButton(){
-		this.m_closeButton=null;
-		UI_ClosableTabIconButton.__super.call(this);
-	}
-
-	__class(UI_ClosableTabIconButton,'Basic.UI_ClosableTabIconButton',_super);
-	var __proto=UI_ClosableTabIconButton.prototype;
-	__proto.constructFromXML=function(xml){
-		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_closeButton=(this.getChildAt(3));
-	}
-
-	UI_ClosableTabIconButton.createInstance=function(){
-		return (UIPackage.createObject("Basic","ClosableTabIconButton"));
-	}
-
-	UI_ClosableTabIconButton.URL="ui://3hcsjton8ymy39";
-	return UI_ClosableTabIconButton;
-})(GButton)
-
-
-//class Basic.UI_AutoSizeButton extends fairygui.GButton
-var UI_AutoSizeButton=(function(_super){
-	function UI_AutoSizeButton(){
-		this.m_grayed=null;
-		UI_AutoSizeButton.__super.call(this);
-	}
-
-	__class(UI_AutoSizeButton,'Basic.UI_AutoSizeButton',_super);
-	var __proto=UI_AutoSizeButton.prototype;
-	__proto.constructFromXML=function(xml){
-		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_grayed=this.getControllerAt(1);
-	}
-
-	UI_AutoSizeButton.createInstance=function(){
-		return (UIPackage.createObject("Basic","AutoSizeButton"));
-	}
-
-	UI_AutoSizeButton.URL="ui://3hcsjton8ymy7";
-	return UI_AutoSizeButton;
-})(GButton)
-
-
 //class script.panels.Alert extends fairygui.Window
 var Alert=(function(_super){
 	function Alert(){
@@ -89907,6 +89858,75 @@ var Alert=(function(_super){
 })(Window$2)
 
 
+//class Basic.UI_ClosableTabIconButton extends fairygui.GButton
+var UI_ClosableTabIconButton=(function(_super){
+	function UI_ClosableTabIconButton(){
+		this.m_closeButton=null;
+		UI_ClosableTabIconButton.__super.call(this);
+	}
+
+	__class(UI_ClosableTabIconButton,'Basic.UI_ClosableTabIconButton',_super);
+	var __proto=UI_ClosableTabIconButton.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_closeButton=(this.getChild("closeButton"));
+	}
+
+	UI_ClosableTabIconButton.createInstance=function(){
+		return (UIPackage.createObject("Basic","ClosableTabIconButton"));
+	}
+
+	UI_ClosableTabIconButton.URL="ui://3hcsjton8ymy39";
+	return UI_ClosableTabIconButton;
+})(GButton)
+
+
+//class Basic.UI_AutoSizeButton extends fairygui.GButton
+var UI_AutoSizeButton=(function(_super){
+	function UI_AutoSizeButton(){
+		this.m_grayed=null;
+		UI_AutoSizeButton.__super.call(this);
+	}
+
+	__class(UI_AutoSizeButton,'Basic.UI_AutoSizeButton',_super);
+	var __proto=UI_AutoSizeButton.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_grayed=this.getController("grayed");
+	}
+
+	UI_AutoSizeButton.createInstance=function(){
+		return (UIPackage.createObject("Basic","AutoSizeButton"));
+	}
+
+	UI_AutoSizeButton.URL="ui://3hcsjton8ymy7";
+	return UI_AutoSizeButton;
+})(GButton)
+
+
+//class Basic.UI_ButtonWithTitle extends fairygui.GButton
+var UI_ButtonWithTitle=(function(_super){
+	function UI_ButtonWithTitle(){
+		this.m_grayed=null;
+		UI_ButtonWithTitle.__super.call(this);
+	}
+
+	__class(UI_ButtonWithTitle,'Basic.UI_ButtonWithTitle',_super);
+	var __proto=UI_ButtonWithTitle.prototype;
+	__proto.constructFromXML=function(xml){
+		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
+		this.m_grayed=this.getController("grayed");
+	}
+
+	UI_ButtonWithTitle.createInstance=function(){
+		return (UIPackage.createObject("Basic","ButtonWithTitle"));
+	}
+
+	UI_ButtonWithTitle.URL="ui://3hcsjtonf6tz40";
+	return UI_ButtonWithTitle;
+})(GButton)
+
+
 //class Basic.UI_NumericInput extends fairygui.GLabel
 var UI_NumericInput=(function(_super){
 	function UI_NumericInput(){
@@ -89920,9 +89940,9 @@ var UI_NumericInput=(function(_super){
 	var __proto=UI_NumericInput.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_c1=this.getControllerAt(0);
-		this.m_grayed=this.getControllerAt(1);
-		this.m_holder=(this.getChildAt(2));
+		this.m_c1=this.getController("c1");
+		this.m_grayed=this.getController("grayed");
+		this.m_holder=(this.getChild("holder"));
 	}
 
 	UI_NumericInput.createInstance=function(){
@@ -89945,7 +89965,7 @@ var UI_TextInput=(function(_super){
 	var __proto=UI_TextInput.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_grayed=this.getControllerAt(0);
+		this.m_grayed=this.getController("grayed");
 	}
 
 	UI_TextInput.createInstance=function(){
@@ -90929,8 +90949,8 @@ var UI_WindowFrame=(function(_super){
 	var __proto=UI_WindowFrame.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_dragArea=(this.getChildAt(1));
-		this.m_contentArea=(this.getChildAt(3));
+		this.m_dragArea=(this.getChild("dragArea"));
+		this.m_contentArea=(this.getChild("contentArea"));
 	}
 
 	UI_WindowFrame.createInstance=function(){
@@ -91037,10 +91057,10 @@ var UI_WindowFrame_with_close_btn_and_resizer=(function(_super){
 	var __proto=UI_WindowFrame_with_close_btn_and_resizer.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_dragArea=(this.getChildAt(1));
-		this.m_contentArea=(this.getChildAt(2));
-		this.m_closeButton=(this.getChildAt(3));
-		this.m_resizer=(this.getChildAt(4));
+		this.m_dragArea=(this.getChild("dragArea"));
+		this.m_contentArea=(this.getChild("contentArea"));
+		this.m_closeButton=(this.getChild("closeButton"));
+		this.m_resizer=(this.getChild("resizer"));
 	}
 
 	UI_WindowFrame_with_close_btn_and_resizer.createInstance=function(){
@@ -91067,11 +91087,11 @@ var UI_EditableTreeItem=(function(_super){
 	var __proto=UI_EditableTreeItem.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_c1=this.getControllerAt(1);
-		this.m_indent=(this.getChildAt(3));
-		this.m_input=(this.getChildAt(6));
-		this.m_expandButton=(this.getChildAt(8));
-		this.m_sign=(this.getChildAt(9));
+		this.m_c1=this.getController("c1");
+		this.m_indent=(this.getChild("indent"));
+		this.m_input=(this.getChild("input"));
+		this.m_expandButton=(this.getChild("expandButton"));
+		this.m_sign=(this.getChild("sign"));
 	}
 
 	UI_EditableTreeItem.createInstance=function(){
@@ -91094,7 +91114,7 @@ var UI_FileTabButton=(function(_super){
 	var __proto=UI_FileTabButton.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_closeButton=(this.getChildAt(3));
+		this.m_closeButton=(this.getChild("closeButton"));
 	}
 
 	UI_FileTabButton.createInstance=function(){
@@ -91163,7 +91183,7 @@ var UI_ClosableTabButton=(function(_super){
 	var __proto=UI_ClosableTabButton.prototype;
 	__proto.constructFromXML=function(xml){
 		fairygui.GComponent.prototype.constructFromXML.call(this,xml);
-		this.m_closeButton=(this.getChildAt(3));
+		this.m_closeButton=(this.getChild("closeButton"));
 	}
 
 	UI_ClosableTabButton.createInstance=function(){
@@ -91775,76 +91795,6 @@ var AnimationBase=(function(_super){
 	AnimationBase.WRAP_PINGPONG=2;
 	return AnimationBase;
 })(Sprite)
-
-
-//class script.panels.PanelWithResize extends fairygui.Window
-var PanelWithResize=(function(_super){
-	function PanelWithResize(){
-		this._resizer=null;
-		this.widthfix=0;
-		this.heightfix=0;
-		this.miniWidth=150;
-		PanelWithResize.__super.call(this);
-		this.aframe
-		this.mousefix=new Point;
-	}
-
-	__class(PanelWithResize,'script.panels.PanelWithResize',_super);
-	var __proto=PanelWithResize.prototype;
-	__proto.___resizeStart=function(evt){
-		this.mousefix=this.globalToLocal(evt.stageX,evt.stageY,this.mousefix);
-		this.widthfix=this.width-this.mousefix.x;
-		this.heightfix=this.height-this.mousefix.y;
-		GObject.cast(evt.currentTarget).stopDrag();
-		GRoot.inst.on("mouseup",this,this.resizeEnd);
-		Laya.timer.loop(50,this,this.panelResize,null,true,true);
-	}
-
-	__proto.panelResize=function(){
-		var newPoint=this.globalToLocal(this.displayListContainer.stage.mouseX,this.displayListContainer.stage.mouseY);
-		var ww=newPoint.x+this.widthfix;
-		var hh=newPoint.y+this.heightfix;
-		ww=ww < this.miniWidth ? this.miniWidth :ww;
-		hh=hh < this.miniWidth ? this.miniWidth :hh;
-		this.setSize(ww,hh);
-	}
-
-	__proto.resizeEnd=function(){
-		GRoot.inst.off("mouseup",this,this.resizeEnd);
-		Laya.timer.clear(this,this.panelResize);
-		this.panelResize();
-	}
-
-	__getset(0,__proto,'resizer',function(){
-		return this._resizer;
-		},function(value){
-		if(this._resizer !=value){
-			if(this._resizer !=null){
-				this._resizer.draggable=false;
-				this._resizer.off("fui_drag_start",this,this.___resizeStart);
-			}
-			this._resizer=value;
-			if(this._resizer !=null){
-				if((this._resizer instanceof fairygui.GGraph ))
-					this._resizer.asGraph.drawRect(0,null,null);
-				this._resizer.on("mousedown",this,this.___resizeStart);
-			}
-		}
-	});
-
-	__getset(0,__proto,'contentPane',_super.prototype._$get_contentPane,function(val){
-		Laya.superSet(Window$2,this,'contentPane',val);
-		if(val !=null){
-			this.aframe=(val.getChild("frame"));
-			if(this.aframe !=null){
-				this.resizer=this.aframe.getChild("resizer");
-				this._resizer.visible=true;
-			}
-		}
-	});
-
-	return PanelWithResize;
-})(Window$2)
 
 
 //class laya.layagl.ConchSprite extends laya.display.Sprite
@@ -103110,6 +103060,96 @@ var Game3D=(function(_super){
 	__class(Game3D,'script.Game3D',_super);
 	return Game3D;
 })(Scene)
+
+
+// 程序入口
+//class script.panels.MainPanel extends script.panels.PanelWithResize
+var MainPanel=(function(_super){
+	function MainPanel(){
+		this.v=null;
+		this.bird_ui=null;
+		MainPanel.__super.call(this);
+		this.view=this.v=UI_MainPanel.createInstance();
+		this.contentPane=this.v;
+		this.v.m_frame.m_closeButton.visible=false;
+		this.v.x=300;
+		this.v.y=100;
+		this.bird_ui=new BoneAni("res/bird.sk",true,this.AniEndFun,0.2,this);
+		this.v.m_container.m_bird.setNativeObject(this.bird_ui);
+		this.v.m_container.on("mousedown",this,this.onContainerClick);
+		this.v.m_btn_eat.onClick(this,this.onEat);
+	}
+
+	__class(MainPanel,'script.panels.MainPanel',_super);
+	var __proto=MainPanel.prototype;
+	__proto.AniEndFun=function(){
+		this.bird_ui.mArmature.play("happy",true);
+	}
+
+	__proto.onEat=function(){
+		this.bird_ui.mArmature.play("eat",false);
+	}
+
+	__proto.onContainerClick=function(e){
+		var nut;
+		var isNut1=this.v.m_selnut.selectedIndex==0;
+		if(isNut1){
+			nut=UI_Nut1.createInstance();
+			}else{
+			nut=UI_Nut2.createInstance();
+		};
+		var click_pos=this.v.m_container.globalToLocal(e.stageX,e.stageY);
+		nut.x=click_pos.x;
+		nut.y=click_pos.y;
+		nut.setScale(0.5,0.5);
+		this.v.m_container.addChild(nut);
+		this.sortScene();
+		var nut_node=new Node$1();
+		var attr_node1=new Node$1();
+		attr_node1.baseType=NodeType.Distance;
+		attr_node1.value=this.getDistance(this.v.m_container.m_bird,nut);
+		var port1=nut_node.addPortByNode(attr_node1);
+		EventCenter.inst.event(EventNames.Link,[port1]);
+		var attr_node2=new Node$1();
+		attr_node2.baseType=NodeType.CanEat;
+		attr_node2.value=isNut1 ? 0:1;
+		var port2=nut_node.addPortByNode(attr_node2);
+		EventCenter.inst.event(EventNames.Link,[port2]);
+		Think.inst.dataIn(nut_node);
+	}
+
+	__proto.getDistance=function(a,b){
+		MainPanel.apos.x=a.x;
+		MainPanel.apos.y=a.y;
+		return MainPanel.apos.distance(b.x,b.y);
+	}
+
+	__proto.sortScene=function(){
+		var sort=this.v.m_container._children.slice().sort(this.sortY);
+		for (var i=0;i < sort.length;i++){
+			sort[i].sortingOrder=i;
+		}
+	}
+
+	__proto.sortY=function(a,b){
+		if(a.y > b.y)return 1;
+		if(b.y > a.y)return-1;
+		return 0;
+	}
+
+	MainPanel.inst=function(){
+		if(!MainPanel._inst){
+			MainPanel._inst=new MainPanel();
+		}
+		return MainPanel._inst;
+	}
+
+	MainPanel._inst=null;
+	__static(MainPanel,
+	['apos',function(){return this.apos=new Point;}
+	]);
+	return MainPanel;
+})(PanelWithResize)
 
 
 //class fairygui.display.MovieClip extends fairygui.display.Image
