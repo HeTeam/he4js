@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="75,75" pivot="0.5,0.8" anchor="true">
+  <displayList>
+    <image id="n0_xuqg" name="n0" src="xuqg3q" fileName="pic/bird_tt.png" xy="24,24" pivot="0.5,0.5" size="27,27" aspect="true"/>
+  </displayList>
+  <transition name="t1" options="4" autoPlay="true">
+    <item time="0" type="Alpha" target="n0_xuqg" tween="true" startValue="1" endValue="0" duration="6"/>
+    <item time="0" type="Size" target="n0_xuqg" tween="true" startValue="27,27" endValue="53,53" duration="6"/>
+    <item time="18" type="Alpha" target="n0_xuqg" value="0"/>
+  </transition>
+</component>

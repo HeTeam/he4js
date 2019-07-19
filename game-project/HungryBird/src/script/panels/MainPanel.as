@@ -1,4 +1,5 @@
 package script.panels {
+import Basic.UI_KillNut2Ani;
 import Basic.UI_MainPanel;
 import Basic.UI_MainPanelBirdContainer;
 import Basic.UI_Nut1;
@@ -8,8 +9,10 @@ import fairygui.Controller;
 import fairygui.GComponent;
 import fairygui.GGraph;
 import fairygui.GObject;
+import fairygui.GObject;
 
 import laya.events.Event;
+import laya.maths.Point;
 import laya.maths.Point;
 
 import script.theitems.BoneAni;
@@ -23,40 +26,108 @@ import he.ai.EventNames;
 
 // 程序入口
 public class MainPanel extends PanelWithResize{
-    private var v:UI_MainPanel;
-    private static var _inst:MainPanel;
+	private var v:UI_MainPanel;
+	private static var _inst:MainPanel;
 
-    public static function inst():MainPanel{
-        if(!_inst){
-            _inst = new MainPanel();
-        }
-        return _inst;
-    }
-    public var bird_ui:BoneAni;
-    public function MainPanel()
-    {
-        super.view = v = UI_MainPanel.createInstance();
-        contentPane = v;
+	public static function inst():MainPanel{
+		if(!_inst){
+			_inst = new MainPanel();
+		}
+		return _inst;
+	}
+	public var bird_ui:BoneAni;
+	public function MainPanel()
+	{
+		super.view = v = UI_MainPanel.createInstance();
+		contentPane = v;
 		v.m_frame.m_closeButton.visible = false;
-        v.x = 300;
-        v.y = 100;
+		v.x = 300;
+		v.y = 100;
 
-        bird_ui = new BoneAni("res/bird.sk",true,AniEndFun,0.2,this);
-        v.m_container.m_bird.setNativeObject(bird_ui);
+		bird_ui = new BoneAni("res/bird.sk",true,AniEndFun,0.2,this);
+		v.m_container.m_bird.setNativeObject(bird_ui);
 
 		v.m_container.on(Event.MOUSE_DOWN,this,onContainerClick);
 
 		v.m_btn_eat.onClick(this,onEat);
 
+	}
+
+	private function AniEndFun():void {
+		bird_ui.mArmature.play("happy",true);
+	}
+
+	private function onEat():void {
+		//上帝模式（硬编码部分，不涉及智能）：
+		//找到距离最近的坚果，让小鸟转身，做出吃的动作，让坚果消失
+
+		var nut:GComponent = findNearNut();
+		bird_ui.mArmature.play("eat",false);
+        if(nut){
+            var isNut1:Boolean = nut is UI_Nut1;
+            var isNut2:Boolean = nut is UI_Nut2;
+
+            faceToNut(nut);
+
+            if(isNut1){
+                Laya.timer.once(255,{},function(nut:GComponent):void {
+                    (nut as UI_Nut1).m_t0.play(); //播放震动动画，仅仅是震动，因为小鸟难以将坚果破壳。
+                },[nut],false);
+            }
+            if(isNut2){
+                // 如果可以吃，则坚果消失。 // todo: 小于一定距离才能吃。
+                removeNut(nut);
+                //todo: 此时应给小鸟一个兴奋的信号，以奖励其行为，调动其情绪，带动小鸟记录和思考。
+                //todo: 是否要去除脑海里的 Node ？ 可能不需要，小鸟对比世界后自己删除？也可能不需要，
+                //todo：Nut 可以活在记忆中，除非年代久远或该 Nut 并无特殊，则可去除（通过睡眠？需要实现睡眠清理机）。
+            }
+        }
+	}
+
+    private function removeNut(nut:GComponent):void {
+        Laya.timer.once(333,this,realRemoveNut,[nut]);
     }
 
-    private function AniEndFun():void {
-        bird_ui.mArmature.play("happy",true);
+    private function realRemoveNut(nut:GComponent):void {
+        createEff(UI_KillNut2Ani.createInstance(),nut);
+        nut.removeFromParent();
     }
 
-    private function onEat():void {
-        bird_ui.mArmature.play("eat",false);
+    private function createEff(ani:GComponent, nut:GComponent,removeEffTime:int = 255):void {
+        nut.parent.addChild(ani);
+        ani.x = nut.x;
+        ani.y = nut.y;
+        Laya.timer.once(removeEffTime,{},function(ani:GComponent):void {
+            ani.removeFromParent();
+        },[ani],false);
     }
+
+    private function faceToNut(nut:GComponent):void {
+        var rightHand:Boolean = v.m_container.m_bird.x > nut.x;
+        v.m_container.m_bird.scaleX = rightHand? 1:-1;
+    }
+
+	private function findNearNut():GComponent {
+        var num:int = v.m_container.numChildren;
+        var dist:Number = 9999999;
+        var theNut:GObject;
+        for(var i:int = 0; i<num ; i++){
+            var ob:GObject = v.m_container.getChildAt(i);
+            var isNut1:Boolean = ob is UI_Nut1;
+            var isNut2:Boolean = ob is UI_Nut2;
+            if(isNut1 || isNut2){
+                var p0:Point = new Point(v.m_container.m_bird.x,v.m_container.m_bird.y);
+                var p1:Point = new Point(ob.x,ob.y);
+                var tmpDist:Number = p1.distance(p0.x,p0.y);
+                if(tmpDist < dist){
+                    dist = tmpDist;
+                    //trace(p0,p1,tmpDist);
+                    theNut = ob;
+                }
+            }
+        }
+        return theNut as GComponent;
+	}
 	
 	private function onContainerClick(e:Event):void
 	{
@@ -77,16 +148,18 @@ public class MainPanel extends PanelWithResize{
 		var nut_node:Node = new Node();
 
 		var attr_node1:Node = new Node();
-        attr_node1.baseType = NodeType.Distance;
-        attr_node1.value = getDistance(v.m_container.m_bird,nut);
+		attr_node1.baseType = NodeType.Distance;
+		attr_node1.value = getDistance(v.m_container.m_bird,nut);
 		var port1:Port = nut_node.addPortByNode(attr_node1);
 		EventCenter.inst.event(EventNames.Link,[port1]);
 
-        var attr_node2:Node = new Node();
-        attr_node2.baseType = NodeType.CanEat;
-        attr_node2.value = isNut1 ? 0:1;
+		var attr_node2:Node = new Node();
+		attr_node2.baseType = NodeType.CanEat;
+		attr_node2.value = isNut1 ? 0:1;
 		var port2:Port = nut_node.addPortByNode(attr_node2);
 		EventCenter.inst.event(EventNames.Link,[port2]);
+
+        nut.data = nut_node;
 
 		Think.inst.dataIn(nut_node);
 	}

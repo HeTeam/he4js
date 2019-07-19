@@ -5,9 +5,9 @@
   </displayList>
   <transition name="t0" options="4" autoPlay="true">
     <item time="0" type="XY" target="n0_xuqg" value="0,0"/>
-    <item time="1" type="XY" target="n0_xuqg" value="0,-5"/>
+    <item time="1" type="XY" target="n0_xuqg" value="0,-10"/>
     <item time="2" type="XY" target="n0_xuqg" value="0,-1"/>
-    <item time="3" type="XY" target="n0_xuqg" value="0,-3"/>
+    <item time="3" type="XY" target="n0_xuqg" value="0,-5"/>
     <item time="4" type="XY" target="n0_xuqg" value="0,0"/>
   </transition>
 </component>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="400,400" overflow="hidden">
   <displayList>
-    <graph id="n0_oorc" name="bird" xy="177,230" size="15,16" type="rect" lineSize="0"/>
+    <graph id="n0_oorc" name="bird" xy="177,230" pivot="0.5,0.8" size="15,16" type="rect" lineSize="0"/>
   </displayList>
 </component>
