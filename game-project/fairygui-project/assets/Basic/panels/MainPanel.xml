@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="378,477">
-  <controller name="selnut" pages="0,,1," selected="1"/>
+  <controller name="selnut" pages="0,,1,,2,unsel" selected="2"/>
   <displayList>
     <component id="n0_8ymy" name="frame" src="8ymy3j" fileName="default/Window/WindowFrame_with_close_btn_and_resizer.xml" xy="2,3" size="372,470">
       <relation target="" sidePair="width-width,height-height"/>
@@ -17,7 +17,7 @@
     </component>
     <component id="n7_xuqg" name="btn_nut1" src="xuqg3v" fileName="default/Button/ButtonWithTitleAndIcon.xml" xy="115,420" size="93,39">
       <relation target="" sidePair="bottom-bottom"/>
-      <Button checked="true" title="无壳坚果" icon="ui://3hcsjtonxuqg3q" controller="selnut" page="1"/>
+      <Button title="无壳坚果" icon="ui://3hcsjtonxuqg3q" controller="selnut" page="1"/>
     </component>
     <component id="n8_f6tz" name="btn_eat" src="f6tz40" fileName="default/Button/ButtonWithTitle.xml" xy="213,420" size="99,39">
       <relation target="" sidePair="bottom-bottom"/>

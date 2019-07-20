@@ -1,22 +1,16 @@
 package script.panels {
 import Basic.UI_KillNut2Ani;
 import Basic.UI_MainPanel;
-import Basic.UI_MainPanelBirdContainer;
 import Basic.UI_Nut1;
 import Basic.UI_Nut2;
 
-import fairygui.Controller;
 import fairygui.GComponent;
-import fairygui.GGraph;
-import fairygui.GObject;
 import fairygui.GObject;
 
 import laya.events.Event;
 import laya.maths.Point;
-import laya.maths.Point;
 
 import script.theitems.BoneAni;
-import fairygui.Window;
 import he.ai.Think;
 import he.ai.Node;
 import he.ai.Port;
@@ -50,6 +44,8 @@ public class MainPanel extends PanelWithResize{
 		v.m_container.on(Event.MOUSE_DOWN,this,onContainerClick);
 
 		v.m_btn_eat.onClick(this,onEat);
+
+        v.m_selnut.selectedIndex = 1;
 
 	}
 
@@ -91,6 +87,7 @@ public class MainPanel extends PanelWithResize{
     private function realRemoveNut(nut:GComponent):void {
         createEff(UI_KillNut2Ani.createInstance(),nut);
         nut.removeFromParent();
+        nut.dispose();
     }
 
     private function createEff(ani:GComponent, nut:GComponent,removeEffTime:int = 255):void {
@@ -128,9 +125,13 @@ public class MainPanel extends PanelWithResize{
         }
         return theNut as GComponent;
 	}
-	
+	private var unSel:String="unsel";
 	private function onContainerClick(e:Event):void
 	{
+        trace(e);
+        if(v.m_selnut.selectedPage==unSel){
+            return;
+        }
 		var nut:GComponent;
 		var isNut1:Boolean = v.m_selnut.selectedIndex==0;
 		if(isNut1){
@@ -142,6 +143,8 @@ public class MainPanel extends PanelWithResize{
 		nut.x = click_pos.x;
 		nut.y = click_pos.y;
 		nut.setScale(0.5,0.5);
+        nut.on(Event.MOUSE_DOWN,this,onNutMouseDown,[nut]);
+        nut.on(Event.MOUSE_DOWN,this,onNutMouseUp,[nut]);
 		v.m_container.addChild(nut);
 		sortScene();
 
@@ -162,7 +165,23 @@ public class MainPanel extends PanelWithResize{
         nut.data = nut_node;
 
 		Think.inst.dataIn(nut_node);
+
+        v.m_selnut.selectedPage = unSel;
 	}
+
+    //位置变化后，重新排序
+    private function onNutMouseUp(nut:GComponent):void {
+        if(v.m_selnut.selectedPage==unSel){
+            sortScene();
+        }
+    }
+
+    //按钮没有被选中的情况下，可以移动坚果。
+    private function onNutMouseDown(nut:GComponent):void {
+        if(v.m_selnut.selectedPage==unSel){
+            nut.startDrag();
+        }
+    }
 	
 	private static var apos:Point = new Point;
 	private function getDistance(a:GObject,b:GObject):Number{
