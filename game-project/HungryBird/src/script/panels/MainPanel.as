@@ -6,8 +6,10 @@ import Basic.UI_Nut2;
 
 import fairygui.GComponent;
 import fairygui.GObject;
+import fairygui.utils.ColorMatrix;
 
 import laya.events.Event;
+import laya.filters.ColorFilter;
 import laya.maths.Point;
 
 import script.theitems.BoneAni;
@@ -30,6 +32,7 @@ public class MainPanel extends PanelWithResize{
 		return _inst;
 	}
 	public var bird_ui:BoneAni;
+    private static var colorFilter:ColorFilter;
 	public function MainPanel()
 	{
 		super.view = v = UI_MainPanel.createInstance();
@@ -49,7 +52,26 @@ public class MainPanel extends PanelWithResize{
 
         v.m_selnut.selectedIndex = 1;
 
+        var cm:ColorMatrix = new ColorMatrix();
+        cm.adjustBrightness(0.2);
+        cm.adjustContrast(0.6);
+        cm.adjustSaturation(-0.4);
+        cm.adjustHue(-0.2);
+        colorFilter = new ColorFilter(cm);
+
 	}
+
+    //闪烁效果，瞬时提高物体的亮度，随后恢复。
+    public static function flash(ob:GObject,time:int=1000):void
+    {
+        ob.filters = [colorFilter];
+        Laya.timer.once(time,{},backToNormalColor,[ob],false);
+    }
+
+    public static function backToNormalColor(ob:GObject):void
+    {
+        ob.filters = [];
+    }
 
 	private function AniEndFun():void {
 		bird_ui.mArmature.play("happy",true);
@@ -66,6 +88,8 @@ public class MainPanel extends PanelWithResize{
             var isNut2:Boolean = nut is UI_Nut2;
 
             faceToNut(nut);
+
+            Laya.timer.once(200,this,flash,[nut,55]); // 闪一下坚果。
 
             if(isNut1){
                 Laya.timer.once(255,{},function(nut:GComponent):void {
