@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="114,110" pivot="0.5,0.87">
+<component size="114,94" pivot="0.5,0.8" anchor="true">
   <displayList>
-    <graph id="n0_oorc" name="birdReplaceHolder" xy="49,87" pivot="0.5,0.8" size="15,16" type="rect" lineSize="0"/>
+    <graph id="n0_oorc" name="birdReplaceHolder" xy="49,112" pivot="0.5,0.62" size="15,16" type="rect" lineSize="0"/>
   </displayList>
 </component>
