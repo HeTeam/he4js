@@ -34,10 +34,10 @@ public class Box extends UI_Box{
     }
     public function onDrag():void {
         var node:Node = (data as Node)
-        var len:int = node._ports.length
+        var len:int = node.portInArrList.length
         for(var i:int = 0; i < len; i++)
         {
-            var port:Port = node._ports[i];
+            var port:Port = node.portInArrList[i];
             LineContainer.inst.drawLine(port.a,port.b);
         }
     }

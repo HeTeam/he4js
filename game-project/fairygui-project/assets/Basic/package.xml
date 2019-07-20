@@ -147,6 +147,7 @@
     <component id="tzto3z" name="LineContainer.xml" path="/panels/" exported="true"/>
     <component id="f6tz40" name="ButtonWithTitle.xml" path="/default/Button/" exported="true"/>
     <component id="lb7q41" name="KillNut2Ani.xml" path="/objects/" exported="true"/>
+    <component id="opci42" name="Bird.xml" path="/objects/"/>
   </resources>
   <publish name="Basic" genCode="true"/>
 </packageDescription>

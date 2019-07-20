@@ -18,7 +18,7 @@ import script.Box;
 	 * 再来说根据上面的假设得到的推论：
 	 * 所有的节点都在表达一种运动，或者对运动的抽象。
 	 * 
-	 * 所以，Node 中的 _ports 数组中存在着的大量的 Port（突触），
+	 * 所以，Node 中的 portInArrList 数组中存在着的大量的 Port（突触），
 	 * 这些 Port 在数组中的位置次序，记录了运动先后，或者相关性，重要程度的排序结果
 	 * 而 Port 中的 value，记录的就是运动的落差、强烈程度等等。
 	 * 
@@ -43,9 +43,9 @@ import script.Box;
 	 */
 	public class Node {
 		public var id: String = "" + Node._gInstanceCounter++;
-		public var _ports: Vector.<Port> = new Vector.<Port>(); //以 数组 的方式记录突触
-		public var ports_dic:Object = {}; 						//以 PortID 的方式记录突触
-		public var _dic:Object = {}; 							//以 NodeID 的方式记录突触
+		public var portInArrList: Vector.<Port> = new Vector.<Port>();  //以 数组 的方式记录突触
+		public var portInDicByPortID:Object = {}; 						//以 PortID 的方式记录突触
+		public var portInDicByNodeID:Object = {}; 						//以 NodeID 的方式记录突触
 		public var pos:Point = new Point();
 		public var baseType:String = "";
 		public var value:Number = 0;
@@ -61,30 +61,30 @@ import script.Box;
 		public function dispose(): void {
 			var i:int;
 			var cnt:int;
-			cnt = this._ports.length;
+			cnt = this.portInArrList.length;
 			for(i = cnt - 1;i >= 0;--i) {
-				var obj:Port = this._ports[i];
+				var obj:Port = this.portInArrList[i];
 				obj.dispose();
 			}
 			//todo: return to pool;
 		}
 		private function addPort(port: Port): Port {
-			return this.addPortAt(port,this._ports.length);
+			return this.addPortAt(port,this.portInArrList.length);
 		}
 		private function addPortAt(port: Port,index: Number = 0): Port {
 			if(!port)
 				throw "port is null";
 			
-			var numChildren: Number = this._ports.length;
+			var numChildren: Number = this.portInArrList.length;
 			
 			if(index >= 0 && index <= numChildren) {
-				var cnt: Number = this._ports.length;
-				this.ports_dic[port.id] = port;
-				this._dic[port.getOtherID(this)] = port;
+				var cnt: Number = this.portInArrList.length;
+				this.portInDicByPortID[port.id] = port;
+				this.portInDicByNodeID[port.getOtherID(this)] = port;
 				if(index == cnt){
-					this._ports.push(port);
+					this.portInArrList.push(port);
 				}else{
-					this._ports.splice(index,0,port);
+					this.portInArrList.splice(index,0,port);
 				}
 				return port;
 			}
@@ -93,7 +93,7 @@ import script.Box;
 			}
 		}	
 		public function addPortByNode(child: Node): Port {
-			return this.addPortByNodeAt(child,this._ports.length);
+			return this.addPortByNodeAt(child,this.portInArrList.length);
 		}
 		public function addPortByNodeAt(child: Node,index: Number = 0): Port {
 			if(!child)
@@ -115,7 +115,7 @@ import script.Box;
 			return child;
 		}
 		public function removePort(port: Port,dispose: Boolean = false): Port {
-			var childIndex: Number = this._ports.indexOf(port);
+			var childIndex: Number = this.portInArrList.indexOf(port);
 			if(childIndex != -1) {
 				this.removePortAt(childIndex,dispose);
 			}
@@ -123,24 +123,24 @@ import script.Box;
 		}
 		private function getPort(portName:String):Port
 		{
-			return this.ports_dic[portName];
+			return this.portInDicByPortID[portName];
 		}
 		private function getPortByOtherNode(node:Node):Port
 		{
-			return this._dic[node.id];
+			return this.portInDicByNodeID[node.id];
 		}
 		public function removePortAt(index: Number,dispose: Boolean = false): Port {
 			if(index >= 0 && index < this.numChildren) {
-				var port: Port = this._ports[index];
+				var port: Port = this.portInArrList[index];
 				port.a = null;
 				
-				this._ports.splice(index,1);
+				this.portInArrList.splice(index,1);
 				
 				if(dispose)
 					port.dispose();
 				
-				delete this.ports_dic[port.id];
-				delete this._dic[port.getOtherID(this)];
+				delete this.portInDicByPortID[port.id];
+				delete this.portInDicByNodeID[port.getOtherID(this)];
 				EventCenter.inst.event(EventNames.Remove,port);
 				
 				return port;
@@ -158,15 +158,15 @@ import script.Box;
 		}
 		public function getPortAt(index: Number = 0): Port {
 			if(index >= 0 && index < this.numChildren)
-				return this._ports[index];
+				return this.portInArrList[index];
 			else
 				throw "Invalid port index";
 		}
 		public function getPortIndex(port: Port): Number {
-			return this._ports.indexOf(port);
+			return this.portInArrList.indexOf(port);
 		}
 		public function setPortIndex(port: Port,index: Number = 0): void {
-			var oldIndex: Number = this._ports.indexOf(port);
+			var oldIndex: Number = this.portInArrList.indexOf(port);
 			if(oldIndex == -1)
 				throw "Not a child of this container";
 			
@@ -174,7 +174,7 @@ import script.Box;
 		}
 		public function setChildIndexBefore(port: Port, index:int):int
 		{
-			var oldIndex:int = _ports.indexOf(port);
+			var oldIndex:int = portInArrList.indexOf(port);
 			if (oldIndex == -1) 
 				throw "Not a child of this container";
 			
@@ -186,36 +186,36 @@ import script.Box;
 
 		private function _setChildIndex(child: Port, oldIndex:int, index:int):int
 		{
-			var cnt: Number = this._ports.length;
+			var cnt: Number = this.portInArrList.length;
 			if(index > cnt)
 				index = cnt;
 			
 			if(oldIndex == index)
 				return oldIndex;
 			
-			this._ports.splice(oldIndex,1);
-			this._ports.splice(index,0,child);
+			this.portInArrList.splice(oldIndex,1);
+			this.portInArrList.splice(index,0,child);
 			EventCenter.inst.event(EventNames.PortIndexChange,{oldIndex:oldIndex,index:index,child:child})
 			
 			return index;
 		}
 		public function swapChildren(child1: Port,child2: Port): void {
-			var index1: Number = this._ports.indexOf(child1);
-			var index2: Number = this._ports.indexOf(child2);
+			var index1: Number = this.portInArrList.indexOf(child1);
+			var index2: Number = this.portInArrList.indexOf(child2);
 			if(index1 == -1 || index2 == -1)
 				throw "Not a port of this container";
 			this.swapChildrenAt(index1,index2);
 		}
 		public function swapChildrenAt(index1: Number,index2: Number = 0): void {
-			var child1: Port = this._ports[index1];
-			var child2: Port = this._ports[index2];
+			var child1: Port = this.portInArrList[index1];
+			var child2: Port = this.portInArrList[index2];
 			
 			this.setPortIndex(child1,index2);
 			this.setPortIndex(child2,index1);
 		}
 		
 		public function get numChildren(): Number {
-			return this._ports.length;
+			return this.portInArrList.length;
 		}
 	}
 }

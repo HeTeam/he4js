@@ -33,6 +33,7 @@ package Basic
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_Box.URL, UI_Box);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_KillNut2Ani.URL, UI_KillNut2Ani);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_MainPanelBirdContainer.URL, UI_MainPanelBirdContainer);
+			fairygui.UIObjectFactory.setPackageItemExtension(UI_Bird.URL, UI_Bird);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_LineContainer.URL, UI_LineContainer);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_Nut1.URL, UI_Nut1);
 			fairygui.UIObjectFactory.setPackageItemExtension(UI_Nut2.URL, UI_Nut2);

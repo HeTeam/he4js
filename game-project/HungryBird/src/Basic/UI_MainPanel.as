@@ -8,6 +8,7 @@ package Basic
 	{
 		public var m_selnut:Controller;
 		public var m_frame:UI_WindowFrame_with_close_btn_and_resizer;
+		public var m_bg:GGraph;
 		public var m_container:UI_MainPanelBirdContainer;
 		public var m_title:GTextField;
 		public var m_btn_nut0:UI_ButtonWithTitleAndIcon;
@@ -31,6 +32,7 @@ package Basic
 
 			m_selnut = this.getController("selnut");
 			m_frame = UI_WindowFrame_with_close_btn_and_resizer(this.getChild("frame"));
+			m_bg = GGraph(this.getChild("bg"));
 			m_container = UI_MainPanelBirdContainer(this.getChild("container"));
 			m_title = GTextField(this.getChild("title"));
 			m_btn_nut0 = UI_ButtonWithTitleAndIcon(this.getChild("btn_nut0"));

@@ -39,7 +39,9 @@ public class MainPanel extends PanelWithResize{
 		v.y = 100;
 
 		bird_ui = new BoneAni("res/bird.sk",true,AniEndFun,0.2,this);
-		v.m_container.m_bird.setNativeObject(bird_ui);
+		v.m_container.m_bird.m_birdReplaceHolder.setNativeObject(bird_ui);
+        v.m_container.m_bird.on(Event.MOUSE_DOWN,this,onBirdMouseDown);
+        v.m_container.m_bird.on(Event.MOUSE_UP,this,onBirdMouseUp);
 
 		v.m_container.on(Event.MOUSE_DOWN,this,onContainerClick);
 
@@ -128,7 +130,6 @@ public class MainPanel extends PanelWithResize{
 	private var unSel:String="unsel";
 	private function onContainerClick(e:Event):void
 	{
-        trace(e);
         if(v.m_selnut.selectedPage==unSel){
             return;
         }
@@ -168,8 +169,21 @@ public class MainPanel extends PanelWithResize{
 
         v.m_selnut.selectedPage = unSel;
 	}
+    //小鸟位置变化后，重新排序
+    private function onBirdMouseUp():void {
+        if(v.m_selnut.selectedPage==unSel){
+            sortScene();
+        }
+    }
 
-    //位置变化后，重新排序
+    //可以用鼠标移动小鸟。
+    private function onBirdMouseDown():void {
+        if(v.m_selnut.selectedPage==unSel){
+            v.m_container.m_bird.startDrag();
+        }
+    }
+
+    //坚果位置变化后，重新排序
     private function onNutMouseUp(nut:GComponent):void {
         if(v.m_selnut.selectedPage==unSel){
             sortScene();

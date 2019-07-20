@@ -6,7 +6,7 @@ package Basic
 
 	public class UI_MainPanelBirdContainer extends fairygui.GComponent
 	{
-		public var m_bird:GGraph;
+		public var m_bird:UI_Bird;
 
 		public static const URL:String = "ui://3hcsjtonoorc3o";
 
@@ -23,7 +23,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
-			m_bird = GGraph(this.getChild("bird"));
+			m_bird = UI_Bird(this.getChild("bird"));
 		}
 	}
 }
