@@ -32,7 +32,7 @@ public class MainPanel extends PanelWithResize{
 		return _inst;
 	}
 	public var bird_ui:BoneAni;
-    private static var colorFilter:ColorFilter;
+	private static var colorFilter:ColorFilter;
 	public function MainPanel()
 	{
 		super.view = v = UI_MainPanel.createInstance();
@@ -43,35 +43,43 @@ public class MainPanel extends PanelWithResize{
 
 		bird_ui = new BoneAni("res/bird.sk",true,AniEndFun,0.2,this);
 		v.m_container.m_bird.m_birdReplaceHolder.setNativeObject(bird_ui);
-        v.m_container.m_bird.on(Event.MOUSE_DOWN,this,onBirdMouseDown);
-        v.m_container.m_bird.on(Event.MOUSE_UP,this,onBirdMouseUp);
+		v.m_container.m_bird.on(Event.MOUSE_DOWN,this,onBirdMouseDown);
+		v.m_container.m_bird.on(Event.MOUSE_UP,this,onBirdMouseUp);
 
 		v.m_container.on(Event.MOUSE_DOWN,this,onContainerClick);
+		v.m_container.on(Event.MOUSE_UP,this,onContainerUp);
 
 		v.m_btn_eat.onClick(this,onEat);
 
-        v.m_selnut.selectedIndex = 1;
+		v.m_selnut.selectedIndex = 1;
 
-        var cm:ColorMatrix = new ColorMatrix();
-        cm.adjustBrightness(0.2);
-        cm.adjustContrast(0.6);
-        cm.adjustSaturation(-0.4);
-        cm.adjustHue(-0.2);
-        colorFilter = new ColorFilter(cm);
+		var cm:ColorMatrix = new ColorMatrix();
+		cm.adjustBrightness(0.2);
+		cm.adjustContrast(0.6);
+		cm.adjustSaturation(-0.4);
+		cm.adjustHue(-0.2);
+		colorFilter = new ColorFilter(cm);
 
 	}
 
-    //闪烁效果，瞬时提高物体的亮度，随后恢复。
-    public static function flash(ob:GObject,time:int=1000):void
-    {
-        ob.filters = [colorFilter];
-        Laya.timer.once(time,{},backToNormalColor,[ob],false);
-    }
+	private function onContainerUp(e:Event):void {
+		if(lastMouseDownNut){
+			sortScene();
+			lastMouseDownNut = null;
+		}
+	}
 
-    public static function backToNormalColor(ob:GObject):void
-    {
-        ob.filters = [];
-    }
+	//闪烁效果，瞬时提高物体的亮度，随后恢复。
+	public static function flash(ob:GObject,time:int=1000):void
+	{
+		ob.filters = [colorFilter];
+		Laya.timer.once(time,{},backToNormalColor,[ob],false);
+	}
+
+	public static function backToNormalColor(ob:GObject):void
+	{
+		ob.filters = [];
+	}
 
 	private function AniEndFun():void {
 		bird_ui.mArmature.play("happy",true);
@@ -83,80 +91,86 @@ public class MainPanel extends PanelWithResize{
 
 		var nut:GComponent = findNearNut();
 		bird_ui.mArmature.play("eat",false);
-        if(nut){
-            var isNut1:Boolean = nut is UI_Nut1;
-            var isNut2:Boolean = nut is UI_Nut2;
+		if(nut){
+			var isNut1:Boolean = nut is UI_Nut1;
+			var isNut2:Boolean = nut is UI_Nut2;
 
-            faceToNut(nut);
+			faceToNut(nut);
 
-            Laya.timer.once(200,this,flash,[nut,55]); // 闪一下坚果。
+			Laya.timer.once(200,this,flash,[nut,55]); // 闪一下坚果。
 
-            if(isNut1){
-                Laya.timer.once(255,{},function(nut:GComponent):void {
-                    (nut as UI_Nut1).m_t0.play(); //播放震动动画，仅仅是震动，因为小鸟难以将坚果破壳。
-                },[nut],false);
-            }
-            if(isNut2){
-                // 如果可以吃，则坚果消失。 // todo: 小于一定距离才能吃。
-                removeNut(nut);
-                //todo: 此时应给小鸟一个兴奋的信号，以奖励其行为，调动其情绪，带动小鸟记录和思考。
-                //todo: 是否要去除脑海里的 Node ？ 可能不需要，小鸟对比世界后自己删除？也可能不需要，
-                //todo：Nut 可以活在记忆中，除非年代久远或该 Nut 并无特殊，则可去除（通过睡眠？需要实现睡眠清理机）。
-            }
-        }
+			if(isNut1){
+				Laya.timer.once(255,{},function(nut:GComponent):void {
+					(nut as UI_Nut1).m_t0.play(); //播放震动动画，仅仅是震动，因为小鸟难以将坚果破壳。
+				},[nut],false);
+			}
+			if(isNut2){
+				// 如果可以吃，则坚果消失。
+				removeNut(nut);
+
+				//此时应给小鸟一个兴奋的信号，以奖励其行为，调动其情绪，带动小鸟记录和思考。
+				var happy:Node = new Node();
+				happy.baseType = NodeType.Happy;
+				happy.value = 1;
+				Think.inst.dataIn(happy);
+
+				//todo: 小于一定距离才能吃。
+				//todo: 是否要去除脑海里的 Node ？ 可能不需要，小鸟对比世界后自己删除？也可能不需要，
+				//todo：Nut 可以活在记忆中，除非年代久远或该 Nut 并无特殊，则可去除（通过睡眠？需要实现睡眠清理机）。
+			}
+		}
 	}
 
-    private function removeNut(nut:GComponent):void {
-        Laya.timer.once(333,this,realRemoveNut,[nut]);
-    }
+	private function removeNut(nut:GComponent):void {
+		Laya.timer.once(333,this,realRemoveNut,[nut]);
+	}
 
-    private function realRemoveNut(nut:GComponent):void {
-        createEff(UI_KillNut2Ani.createInstance(),nut);
-        nut.removeFromParent();
-        nut.dispose();
-    }
+	private function realRemoveNut(nut:GComponent):void {
+		createEff(UI_KillNut2Ani.createInstance(),nut);
+		nut.removeFromParent();
+		nut.dispose();
+	}
 
-    private function createEff(ani:GComponent, nut:GComponent,removeEffTime:int = 255):void {
-        nut.parent.addChild(ani);
-        ani.x = nut.x;
-        ani.y = nut.y;
-        Laya.timer.once(removeEffTime,{},function(ani:GComponent):void {
-            ani.removeFromParent();
-        },[ani],false);
-    }
+	private function createEff(ani:GComponent, nut:GComponent,removeEffTime:int = 255):void {
+		nut.parent.addChild(ani);
+		ani.x = nut.x;
+		ani.y = nut.y;
+		Laya.timer.once(removeEffTime,{},function(ani:GComponent):void {
+			ani.removeFromParent();
+		},[ani],false);
+	}
 
-    private function faceToNut(nut:GComponent):void {
-        var rightHand:Boolean = v.m_container.m_bird.x > nut.x;
-        v.m_container.m_bird.scaleX = rightHand? 1:-1;
-    }
+	private function faceToNut(nut:GComponent):void {
+		var rightHand:Boolean = v.m_container.m_bird.x > nut.x;
+		v.m_container.m_bird.scaleX = rightHand? 1:-1;
+	}
 
 	private function findNearNut():GComponent {
-        var num:int = v.m_container.numChildren;
-        var dist:Number = 9999999;
-        var theNut:GObject;
-        for(var i:int = 0; i<num ; i++){
-            var ob:GObject = v.m_container.getChildAt(i);
-            var isNut1:Boolean = ob is UI_Nut1;
-            var isNut2:Boolean = ob is UI_Nut2;
-            if(isNut1 || isNut2){
-                var p0:Point = new Point(v.m_container.m_bird.x,v.m_container.m_bird.y);
-                var p1:Point = new Point(ob.x,ob.y);
-                var tmpDist:Number = p1.distance(p0.x,p0.y);
-                if(tmpDist < dist){
-                    dist = tmpDist;
-                    //trace(p0,p1,tmpDist);
-                    theNut = ob;
-                }
-            }
-        }
-        return theNut as GComponent;
+		var num:int = v.m_container.numChildren;
+		var dist:Number = 9999999;
+		var theNut:GObject;
+		for(var i:int = 0; i<num ; i++){
+			var ob:GObject = v.m_container.getChildAt(i);
+			var isNut1:Boolean = ob is UI_Nut1;
+			var isNut2:Boolean = ob is UI_Nut2;
+			if(isNut1 || isNut2){
+				var p0:Point = new Point(v.m_container.m_bird.x,v.m_container.m_bird.y);
+				var p1:Point = new Point(ob.x,ob.y);
+				var tmpDist:Number = p1.distance(p0.x,p0.y);
+				if(tmpDist < dist){
+					dist = tmpDist;
+					theNut = ob;
+				}
+			}
+		}
+		return theNut as GComponent;
 	}
 	private var unSel:String="unsel";
 	private function onContainerClick(e:Event):void
 	{
-        if(v.m_selnut.selectedPage==unSel){
-            return;
-        }
+		if(v.m_selnut.selectedPage==unSel){
+			return;
+		}
 		var nut:GComponent;
 		var isNut1:Boolean = v.m_selnut.selectedIndex==0;
 		if(isNut1){
@@ -168,8 +182,7 @@ public class MainPanel extends PanelWithResize{
 		nut.x = click_pos.x;
 		nut.y = click_pos.y;
 		nut.setScale(0.5,0.5);
-        nut.on(Event.MOUSE_DOWN,this,onNutMouseDown,[nut]);
-        nut.on(Event.MOUSE_DOWN,this,onNutMouseUp,[nut]);
+		nut.on(Event.MOUSE_DOWN,this,onNutMouseDown,[nut]);
 		v.m_container.addChild(nut);
 		sortScene();
 
@@ -187,39 +200,34 @@ public class MainPanel extends PanelWithResize{
 		var port2:Port = nut_node.addPortByNode(attr_node2);
 		EventCenter.inst.event(EventNames.Link,[port2]);
 
-        nut.data = nut_node;
+		nut.data = nut_node;
 
 		Think.inst.dataIn(nut_node);
 
-        v.m_selnut.selectedPage = unSel;
+		v.m_selnut.selectedPage = unSel;
 	}
-    //小鸟位置变化后，重新排序
-    private function onBirdMouseUp():void {
-        if(v.m_selnut.selectedPage==unSel){
-            sortScene();
-        }
-    }
+	//小鸟位置变化后，重新排序
+	private function onBirdMouseUp():void {
+		if(v.m_selnut.selectedPage==unSel){
+			sortScene();
+		}
+	}
 
-    //可以用鼠标移动小鸟。
-    private function onBirdMouseDown():void {
-        if(v.m_selnut.selectedPage==unSel){
-            v.m_container.m_bird.startDrag();
-        }
-    }
+	//可以用鼠标移动小鸟。
+	private function onBirdMouseDown():void {
+		if(v.m_selnut.selectedPage==unSel){
+			v.m_container.m_bird.startDrag();
+		}
+	}
 
-    //坚果位置变化后，重新排序
-    private function onNutMouseUp(nut:GComponent):void {
-        if(v.m_selnut.selectedPage==unSel){
-            sortScene();
-        }
-    }
-
-    //按钮没有被选中的情况下，可以移动坚果。
-    private function onNutMouseDown(nut:GComponent):void {
-        if(v.m_selnut.selectedPage==unSel){
-            nut.startDrag();
-        }
-    }
+	private var lastMouseDownNut:GComponent;
+	//按钮没有被选中的情况下，可以移动坚果。
+	private function onNutMouseDown(nut:GComponent):void {
+		if(v.m_selnut.selectedPage==unSel){
+			lastMouseDownNut = nut;
+			nut.startDrag();
+		}
+	}
 	
 	private static var apos:Point = new Point;
 	private function getDistance(a:GObject,b:GObject):Number{

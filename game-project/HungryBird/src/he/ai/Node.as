@@ -52,7 +52,7 @@ import script.Box;
 		public var valueStr:String = "";
 		
 		public static var _gInstanceCounter: Number = 0;
-        public var ui:Box;
+		public var ui:Box;
 		
 		public function Node() {
 			Net.inst.add(this);
