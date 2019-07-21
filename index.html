@@ -7766,8 +7766,9 @@ var AutoSizeType=(function(){
 var NodeType=(function(){
 	function NodeType(){}
 	__class(NodeType,'he.ai.NodeType');
-	NodeType.Distance="distance";
-	NodeType.CanEat="can_eat";
+	NodeType.Distance="距离";
+	NodeType.CanEat="能吃";
+	NodeType.Happy="高兴";
 	return NodeType;
 })()
 
@@ -103174,6 +103175,7 @@ var MainPanel=(function(_super){
 		this.v=null;
 		this.bird_ui=null;
 		this.unSel="unsel";
+		this.lastMouseDownNut=null;
 		MainPanel.__super.call(this);
 		this.view=this.v=UI_MainPanel.createInstance();
 		this.contentPane=this.v;
@@ -103185,6 +103187,7 @@ var MainPanel=(function(_super){
 		this.v.m_container.m_bird.on("mousedown",this,this.onBirdMouseDown);
 		this.v.m_container.m_bird.on("mouseup",this,this.onBirdMouseUp);
 		this.v.m_container.on("mousedown",this,this.onContainerClick);
+		this.v.m_container.on("mouseup",this,this.onContainerUp);
 		this.v.m_btn_eat.onClick(this,this.onEat);
 		this.v.m_selnut.selectedIndex=1;
 		var cm=new ColorMatrix();
@@ -103197,6 +103200,13 @@ var MainPanel=(function(_super){
 
 	__class(MainPanel,'script.panels.MainPanel',_super);
 	var __proto=MainPanel.prototype;
+	__proto.onContainerUp=function(e){
+		if(this.lastMouseDownNut){
+			this.sortScene();
+			this.lastMouseDownNut=null;
+		}
+	}
+
 	__proto.AniEndFun=function(){
 		this.bird_ui.mArmature.play("happy",true);
 	}
@@ -103216,6 +103226,10 @@ var MainPanel=(function(_super){
 			}
 			if(isNut2){
 				this.removeNut(nut);
+				var happy=new Node$1();
+				happy.baseType=NodeType.Happy;
+				happy.value=1;
+				Think.inst.dataIn(happy);
 			}
 		}
 	}
@@ -103283,7 +103297,6 @@ var MainPanel=(function(_super){
 		nut.y=click_pos.y;
 		nut.setScale(0.5,0.5);
 		nut.on("mousedown",this,this.onNutMouseDown,[nut]);
-		nut.on("mousedown",this,this.onNutMouseUp,[nut]);
 		this.v.m_container.addChild(nut);
 		this.sortScene();
 		var nut_node=new Node$1();
@@ -103316,16 +103329,10 @@ var MainPanel=(function(_super){
 		}
 	}
 
-	//坚果位置变化后，重新排序
-	__proto.onNutMouseUp=function(nut){
-		if(this.v.m_selnut.selectedPage==this.unSel){
-			this.sortScene();
-		}
-	}
-
 	//按钮没有被选中的情况下，可以移动坚果。
 	__proto.onNutMouseDown=function(nut){
 		if(this.v.m_selnut.selectedPage==this.unSel){
+			this.lastMouseDownNut=nut;
 			nut.startDrag();
 		}
 	}
