@@ -1,4 +1,6 @@
 package he.ai {
+import fairygui.GComponent;
+
 import he.ai.EventNames;
 
 import laya.maths.Point;
@@ -52,7 +54,9 @@ import script.Box;
 		public var valueStr:String = "";
 		
 		public static var _gInstanceCounter: Number = 0;
-		public var ui:Box;
+	
+		public var box:Box;                 //对应的节点 UI
+		public var realObject:GComponent;   //对应的真实物体，如：坚果
 		
 		public function Node() {
 			Net.inst.add(this);

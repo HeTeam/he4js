@@ -73,9 +73,9 @@ public class LineContainer extends UI_NodeContainer
             var s:Sprite = line.s;
             var graphics:Graphics = s.graphics;
             graphics.clear();
-            g.x = line.from.ui.x+10;
-            g.y = line.from.ui.y+10;
-            graphics.drawLine(0,0,line.to.ui.x-line.from.ui.x,line.to.ui.y-line.from.ui.y,"#555522",1);
+            g.x = line.from.box.x+10;
+            g.y = line.from.box.y+10;
+            graphics.drawLine(0,0,line.to.box.x-line.from.box.x,line.to.box.y-line.from.box.y,"#555522",1);
         }
         private function remove(line:Object):void
         {

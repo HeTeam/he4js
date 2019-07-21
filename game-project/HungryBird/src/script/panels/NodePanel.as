@@ -104,7 +104,7 @@ public class NodePanel {
         var box:Box
         box = UI_Box.createInstance() as Box;
 		box.data = node;
-		node.ui = box;
+		node.box = box;
 		var pos:Point = qtree.findSpace();
         box.x = pos.x;
         box.y = pos.y;
@@ -116,18 +116,18 @@ public class NodePanel {
 		if(has){
 			return;
 		}
-        var targetY:int = port.a.ui.y + 40;
-		var targetX:int = port.a.ui.x + 25+(-50)*Math.random();
-		Tween.to(port.b.ui,{y:targetY, x:targetX},100+300*Math.random(),laya.utils.Ease.circOut,Handler.create(this,addLine,[port.a,port.b]));
+        var targetY:int = port.a.box.y + 40;
+		var targetX:int = port.a.box.x + 25+(-50)*Math.random();
+		Tween.to(port.b.box,{y:targetY, x:targetX},100+300*Math.random(),laya.utils.Ease.circOut,Handler.create(this,addLine,[port.a,port.b]));
     }
 
     private function addLine(n1:Node,n2:Node):void {
-        n1.ui.x = Math.round(n1.ui.x);
-        n1.ui.y = Math.round(n1.ui.y);
-        n2.ui.x = Math.round(n2.ui.x);
-        n2.ui.y = Math.round(n2.ui.y);
-		n1.ui.updateInQuadTree();
-		n2.ui.updateInQuadTree();
+        n1.box.x = Math.round(n1.box.x);
+        n1.box.y = Math.round(n1.box.y);
+        n2.box.x = Math.round(n2.box.x);
+        n2.box.y = Math.round(n2.box.y);
+		n1.box.updateInQuadTree();
+		n2.box.updateInQuadTree();
         LineContainer.inst.drawLine(n1,n2);
     }
 	private function onIndexChange(node:Node):void {

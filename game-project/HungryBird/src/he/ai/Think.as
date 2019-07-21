@@ -62,5 +62,30 @@ package he.ai
 		{
 			Net.inst.add(node);
 		}
+		
+		//专注列表，此列表中的节点，会被大脑集中计算，其它节点有可能会被忽略。
+		public var focusList:Vector.<Node> = new Vector.<Node>();
+		
+		/**
+		 * 将 node 加入专注列表
+		 * @param node
+		 */
+		public function on( node: Node ):void {
+			var index:int = focusList.indexOf(node);
+			if( index < 0 ){
+				focusList.push(node);
+			}
+		}
+		
+		/**
+		 * 将 node 从专注列表中移除
+		 * @param node
+		 */
+		public function off( node: Node ):void {
+			var index:int = focusList.indexOf(node);
+			if( index >= 0 ){
+				focusList.splice(index,1);
+			}
+		}
 	}
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="25,24" bgColor="#666666">
+  <controller name="state" pages="0,off,1,on" selected="1"/>
   <displayList>
-    <graph id="n0_ifv9" name="bg" xy="0,0" size="25,24" type="rect" fillColor="#ff363636">
+    <graph id="n0_ifv9" name="bg" xy="0,0" size="25,24" type="rect" fillColor="#ff006600">
+      <gearColor controller="state" pages="1" values="#006600" default="#363636" tween="true"/>
       <relation target="" sidePair="width-width,height-height"/>
     </graph>
     <graph id="n2_a4tz" name="blink" xy="1,1" size="5,5" alpha="0" type="rect" lineSize="0"/>

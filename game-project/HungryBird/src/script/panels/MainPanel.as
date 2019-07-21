@@ -201,6 +201,7 @@ public class MainPanel extends PanelWithResize{
 		EventCenter.inst.event(EventNames.Link,[port2]);
 
 		nut.data = nut_node;
+		nut_node.realObject = nut;
 
 		Think.inst.dataIn(nut_node);
 

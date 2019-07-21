@@ -6,6 +6,7 @@ package Basic
 
 	public class UI_Box extends fairygui.GComponent
 	{
+		public var m_state:Controller;
 		public var m_bg:GGraph;
 		public var m_blink:GGraph;
 		public var m_blinkMV:Transition;
@@ -25,6 +26,7 @@ package Basic
 		{
 			super.constructFromXML(xml);
 
+			m_state = this.getController("state");
 			m_bg = GGraph(this.getChild("bg"));
 			m_blink = GGraph(this.getChild("blink"));
 			m_blinkMV = this.getTransition("blinkMV");
