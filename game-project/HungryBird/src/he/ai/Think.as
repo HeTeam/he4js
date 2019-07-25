@@ -58,13 +58,22 @@ package he.ai
 			}
 			return _instance;
 		}
+		
 		public function dataIn(node:Node):void
 		{
-			Net.inst.add(node);
+			if(!inFocus){
+				if(!node.patternKey){
+					node.updatePatternKey();
+				}
+				Net.inst.add(node);
+			}
 		}
 		
 		//专注列表，此列表中的节点，会被大脑集中计算，其它节点有可能会被忽略。
 		public var focusList:Vector.<Node> = new Vector.<Node>();
+		
+		//是否在专注模式中，如果是，则忽略其它输入。
+		public var inFocus:Boolean = false;
 		
 		/**
 		 * 将 node 加入专注列表

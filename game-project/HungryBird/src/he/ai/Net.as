@@ -18,14 +18,55 @@ package he.ai
 			}
 			return _instance;
 		}
-
+		public var patternDicForSearch:Object = {};
 		public function add(n:Node):void
 		{
 			this[n.id] = n;
 		}
-		public function get(id:String):Node
+		
+		// 查询是否有相似 模式 的节点，可进行抽象。
+		private function searchPattern(n:Node):Object {
+			var keys:Array = n.patternKey;
+			var len:int = keys.length;
+			var dicNow = patternDicForSearch;
+			var pattenNode:Node;
+			for (var i:int = 0; i<len ; i++){
+				var patternKey:int = keys[i];
+				var next = dicNow[ patternKey ];
+				if(next){
+					return next;
+				}
+				next[n.id] = n;
+				dicNow = next.nextPatterns;
+			}
+		}
+		private function saveByPattern(n:Node):void {
+			var keys:Array = n.patternKey;
+			var len:int = keys.length;
+			var dicNow = patternDicForSearch;
+			for (var i:int = 0; i<len ; i++){
+				var patternKey:int = keys[i];
+				var next = dicNow[ patternKey ];
+				if(!next){
+					dicNow[ patternKey ] = next = {nextPatterns:{}};
+				}
+				next[n.id] = n;
+				dicNow = next.nextPatterns;
+			}
+		}
+		
+		public function remove(n:Node):void
 		{
-			return this[id];
+			delete this[n.id];
+			delete this[n.patternKey];
+		}
+		public function getByID(id:String):Node
+		{
+			return this["id_"+id];
+		}
+		public function getByKey(key:String):Node
+		{
+			return this[key];
 		}
 	}
 }

@@ -59,14 +59,20 @@ public class MainPanel extends PanelWithResize{
 		cm.adjustSaturation(-0.4);
 		cm.adjustHue(-0.2);
 		colorFilter = new ColorFilter(cm);
-
 	}
 
 	private function onContainerUp(e:Event):void {
 		if(lastMouseDownNut){
 			sortScene();
+			updateDist(lastMouseDownNut);//上帝操作，移动坚果后更新坚果的距离，实际项目并不需要（或大脑主动观察），更新操作只在此 demo 中执行。
 			lastMouseDownNut = null;
 		}
+	}
+	
+	private function updateDist(nut:GComponent):void {
+		var theNode:Node = (nut.data as Node);
+		var distNode:Node = theNode.getSubNodeByPatternKey(NodeType.Distance);
+		distNode.value = getDistance(v.m_container.m_bird,nut);
 	}
 
 	//闪烁效果，瞬时提高物体的亮度，随后恢复。
@@ -110,7 +116,7 @@ public class MainPanel extends PanelWithResize{
 
 				//此时应给小鸟一个兴奋的信号，以奖励其行为，调动其情绪，带动小鸟记录和思考。
 				var happy:Node = new Node();
-				happy.baseType = NodeType.Happy;
+				happy.patternKey = [NodeType.Happy];
 				happy.value = 1;
 				Think.inst.dataIn(happy);
 
@@ -189,13 +195,13 @@ public class MainPanel extends PanelWithResize{
 		var nut_node:Node = new Node();
 
 		var attr_node1:Node = new Node();
-		attr_node1.baseType = NodeType.Distance;
+		attr_node1.patternKey = [NodeType.Distance];
 		attr_node1.value = getDistance(v.m_container.m_bird,nut);
 		var port1:Port = nut_node.addPortByNode(attr_node1);
 		EventCenter.inst.event(EventNames.Link,[port1]);
 
 		var attr_node2:Node = new Node();
-		attr_node2.baseType = NodeType.CanEat;
+		attr_node2.patternKey = [NodeType.CanEat];
 		attr_node2.value = isNut1 ? 0:1;
 		var port2:Port = nut_node.addPortByNode(attr_node2);
 		EventCenter.inst.event(EventNames.Link,[port2]);

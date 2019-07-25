@@ -2,14 +2,16 @@ package he.ai {
 import fairygui.GComponent;
 
 import he.ai.EventNames;
-
-import laya.maths.Point;
+	import he.ai.Node;
+	import he.ai.Node;
+	
+	import laya.maths.Point;
 	import laya.events.Event;
 	import fairygui.Events;
 
 import script.Box;
 
-/**
+	/**
 	 * Node 神经节点，简称节点，用于记忆单个抽象事物，Node 中包含了多个 Port（突触） 。
 	 * 
 	 * 先写一个基本假设：
@@ -44,24 +46,55 @@ import script.Box;
 	 * 所以苹果其实是一个表示运动的动态节点，举一反三，其它物体也都是动态节点。
 	 */
 	public class Node {
-		public var id: String = "" + Node._gInstanceCounter++;
+		public var id: int = Node._gInstanceCounter++;
+		private var pattern_key:Array = null; //NodeType，或子对象的 NodeType 的合集，用于模式匹配和查询;
+		
+		public function get patternKey():Array {
+			return pattern_key;
+		}
+		
+		public function set patternKey(value:Array):void {
+			pattern_key = value;
+		}
+		
+		public var value:Number = 0;
+	
 		public var portInArrList: Vector.<Port> = new Vector.<Port>();  //以 数组 的方式记录突触
 		public var portInDicByPortID:Object = {}; 						//以 PortID 的方式记录突触
 		public var portInDicByNodeID:Object = {}; 						//以 NodeID 的方式记录突触
-		public var pos:Point = new Point();
-		public var baseType:String = "";
-		public var value:Number = 0;
-		public var valueStr:String = "";
 		
-		public static var _gInstanceCounter: Number = 0;
-	
+		//------------ ui 相关------------------------------------------------
 		public var box:Box;                 //对应的节点 UI
 		public var realObject:GComponent;   //对应的真实物体，如：坚果
+		public var pos:Point = new Point();
+		//------------ ui 相关------------------------------------------------
+	
+		public static var _gInstanceCounter: Number = 1;
+	
 		
 		public function Node() {
-			Net.inst.add(this);
 			EventCenter.inst.event(EventNames.AddNode,this);
 		}
+	
+		/**
+		 * 更新 Key
+		 */
+		public function updatePatternKey(){
+			var len:int = portInArrList.length;
+			var arr = [];
+			for (var i:int = 0; i<len; i++){
+				var port:Port = portInArrList[i] as Port;
+				var sub:Node = port.getOther(this);
+				if(!sub.pattern_key){
+					sub.updatePatternKey(); // 递归更新子对象
+				}
+				arr.push(sub.pattern_key);
+			}
+			arr = Util.sortKeyArr(arr);
+			pattern_key = arr;
+			trace(pattern_key);
+		}
+	
 		public function dispose(): void {
 			var i:int;
 			var cnt:int;
@@ -125,7 +158,7 @@ import script.Box;
 			}
 			return port;
 		}
-		private function getPort(portName:String):Port
+		private function getPort(portName:int):Port
 		{
 			return this.portInDicByPortID[portName];
 		}
@@ -176,6 +209,17 @@ import script.Box;
 			
 			this._setChildIndex(port,oldIndex,index);
 		}
+		public function getSubNodeByPatternKey(key:String):Node{
+			var len:int = portInArrList.length;
+			for (var i:int = 0; i < len; i++) {
+				var port:Port = portInArrList[i];
+				var other:Node = port.getOther(this);
+				if(other.patternKey[0]==key){
+					return other;
+				}
+			}
+			return null;
+		}
 		public function setChildIndexBefore(port: Port, index:int):int
 		{
 			var oldIndex:int = portInArrList.indexOf(port);
@@ -221,5 +265,6 @@ import script.Box;
 		public function get numChildren(): Number {
 			return this.portInArrList.length;
 		}
+
 	}
 }

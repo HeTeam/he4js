@@ -32,12 +32,12 @@ public class LineContainer extends UI_NodeContainer
 		}
 		public static var dic:Object = new Object();
         public function has(n1,n2):*{
-            var sortedID:String = Util.getSortIDs(n1,n2);
+            var sortedID:String = Util.getSortIDstr(n1,n2);
 			var line:Object = dic[sortedID];
             return line;
         }
         public function drawLine(node:Node, childNode:Node, del:Boolean = false):void {
-			var sortedID:String = Util.getSortIDs(node,childNode);
+			var sortedID:String = Util.getSortIDstr(node,childNode);
 			var line:Object = dic[sortedID];
 			if(del){
                 if(line){

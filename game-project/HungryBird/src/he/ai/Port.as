@@ -18,27 +18,30 @@ package he.ai
 		{
 			a = _a;
 			b = _b;
-			this.id = Util.getSortIDs(a,b);
+			this.id = Util.getSortIDstr(a,b);
 			dic[this.id] = this;
 		}
 		public static var dic:Object = {};
 		public static function has(n1:Node,n2:Node):*{
-			var str:String = Util.getSortIDs(n1,n2);
+			var str:String = Util.getSortIDstr(n1,n2);
 			return dic[str]? true:false;
 		}
 		public static function get(n1:Node,n2:Node):*{
-			var str:String = Util.getSortIDs(n1,n2);
+			var str:String = Util.getSortIDstr(n1,n2);
 			return dic[str];
 		}
 		public function get a_typeStr():String
 		{
 			return PortType.getStr(a_type);
 		}
-		public function getOtherID(a_or_b:Node):String
+		public function getOtherID(a_or_b:Node):int
 		{
 			return a == a_or_b ? b.id : a.id;
 		}
-
+		public function getOther(a_or_b:Node):Node
+		{
+			return a_or_b.id == a.id ? b : a;
+		}
 		public function dispose():void
 		{
 			b = null;
