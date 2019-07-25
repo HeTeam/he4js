@@ -28,17 +28,18 @@ package he.ai
 		private function searchPattern(n:Node):Object {
 			var keys:Array = n.patternKey;
 			var len:int = keys.length;
-			var dicNow = patternDicForSearch;
+			var dicNow:* = patternDicForSearch;
 			var pattenNode:Node;
 			for (var i:int = 0; i<len ; i++){
 				var patternKey:int = keys[i];
-				var next = dicNow[ patternKey ];
+				var next:* = dicNow[ patternKey ];
 				if(next){
 					return next;
 				}
 				next[n.id] = n;
 				dicNow = next.nextPatterns;
 			}
+			return null;
 		}
 		private function saveByPattern(n:Node):void {
 			var keys:Array = n.patternKey;
