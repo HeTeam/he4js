@@ -73,6 +73,7 @@ public class MainPanel extends PanelWithResize{
 		var theNode:Node = (nut.data as Node);
 		var distNode:Node = theNode.getSubNodeByPatternKey(NodeType.Distance);
 		distNode.value = getDistance(v.m_container.m_bird,nut);
+        trace("更新距离完毕:",distNode.value);
 	}
 
 	//闪烁效果，瞬时提高物体的亮度，随后恢复。
