@@ -79,7 +79,7 @@ import he.ai.Node;
 			var len:uint = theList.length;
 			for (var i:int = 0; i < len; i++) {
 				var node:Node = theList[i] as Node;
-				if(node.patternKey[0] == NodeType.Happy){
+				if(node.patternKey[0] == pattern){
 					return node;
 				}
 			}
