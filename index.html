@@ -7982,80 +7982,6 @@ var BMGlyph=(function(){
 })()
 
 
-/**
-*Net 网络存储器，负责记忆所有的神经节点（Node），Net 包含 Node，而 Node 包含 Port（突触）。
-*
-*/
-//class he.ai.Net
-var Net=(function(){
-	function Net(){
-		this.patternDicForSearch={};
-	}
-
-	__class(Net,'he.ai.Net');
-	var __proto=Net.prototype;
-	__proto.add=function(n){
-		this[n.id]=n;
-	}
-
-	// 查询是否有相似 模式 的节点，可进行抽象。
-	__proto.searchPattern=function(n){
-		var keys=n.patternKey;
-		var len=keys.length;
-		var dicNow=this.patternDicForSearch;
-		var pattenNode;
-		for (var i=0;i<len;i++){
-			var patternKey=keys[i];
-			var next=dicNow[ patternKey];
-			if(next){
-				return next;
-			}
-			next[n.id]=n;
-			dicNow=next.nextPatterns;
-		}
-		return null;
-	}
-
-	__proto.saveByPattern=function(n){
-		var keys=n.patternKey;
-		var len=keys.length;
-		var dicNow=this.patternDicForSearch;
-		for (var i=0;i<len;i++){
-			var patternKey=keys[i];
-			var next=dicNow[ patternKey];
-			if(!next){
-				dicNow[ patternKey]=next={nextPatterns:{}};
-			}
-			next[n.id]=n;
-			dicNow=next.nextPatterns;
-		}
-	}
-
-	__proto.remove=function(n){
-		delete this[n.id];
-		delete this[n.patternKey];
-	}
-
-	__proto.getByID=function(id){
-		return this["id_"+id];
-	}
-
-	__proto.getByKey=function(key){
-		return this[key];
-	}
-
-	__getset(1,Net,'inst',function(){
-		if(Net._instance==null){
-			Net._instance=new Net;
-		}
-		return Net._instance;
-	});
-
-	Net._instance=null;
-	return Net;
-})()
-
-
 //class fairygui.TranslationHelper
 var TranslationHelper=(function(){
 	function TranslationHelper(){}
@@ -10194,19 +10120,51 @@ var Main=(function(){
 //class he.ai.Think
 var Think=(function(){
 	function Think(){
+		this.thinkLoopTimeInterval=100;
+		//每隔多久思考一次，思考时间间隔，单位（毫秒）。
+		this.shortListMaxLen=100;
 		//是否在专注模式中，如果是，则忽略其它输入。
 		this.inFocus=false;
+		this.shortList=[];
 		this.focusList=[];
+		Laya.timer.loop(this.thinkLoopTimeInterval,this,this.loop)
 	}
 
 	__class(Think,'he.ai.Think');
 	var __proto=Think.prototype;
+	/**
+	*思考循环
+	*/
+	__proto.loop=function(){
+		var happyNode=this.searchByPattern(NodeType.Happy);
+		if(happyNode){}
+			}
+	// todo:尝试主动复现产生 “快乐” 节点的各种子节点（具象输出）。
+	__proto.searchByPattern=function(pattern){
+		var shortLen=this.shortList.length;
+		for (var i=0;i < shortLen;i++){
+			var node=this.shortList [i];
+			if(node.patternKey[0]==NodeType.Happy){
+				return node;
+			}
+		}
+		return node;
+	}
+
 	__proto.dataIn=function(node){
 		if(!this.inFocus){
 			if(!node.patternKey){
 				node.updatePatternKey();
 			}
-			Net.inst.add(node);
+			this.addToShortList(node);
+		}else {}
+	}
+
+	// 如果 isFocus ，则直接忽略输入的 node
+	__proto.addToShortList=function(node){
+		this.shortList.unshift(node);
+		while(this.shortList.length > this.shortListMaxLen){
+			this.shortList.pop();
 		}
 	}
 
@@ -103339,6 +103297,7 @@ var MainPanel=(function(_super){
 		var theNode=(nut.data);
 		var distNode=theNode.getSubNodeByPatternKey(NodeType.Distance);
 		distNode.value=this.getDistance(this.v.m_container.m_bird,nut);
+		console.log("更新距离完毕:",distNode.value);
 	}
 
 	__proto.AniEndFun=function(){

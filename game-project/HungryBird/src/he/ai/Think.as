@@ -47,8 +47,33 @@ package he.ai
 	{
 		public function Think()
 		{
-			// todo
+			Laya.timer.loop(thinkLoopTimeInterval,this,loop)
 		}
+		
+		/**
+		 * 思考循环
+		 */
+		private function loop():void {
+			var happyNode:Node = searchByPattern(NodeType.Happy);
+			if(happyNode){
+				// todo: 如果找到上帝设定的 “快乐” 节点 ，则将快乐节点附近（发生时间接近）的节点与快乐节点关联，并加强其强度。（抽象加强）
+				// todo: 再从记忆中找出之前与 “快乐” 节点关联的节点，检查是否需要有抑制的节点。（抽象抑制）
+				// todo: 创建时间节点。（可能有用，比如描述等待）
+				// todo: 尝试主动复现产生 “快乐” 节点的各种子节点（具象输出）。
+			}
+		}
+		
+		private function searchByPattern(pattern:String):Node {
+			var shortLen:uint = shortList.length;
+			for (var i:int = 0; i < shortLen; i++) {
+				var node:Node = shortList[i] as Node;
+				if(node.patternKey[0] == NodeType.Happy){
+					return node;
+				}
+			}
+			return node;
+		}
+		
 		private static var _instance:Think;
 
 		public static function get inst():Think
@@ -65,10 +90,23 @@ package he.ai
 				if(!node.patternKey){
 					node.updatePatternKey();
 				}
-				Net.inst.add(node);
+				addToShortList(node);
+			}else {
+				// 如果 isFocus ，则直接忽略输入的 node
 			}
 		}
-		
+
+		private function addToShortList(node:Node):void {
+			shortList.unshift(node);
+			while(shortList.length > shortListMaxLen){
+				shortList.pop();
+			}
+		}
+		public var thinkLoopTimeInterval:int = 100; //每隔多久思考一次，思考时间间隔，单位（毫秒）。
+		public var shortListMaxLen:int = 100;
+		//短期记忆列表，如果注意力不在 focusList，则在 shortList 这个列表。从中筛选有价值的，通过 Net.inst.add(node); 放入记忆。
+		public var shortList:Vector.<Node> = new Vector.<Node>();
+
 		//专注列表，此列表中的节点，会被大脑集中计算，其它节点有可能会被忽略。
 		public var focusList:Vector.<Node> = new Vector.<Node>();
 		
