@@ -75,8 +75,8 @@ import he.ai.Node;
 		}
 		
 		private function searchByPattern(theList:Vector.<Node>,pattern:String):Node {
-			var shortLen:uint = theList.length;
-			for (var i:int = 0; i < shortLen; i++) {
+			var len:uint = theList.length;
+			for (var i:int = 0; i < len; i++) {
 				var node:Node = theList[i] as Node;
 				if(node.patternKey[0] == NodeType.Happy){
 					return node;
