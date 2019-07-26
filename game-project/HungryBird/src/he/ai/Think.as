@@ -56,8 +56,13 @@ import he.ai.Node;
 		 * 思考循环
 		 */
 		private function loop():void {
-			var theList = inFocus? focusList: shortList; // focus 模式，暂时用于教育模式，排除其它一切不相关噪音。
-			var happyNode:Node = searchByPattern(theList,NodeType.Happy); //todo: “快乐” 是否应该用 <紧急>和<重要> 替代，后者是否是更层次的节点？ AGI 是否需要<快乐>和<痛苦>？
+			
+			// focus 模式，暂时用于教育模式，排除其它一切不相关噪音。
+			var theList = inFocus? focusList: shortList;
+			
+			//todo: “快乐” 是否应该用 <紧急>和<重要> 替代，后者是否是更层次的节点？ AGI 是否需要<快乐>和<痛苦>？
+			var happyNode:Node = searchByPattern(theList,NodeType.Happy);
+			
 			if(happyNode){
 				// todo: 如果找到上帝（人类）设定的 “快乐” 节点 ，则将快乐节点附近（发生时间接近）的节点与快乐节点关联，并加强其强度。（抽象加强）
 				// todo: 再从记忆中找出之前与 “快乐” 节点关联的节点，检查是否需要有抑制的节点。（抽象抑制）
