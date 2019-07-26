@@ -1,6 +1,8 @@
 package he.ai
 {
-	/**
+import he.ai.Node;
+
+/**
 	 * Think 思维控制器，负责对记忆数据进行循环控制、推理、更新。让静态的记忆活起来的关键。
 	 * 
 	 * 详情请看如下链接：
@@ -54,22 +56,23 @@ package he.ai
 		 * 思考循环
 		 */
 		private function loop():void {
-			var happyNode:Node = searchByPattern(NodeType.Happy);
+			var theList = inFocus? focusList: shortList; // focus 模式，暂时用于教育模式，排除其它一切不相关噪音。
+			var happyNode:Node = searchByPattern(theList,NodeType.Happy); //todo: “快乐” 是否应该用 <紧急>和<重要> 替代，后者是否是更层次的节点？ AGI 是否需要<快乐>和<痛苦>？
 			if(happyNode){
-				// todo: 如果找到上帝设定的 “快乐” 节点 ，则将快乐节点附近（发生时间接近）的节点与快乐节点关联，并加强其强度。（抽象加强）
+				// todo: 如果找到上帝（人类）设定的 “快乐” 节点 ，则将快乐节点附近（发生时间接近）的节点与快乐节点关联，并加强其强度。（抽象加强）
 				// todo: 再从记忆中找出之前与 “快乐” 节点关联的节点，检查是否需要有抑制的节点。（抽象抑制）
 				// todo：尝试进行抽象，精简快乐节点与其它节点的关系。并存储到记忆中。
 			}else {
 				// todo: 如果没有直接的 “快乐” 节点，则执行抽象，并联想，查找与快乐相关的模式的节点。
-				// todo: 继续尝试进行联想抽象，比较各种快乐模式，该增强的增强，该削弱的削弱，并存储记忆。
+				// todo: 继续尝试进行联想抽象，比较各种快乐模式，重新设定快乐阈值（提高或降低阈值，不超过某个阈值不激活），该增强的增强，该削弱的削弱，并存储记忆。
 			}
 			// todo: 尝试主动复现产生 “快乐” 节点的各种子节点（具象输出）。
 		}
 		
-		private function searchByPattern(pattern:String):Node {
-			var shortLen:uint = shortList.length;
+		private function searchByPattern(theList:Vector.<Node>,pattern:String):Node {
+			var shortLen:uint = theList.length;
 			for (var i:int = 0; i < shortLen; i++) {
-				var node:Node = shortList[i] as Node;
+				var node:Node = theList[i] as Node;
 				if(node.patternKey[0] == NodeType.Happy){
 					return node;
 				}
